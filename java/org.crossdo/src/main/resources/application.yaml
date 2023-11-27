@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: cross-do
+  profiles:
+    active: dev
+server:
+  port: 8080
