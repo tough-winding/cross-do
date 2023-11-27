@@ -62,6 +62,15 @@ void init_logging(struct db_config *cfg) {
 void log_error(const char *message) {
     log4c_category_log(log4c_category_get("database_operation_interface.error"), LOG4C_PRIORITY_ERROR, "%s", message);
 }
+void log_warn(const char *message) {
+    log4c_category_log(log4c_category_get("database_operation_interface.warn"), LOG4C_PRIORITY_WARN, "%s", message);
+}
+void log_info(const char *message) {
+    log4c_category_log(log4c_category_get("database_operation_interface.debug"), LOG4C_PRIORITY_DEBUG, "%s", message);
+}
+void log_debug(const char *message) {
+    log4c_category_log(log4c_category_get("database_operation_interface.info"), LOG4C_PRIORITY_INFO, "%s", message);
+}
 
 // load_config函数作用是读取配置文件，并赋值
 int load_config(struct db_config *cfg) {
@@ -69,6 +78,7 @@ int load_config(struct db_config *cfg) {
     if (database_operation_interface_conf == NULL) {
         return 0;
     }
+
     yaml_parser_t parser;
     yaml_event_t event;
 
@@ -153,7 +163,7 @@ int load_config(struct db_config *cfg) {
                 current_key = strdup((char *)event.data.scalar.value);
                 // 如果 current_key 不是db_config结构体里声明的已知的键，则释放它
                 if (!is_known_key(current_key)) {
-                    log_error("Unknown key in config file");
+                    log_warn("Unknown key in config file: %s", current_key);
                     free(current_key);
                     in_key = 0;
                 } else {
@@ -165,6 +175,7 @@ int load_config(struct db_config *cfg) {
         // 释放当前事件
         yaml_event_delete(&event);
     }
+
     // 释放yaml解析器
     yaml_parser_delete(&parser);
     fclose(database_operation_interface_conf);
@@ -195,7 +206,8 @@ void initialize_conn_pool(struct db_config *cfg) {
             log_error("mysql_init() failed");
             exit(EXIT_FAILURE);
         }
-        // Connect to the database
+
+        // 建立数据库连接
         if (mysql_real_connect(con, cfg->database_ip, cfg->database_privilege_user,
                                cfg->database_privilege_password, cfg->user_database_name, atoi(cfg->database_port), NULL, 0) == NULL) {
             log_error("mysql_real_connect() failed");
@@ -223,6 +235,7 @@ MYSQL *get_connection_from_pool(struct db_config *cfg, int index) {
         reinitialize_conn_pool(cfg, index);
         con = conn_pool[index];
     }
+
     return con;
 }
 
@@ -234,21 +247,27 @@ void reinitialize_conn_pool(struct db_config *cfg, int index) {
         log_error("mysql_init() failed");
         exit(EXIT_FAILURE);
     }
+
     if (mysql_real_connect(con, cfg->database_ip, cfg->database_privilege_user,
                            cfg->database_privilege_password, cfg->user_database_name, atoi(cfg->database_port), NULL, 0) == NULL) {
         log_error("mysql_real_connect() failed");
         mysql_close(con);
         exit(EXIT_FAILURE);
     }
+
     conn_pool[index] = con;
 }
 
+
 // 添加用户的虚拟路径执行函数
+// watting to do（样例，后续按需添加相应函数）
 void add_user_from_pool_cb(struct evhttp_request *req, void *arg) {
+    // 解析 HTTP 请求中的查询字符串并存储在 headers 结构体中
     struct evkeyvalq headers;
     evhttp_parse_query_str(evhttp_uri_get_query(evhttp_request_get_evhttp_uri(req)), &headers);
-    
+
     // 从 Authorization 头部读取 token 并鉴权，目前由于还没写鉴权逻辑，所以暂且为把token写死
+    // watting to do（后续要改成动态鉴权）
     const char *token = evhttp_find_header(&headers, "Authorization");
     if (token == NULL || strcmp(token, "Bearer YOUR_ACCESS_TOKEN") != 0) {
         evhttp_send_reply(req, 401, "Unauthorized", NULL);
@@ -263,18 +282,19 @@ void add_user_from_pool_cb(struct evhttp_request *req, void *arg) {
     data[len] = '\0';
 
     json_error_t json_err;
-    json_t *root = json_loads(data, 0, &json_err);
-    if (!root) {
+    json_t *json_root = json_loads(data, 0, &json_err);
+    if (!json_root) {
         evhttp_send_reply(req, 400, "Bad Request", NULL);
         return;
     }
 
-    json_t *user_json = json_object_get(root, "user");
-    json_t *password_json = json_object_get(root, "password");
+    json_t *user_json = json_object_get(json_root, "user");
+    json_t *password_json = json_object_get(json_root, "password");
 
     if (!json_is_string(user_json) || !json_is_string(password_json)) {
-        evhttp_send_reply(req, 500, "Internal Server Error", NULL);
-        json_decref(root);
+        log_error("Invalid JSON data received. Expecting string types for 'user' and 'password'.");
+        evhttp_send_reply(req, 400, "Bad Request", NULL);
+        json_decref(json_root);
         return;
     }
 
@@ -291,15 +311,17 @@ void add_user_from_pool_cb(struct evhttp_request *req, void *arg) {
     evhttp_send_reply(req, HTTP_OK, "OK", NULL);
 }
 
+
 // 添加用户的sql数据化输出
+// watting to do（样例，后续按需添加相应sql函数）
 void add_user_from_pool(MYSQL *mysql, char *username, char *password) {
     MYSQL_STMT *stmt;
     MYSQL_BIND bind[2];
     memset(bind, 0, sizeof(bind));
-    
+
     stmt = mysql_stmt_init(mysql);
     if (mysql_stmt_prepare(stmt, "INSERT INTO users (username, password) VALUES (?, ?)", -1)) {
-        log_error("Failed to prepare statement");
+        log_error("Failed to prepare statement: add_user_from_pool");
         return;
     }
 
@@ -310,16 +332,17 @@ void add_user_from_pool(MYSQL *mysql, char *username, char *password) {
     bind[1].buffer = password;
     bind[1].buffer_length = strlen(password);
     
-    if (mysql_stmt_bind_param(stmt, bind)) {
-        log_error("Failed to bind parameters");
+    int tmp_result = mysql_stmt_bind_param(stmt, bind);
+    if (tmp_result != 0) {
+        log_error("Failed to bind param: %s", mysql_stmt_error(stmt, bind));
         return;
     }
     
     if (mysql_stmt_execute(stmt)) {
-        log_error("Failed to execute query");
+        log_error("Failed to execute add_user_from_pool: %s", mysql_stmt_error(stmt));
         return;
     }
-    
+
     mysql_stmt_close(stmt);
 }
 
@@ -340,26 +363,28 @@ int main() {
     
     initialize_conn_pool(&cfg);
 
-
-
     // 路径路由
     evhttp_set_cb(http_server, "/add_user_from_pool", add_user_from_pool_cb, NULL);
 
     // 绑定到 0.0.0.0:server_port
     if (evhttp_bind_socket(http_server, "0.0.0.0", cfg->server_port) != 0) {
         // 这里后面要补错误处理逻辑
+        // watting to do
         return 1;
     }
 
+
+    // 启动事件循环
     event_base_dispatch(base);
 
+    // 释放 libevent 和 libevhttp 资源
     evhttp_free(http_server);
     event_base_free(base);
 
 
-    add_user_from_pool(mysql, "test_user", "test_password");
+    // add_user_from_pool(mysql, "test_user", "test_password");
 
-
+    // 销毁数据库连接池和释放配置资源
     destroy_conn_pool();
     free_config(&cfg);
     
