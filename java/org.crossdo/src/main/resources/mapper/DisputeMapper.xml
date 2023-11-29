@@ -4,17 +4,18 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.crossdo.mapper.DisputeMapper">
 
-    <resultMap id="BaseResultMap" type="entity.org/crossdo.Dispute">
-            <id property="currentDisputeId" column="current_dispute_id" jdbcType="CHAR"/>
-            <result property="disputeTypes" column="dispute_types" jdbcType="INTEGER"/>
-            <result property="userId" column="user_id" jdbcType="CHAR"/>
-            <result property="projectId" column="project_id" jdbcType="CHAR"/>
-            <result property="disputeStatus" column="dispute_status" jdbcType="INTEGER"/>
-            <result property="reason" column="reason" jdbcType="VARCHAR"/>
+    <resultMap id="BaseResultMap" type="org.crossdo.entity.Dispute">
+        <id property="currentDisputeId" column="current_dispute_id" jdbcType="CHAR"/>
+        <result property="disputeTypes" column="dispute_types" jdbcType="INTEGER"/>
+        <result property="userId" column="user_id" jdbcType="CHAR"/>
+        <result property="projectId" column="project_id" jdbcType="CHAR"/>
+        <result property="disputeStatus" column="dispute_status" jdbcType="INTEGER"/>
+        <result property="reason" column="reason" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        current_dispute_id,dispute_types,user_id,
+        current_dispute_id
+        ,dispute_types,user_id,
         project_id,dispute_status,reason
     </sql>
 </mapper>
