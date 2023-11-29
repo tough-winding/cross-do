@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.crossdo.mapper.PermissionGroupMapper">
+
+    <resultMap id="BaseResultMap" type="entity.org/crossdo.PermissionGroup">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="groupName" column="group_name" jdbcType="VARCHAR"/>
+            <result property="groupIllustrate" column="group_illustrate" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,group_name,group_illustrate
+    </sql>
+</mapper>
