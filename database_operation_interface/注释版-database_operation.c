@@ -1,6 +1,8 @@
 // 整体目的：控制数据库的增删改查操作，均由该服务提供，对外发布socket服务
 // 访问方式为 curl -X POST "http://1.1.1.1:19000/add_user_from_pool" -H "Authorization: This_is_TOKENTOKENTOKEN" -H "Content-Type: application/json" -d '{"user":"test_user", "password":"12345"}'
 // add_user_from_pool函数的输入参数为user password 两个字符串类型
+// 以下注释均由ChatGPT4生成，不保证准确性，仅供参考
+// 目前该注释版和最新代码存在DIFF，后续定版后再重新生成该注释版
 
 #include <stdio.h>      // 标准输入输出库，例如 printf, scanf 等
 #include <stdlib.h>     // 标准库，例如 malloc, free 等
