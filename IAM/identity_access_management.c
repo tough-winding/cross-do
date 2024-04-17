@@ -1,19 +1,32 @@
 // 整体目的：用以给服务间通讯的各个组件生成请求用token，对内发布socket
-// 访问方式样例：curl -X GET "http://192.168.1.1:10089/get_token/?service_username=billing&encrypt_str=1asdwn1jn2ezlflaw1nj231&date=2023-12-12%2010:39:07"
+// 编译命令： gcc -o identity_access_management.exe identity_access_management.c -lyaml -lhiredis -lcurl -levent -levent_pthreads -lssl -lcrypto -lpthread -lzlog -luuid -ljansson -std=c99
+/*
+    访问接口样例及返回体样例
+    REQUEST:    根据加密串和service服务名，时间戳，来获取30分钟时限的token
+                curl -X POST "http://服务IP:服务域名/get_token" -H "Content-Type: application/json" -d '{"service_username":"要获取token的服务名", "encrypt_str":"加密计算后的字符串", "date": "时间戳"}'
+                curl -X POST "http://192.168.1.10:10089/get_token" -H "Content-Type: application/json" -d '{"service_username":"ftp", "encrypt_str":"68a165f5db68a8202e6e334f216ad9f74309dfebfb4395f2fd776af87b98b493", "date": "2024-04-16 17:20:10"}'
+    200RETURN:  {"Token":"sdkRQIWSshA99J5gYE69Vl3sCV4K66by"}
+*/
+#define _POSIX_C_SOURCE 200809L
+#include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <yaml.h>
 #include <hiredis/hiredis.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <curl/curl.h>
-#include <json-c/json.h>
 #include <openssl/sha.h>
 #include <event2/event.h>
 #include <event2/http.h>
 #include <event2/buffer.h>
 #include <event2/keyvalq_struct.h>
 #include <pthread.h>
+#include <zlog.h>
+#include <uuid/uuid.h>
+#include <jansson.h>
+
 // libvent多线程支持头文件
 // #include <event2/thread.h>
 
@@ -22,83 +35,96 @@
 // 未来要改为https
 // 目前错误日志为标准错误输出来测试，后续要用log4c
 // 大部分注释为通过ChatGPT4添加，不保证准确性，仅供参考，后续会手工写下本文件注释，并由ChatGPT4生成一个逐行注释版，类似database的那个注释版用于各位参考。
-// 后续会规范下变量名，重新调整下，目前仅做功能实现
+/*
+变量命名要求如下：
+    函数        模块名缩写(全大写)_FUN_函数名(大驼峰命名)
+    常量        模块名缩写(全大写)_CON_常量名(小驼峰命名)
+    全局变量    模块名缩写(全大写)_GLV_变量名(小驼峰命名)
+    变量        模块名缩写(全大写)_VAR_函数名(大驼峰命名)_变量名(小驼峰命名)
+*/
 
 
-#define TOKEN_LENGTH 32 
-char* global_b_service_token = NULL; 
-redisContext* redis_ctx = NULL;
-pthread_mutex_t redis_ctx_mutex = PTHREAD_MUTEX_INITIALIZER;
-
-typedef struct RedisConfig {
-    char* server;
-    char* port;
-    char* password;
-} RedisConfig;
-
-typedef struct DBOPServiceConfig {
-    char* url;
-    char* port;
-} DBOPServiceConfig;
+#define IAM_CON_tokenLength 32 
+char* IAM_GLV_selfUseToken = NULL; 
+redisContext* IAM_GLV_redisConnection = NULL;
+pthread_mutex_t IAM_GLV_redisConnection_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 typedef struct {
-    RedisConfig redis_config;
-    DBOPServiceConfig dbop_service_config;
-    char* server_ip;
-    char* server_port;
+    char* IAM_GLV_redisServerIp;
+    char* IAM_GLV_redisServerPort;
+    char* IAM_GLV_redisServerPassword;
+    char* IAM_GLV_dbopServiceHost;
+    char* IAM_GLV_dbopServicePort;
+    char* IAM_GLV_serverIp;
+    char* IAM_GLV_serverPort;
+    char* IAM_GLV_logConfig;
 } AppConfig;
 
-
-// 函数来解析配置文件
-// 正确返回为config字典，错误返回为NULL，或终止服务
-AppConfig parse_config(const char* filename) {
-    FILE *fh = fopen(filename, "r");
-    yaml_parser_t parser;
-    yaml_event_t event;
-
-    if (!yaml_parser_initialize(&parser)) {
-        fprintf(stderr, "Failed to initialize parser\n");
+// 初始化dzlog
+void IAM_FUN_InitLogging(AppConfig *IAM_VAR_InitLogging_cfg) {
+    int rc;
+    rc = dzlog_init(IAM_VAR_InitLogging_cfg->IAM_GLV_logConfig, "whatever");
+    if (rc) {
+        fprintf(stderr, "zlog init failed\n");
         exit(EXIT_FAILURE);
     }
-    if (fh == NULL) {
+}
+
+struct event *IAM_GLV_tokenRefreshEvent;
+
+
+// 解析配置文件
+// 正确返回为config字典，错误返回为NULL，或终止服务
+AppConfig IAM_FUN_MainConfigParse(const char* filename) {
+    FILE *IAM_VAR_MainConfigParse_fileHandle = fopen(filename, "r");
+    yaml_parser_t IAM_VAR_MainConfigParse_yamlParser;
+    yaml_event_t IAM_VAR_MainConfigParse_yamlEvent;
+
+    if (!yaml_parser_initialize(&IAM_VAR_MainConfigParse_yamlParser)) {
+        fprintf(stderr, "Failed to initialize IAM_VAR_MainConfigParse_yamlParser\n");
+        exit(EXIT_FAILURE);
+    }
+    if (IAM_VAR_MainConfigParse_fileHandle == NULL) {
         fprintf(stderr, "Failed to open file\n");
         exit(EXIT_FAILURE);
     }
-    yaml_parser_set_input_file(&parser, fh);
+    yaml_parser_set_input_file(&IAM_VAR_MainConfigParse_yamlParser, IAM_VAR_MainConfigParse_fileHandle);
 
-    AppConfig config = {0};
-    char* current_key = NULL;
+    AppConfig IAM_VAR_MainConfigParse_mainConfig = {0};
+    char* IAM_VAR_MainConfigParse_currentKey = NULL;
 
     // 解析YAML文件
     bool done = false;
     while (!done) {
-        if (!yaml_parser_parse(&parser, &event)) {
+        if (!yaml_parser_parse(&IAM_VAR_MainConfigParse_yamlParser, &IAM_VAR_MainConfigParse_yamlEvent)) {
             fprintf(stderr, "Parser error\n");
             exit(EXIT_FAILURE);
         }
 
-        switch(event.type) {
+        switch(IAM_VAR_MainConfigParse_yamlEvent.type) {
         case YAML_SCALAR_EVENT:
-            if (current_key) {
-                if (strcmp(current_key, "redis_server") == 0) {
-                    config.redis_config.server = strdup((char*)event.data.scalar.value);
-                } else if (strcmp(current_key, "redis_port") == 0) {
-                    config.redis_config.port = strdup((char*)event.data.scalar.value);
-                } else if (strcmp(current_key, "redis_passwd") == 0) {
-                    config.redis_config.password = strdup((char*)event.data.scalar.value);
-                } else if (strcmp(current_key, "dbop_service_url") == 0) {
-                    config.dbop_service_config.url = strdup((char*)event.data.scalar.value);
-                } else if (strcmp(current_key, "dbop_service_port") == 0) {
-                    config.dbop_service_config.port = strdup((char*)event.data.scalar.value);
-                } else if (strcmp(current_key, "server_ip") == 0) {
-                    config.server_ip = strdup((char*)event.data.scalar.value);
-                } else if (strcmp(current_key, "server_port") == 0) {
-                    config.server_port = strdup((char*)event.data.scalar.value);
+            if (IAM_VAR_MainConfigParse_currentKey) {
+                if (strcmp(IAM_VAR_MainConfigParse_currentKey, "redis_server") == 0) {
+                    IAM_VAR_MainConfigParse_mainConfig.IAM_GLV_redisServerIp = strdup((char*)IAM_VAR_MainConfigParse_yamlEvent.data.scalar.value);
+                } else if (strcmp(IAM_VAR_MainConfigParse_currentKey, "redis_port") == 0) {
+                    IAM_VAR_MainConfigParse_mainConfig.IAM_GLV_redisServerPort = strdup((char*)IAM_VAR_MainConfigParse_yamlEvent.data.scalar.value);
+                } else if (strcmp(IAM_VAR_MainConfigParse_currentKey, "redis_password") == 0) {
+                    IAM_VAR_MainConfigParse_mainConfig.IAM_GLV_redisServerPassword = strdup((char*)IAM_VAR_MainConfigParse_yamlEvent.data.scalar.value);
+                } else if (strcmp(IAM_VAR_MainConfigParse_currentKey, "dbop_service_url") == 0) {
+                    IAM_VAR_MainConfigParse_mainConfig.IAM_GLV_dbopServiceHost = strdup((char*)IAM_VAR_MainConfigParse_yamlEvent.data.scalar.value);
+                } else if (strcmp(IAM_VAR_MainConfigParse_currentKey, "dbop_service_port") == 0) {
+                    IAM_VAR_MainConfigParse_mainConfig.IAM_GLV_dbopServicePort = strdup((char*)IAM_VAR_MainConfigParse_yamlEvent.data.scalar.value);
+                } else if (strcmp(IAM_VAR_MainConfigParse_currentKey, "server_ip") == 0) {
+                    IAM_VAR_MainConfigParse_mainConfig.IAM_GLV_serverIp = strdup((char*)IAM_VAR_MainConfigParse_yamlEvent.data.scalar.value);
+                } else if (strcmp(IAM_VAR_MainConfigParse_currentKey, "server_port") == 0) {
+                    IAM_VAR_MainConfigParse_mainConfig.IAM_GLV_serverPort = strdup((char*)IAM_VAR_MainConfigParse_yamlEvent.data.scalar.value);
+                } else if (strcmp(IAM_VAR_MainConfigParse_currentKey, "log_config") == 0) {
+                    IAM_VAR_MainConfigParse_mainConfig.IAM_GLV_logConfig = strdup((char*)IAM_VAR_MainConfigParse_yamlEvent.data.scalar.value);
                 }
-                free(current_key);
-                current_key = NULL;
+                free(IAM_VAR_MainConfigParse_currentKey);
+                IAM_VAR_MainConfigParse_currentKey = NULL;
             } else {
-                current_key = strdup((char*)event.data.scalar.value);
+                IAM_VAR_MainConfigParse_currentKey = strdup((char*)IAM_VAR_MainConfigParse_yamlEvent.data.scalar.value);
             }
             break;
         case YAML_STREAM_END_EVENT:
@@ -108,64 +134,87 @@ AppConfig parse_config(const char* filename) {
             break;
         }
 
-        yaml_event_delete(&event);
+        yaml_event_delete(&IAM_VAR_MainConfigParse_yamlEvent);
     }
 
-    yaml_parser_delete(&parser);
-    fclose(fh);
+    yaml_parser_delete(&IAM_VAR_MainConfigParse_yamlParser);
+    fclose(IAM_VAR_MainConfigParse_fileHandle);
 
-    return config;
+    return IAM_VAR_MainConfigParse_mainConfig;
 }
 
 
-// 函数来初始化和连接到Redis
-// 正确返回为redis_connect的连接，错位返回为NULL
-redisContext* initialize_redis(const RedisConfig* config) {
+// 定义redis连接池
+typedef struct {
+    redisContext** IAM_GLV_redisConnections; // 指向Redis连接的指针数组
+    int IAM_GLV_poolSize;
+    pthread_mutex_t IAM_GLV_poolMutex; // 用于同步访问的互斥锁
+} RedisPool;
+
+RedisPool* IAM_GLV_redisConnectPool = NULL;
+
+// 初始化和连接到Redis
+// 正确返回为redis_connect的连接，错误返回为NULL
+redisContext* IAM_FUN_InitializeRedis(const AppConfig* IAM_VAR_InitializeRedis_config) {
     char* endptr;
-    long port = strtol(config->port, &endptr, 10);
+    long IAM_VAR_InitializeRedis_redisPort = strtol(IAM_VAR_InitializeRedis_config->IAM_GLV_redisServerPort, &endptr, 10);
     if (*endptr != '\0') {
-        fprintf(stderr, "Invalid port number: Non-numeric characters present\n");
+        dzlog_error("Invalid port number: Non-numeric characters present.");
         return NULL;
     }
-    redisContext *redis_connect = redisConnect(config->server, (int)port);
-    if (redis_connect == NULL || redis_connect->err) {
-        if (redis_connect) {
-            fprintf(stderr, "Redis connection error: %s\n", redis_connect->errstr);
-            redisFree(redis_connect);
+    redisContext *IAM_VAR_InitializeRedis_redisConnect = redisConnect(IAM_VAR_InitializeRedis_config->IAM_GLV_redisServerIp, (int)IAM_VAR_InitializeRedis_redisPort);
+    if (IAM_VAR_InitializeRedis_redisConnect == NULL || IAM_VAR_InitializeRedis_redisConnect->err) {
+        if (IAM_VAR_InitializeRedis_redisConnect) {
+            dzlog_error("Redis connection error: %s.", IAM_VAR_InitializeRedis_redisConnect->errstr);
+            redisFree(IAM_VAR_InitializeRedis_redisConnect);
         } else {
-            fprintf(stderr, "Connection error: can't allocate redis context\n");
+            dzlog_error("Connection error: can't allocate redis context.");
         }
         return NULL;
     }
 
     // 如果提供了密码，则使用它进行认证
-    if (config->password != NULL && strlen(config->password) > 0) {
-        redisReply *reply = redisCommand(redis_connect, "AUTH %s", config->password);
+    if (IAM_VAR_InitializeRedis_config->IAM_GLV_redisServerPassword != NULL && strlen(IAM_VAR_InitializeRedis_config->IAM_GLV_redisServerPassword) > 0) {
+        redisReply *reply = redisCommand(IAM_VAR_InitializeRedis_redisConnect, "AUTH %s", IAM_VAR_InitializeRedis_config->IAM_GLV_redisServerPassword);
         if (reply->type == REDIS_REPLY_ERROR) {
-            fprintf(stderr, "Auth error: %s\n", reply->str);
+            dzlog_error("Auth error: %s.", reply->str);
             freeReplyObject(reply);
-            redisFree(redis_connect);
+            redisFree(IAM_VAR_InitializeRedis_redisConnect);
             return NULL;
         }
         freeReplyObject(reply);
     }
 
-    return redis_connect;
+    return IAM_VAR_InitializeRedis_redisConnect;
+}
+
+// 创建redis资源池
+RedisPool* IAM_FUN_InitializeRedisPool(const AppConfig* config, int poolSize) {
+    RedisPool* IAM_VAR_InitializeRedisPool_pool = (RedisPool*)malloc(sizeof(RedisPool));
+    IAM_VAR_InitializeRedisPool_pool->IAM_GLV_redisConnections = (redisContext**)malloc(sizeof(redisContext*) * poolSize);
+    IAM_VAR_InitializeRedisPool_pool->IAM_GLV_poolSize = poolSize;
+    pthread_mutex_init(&IAM_VAR_InitializeRedisPool_pool->IAM_GLV_poolMutex, NULL);
+
+    for (int i = 0; i < poolSize; i++) {
+        IAM_VAR_InitializeRedisPool_pool->IAM_GLV_redisConnections[i] = IAM_FUN_InitializeRedis(config);
+    }
+
+    return IAM_VAR_InitializeRedisPool_pool;
 }
 
 
 // 检查redis是否可用，如果不可用则重新初始化redis连接
 // 正常返回true，异常且重新初始化redis连接失败则停止服务运行
-bool check_and_reinitialize_redis(AppConfig *app_config) {
-    // 使用互斥锁，让check_and_reinitialize_redis永远单线程执行
-    pthread_mutex_lock(&redis_ctx_mutex);
+bool IAM_FUN_CheckAndReinitializeRedis(const AppConfig* IAM_VAR_CheckAndReinitializeRedis_config, int IAM_VAR_CheckAndReinitializeRedis_index) {
+    // 使用互斥锁，让IAM_FUN_CheckAndReinitializeRedis永远单线程执行
+    pthread_mutex_lock(&IAM_GLV_redisConnection_mutex);
     // 使用一个简单的命令来检查Redis连接
-    if (redis_ctx != NULL) {
-        redisReply *reply = redisCommand(redis_ctx, "PING");
+    if (IAM_GLV_redisConnectPool->IAM_GLV_redisConnections[IAM_VAR_CheckAndReinitializeRedis_index] != NULL) {
+        redisReply *reply = redisCommand(IAM_GLV_redisConnectPool->IAM_GLV_redisConnections[IAM_VAR_CheckAndReinitializeRedis_index], "PING");
         if (reply != NULL && reply->type != REDIS_REPLY_ERROR) {
             freeReplyObject(reply);
             // 解除互斥锁
-            pthread_mutex_unlock(&redis_ctx_mutex);
+            pthread_mutex_unlock(&IAM_GLV_redisConnection_mutex);
             return true;
         }
         // 清理失败的回复
@@ -175,375 +224,385 @@ bool check_and_reinitialize_redis(AppConfig *app_config) {
     }
 
     // 连接不可用，释放旧的连接
-    if (redis_ctx != NULL) {
-        redisFree(redis_ctx);
-        redis_ctx = NULL;
+    if (IAM_GLV_redisConnectPool->IAM_GLV_redisConnections[IAM_VAR_CheckAndReinitializeRedis_index] != NULL) {
+        redisFree(IAM_GLV_redisConnectPool->IAM_GLV_redisConnections[IAM_VAR_CheckAndReinitializeRedis_index]);
+        IAM_GLV_redisConnectPool->IAM_GLV_redisConnections[IAM_VAR_CheckAndReinitializeRedis_index] = NULL;
     }
 
     // 尝试重新初始化Redis连接
-    redis_ctx = initialize_redis(&app_config->redis_config);
-    if (redis_ctx == NULL || redis_ctx->err) {
+    IAM_GLV_redisConnectPool->IAM_GLV_redisConnections[IAM_VAR_CheckAndReinitializeRedis_index] = IAM_FUN_InitializeRedis(IAM_VAR_CheckAndReinitializeRedis_config);
+    if (IAM_GLV_redisConnectPool->IAM_GLV_redisConnections[IAM_VAR_CheckAndReinitializeRedis_index] == NULL || IAM_GLV_redisConnectPool->IAM_GLV_redisConnections[IAM_VAR_CheckAndReinitializeRedis_index]->err) {
         // 如果初始化失败，记录错误并终止服务
-        fprintf(stderr, "Failed to reinitialize Redis connection. Stopping service.\n");
+        dzlog_error("Failed to reinitialize Redis connection. Stopping service.");
         exit(EXIT_FAILURE);
     }
 
     // 解除互斥锁
-    pthread_mutex_unlock(&redis_ctx_mutex);
+    pthread_mutex_unlock(&IAM_GLV_redisConnection_mutex);
     return true;
 }
 
 
 // 随机生成token字符串
 // 正确返回token字符串，唯一出错的可能就是malloc分配内存失败，那会返回NULL
-char* generate_random_token(int length) {
-    static const char alphanum[] =
+char* IAM_FUN_GenerateRandomToken(int IAM_VAR_GenerateRandomToken_length) {
+    static const char IAM_CON_alphanum[] =
         "0123456789"
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         "abcdefghijklmnopqrstuvwxyz";
 
-    char* token = malloc(length + 1);
+    char* IAM_VAR_GenerateRandomToken_newToken = malloc(IAM_VAR_GenerateRandomToken_length + 1);
 
-    if (token) {
-        for (int i = 0; i < length; ++i) {
-            token[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
+    if (IAM_VAR_GenerateRandomToken_newToken) {
+        for (int i = 0; i < IAM_VAR_GenerateRandomToken_length; ++i) {
+            IAM_VAR_GenerateRandomToken_newToken[i] = IAM_CON_alphanum[rand() % (sizeof(IAM_CON_alphanum) - 1)];
         }
-        token[length] = '\0';
+        IAM_VAR_GenerateRandomToken_newToken[IAM_VAR_GenerateRandomToken_length] = '\0';
     }
 
-    return token;
+    return IAM_VAR_GenerateRandomToken_newToken;
 }
 
 
 // 生成token并存储到redis
 // 正确返回为token字符串，错误返回为NULL
-char* generate_and_store_token(const AppConfig* app_config, const char* service_username) {
+char* IAM_FUN_GenerateAndStoreToken(const AppConfig* IAM_VAR_GenerateAndStoreToken_config, const char* IAM_VAR_GenerateAndStoreToken_serviceUsername, const char* IAM_VAR_GenerateAndStoreToken_requestId) {
+    int IAM_VAR_AuthenticateRequest_index = rand() % 10;
     // 快速检查Redis连接状态
-    if (redis_ctx == NULL || redis_ctx->err) {
-        // 如果连接无效，调用check_and_reinitialize_redis来尝试恢复连接
-        if (!check_and_reinitialize_redis(app_config)) {
+    if (IAM_GLV_redisConnectPool->IAM_GLV_redisConnections[IAM_VAR_AuthenticateRequest_index] == NULL || IAM_GLV_redisConnectPool->IAM_GLV_redisConnections[IAM_VAR_AuthenticateRequest_index]->err) {
+        // 如果连接无效，调用IAM_FUN_CheckAndReinitializeRedis来尝试恢复连接
+        if (!IAM_FUN_CheckAndReinitializeRedis(IAM_VAR_GenerateAndStoreToken_config, IAM_VAR_AuthenticateRequest_index)) {
             // 如果连接仍然无法恢复，处理错误
-            fprintf(stderr, "Redis operation failed: Redis connection cannot be established.\n");
-            return;
+            dzlog_error("[%s]Redis operation failed: Redis connection cannot be established.", IAM_VAR_GenerateAndStoreToken_requestId);
+            return NULL;
         }
     }
 
-    char* token = generate_random_token(TOKEN_LENGTH);
-    if (!token) {
-        fprintf(stderr, "Failed to generate token.\n");
+    char* IAM_VAR_GenerateAndStoreToken_newToken = IAM_FUN_GenerateRandomToken(IAM_CON_tokenLength);
+    if (!IAM_VAR_GenerateAndStoreToken_newToken) {
+        dzlog_error("[%s]Failed to generate token, service name: %s", IAM_VAR_GenerateAndStoreToken_requestId, IAM_VAR_GenerateAndStoreToken_serviceUsername);
         return NULL;
     }
 
     // 存储token到redis
-    redisReply* reply = redisCommand(redis_ctx, "SETEX token:%s 1800 %s", service_username, token);
+    redisReply* reply = redisCommand(IAM_GLV_redisConnectPool->IAM_GLV_redisConnections[IAM_VAR_AuthenticateRequest_index], "SETEX %s 1800 %s", IAM_VAR_GenerateAndStoreToken_serviceUsername, IAM_VAR_GenerateAndStoreToken_newToken);
     if (reply->type == REDIS_REPLY_ERROR) {
-        fprintf(stderr, "Redis error: %s\n", reply->str);
+        dzlog_error("[%s]Error reported when writing service name %s to Redis: %s", IAM_VAR_GenerateAndStoreToken_requestId, IAM_VAR_GenerateAndStoreToken_serviceUsername, reply->str);
         free(reply);
         return NULL;
     } else {
-        printf("Token generated and stored successfully for %s: %s\n", service_username, token);
+        dzlog_debug("[%s]Token generated and stored successfully for service name: %s", IAM_VAR_GenerateAndStoreToken_requestId, IAM_VAR_GenerateAndStoreToken_serviceUsername);
     }
     
     free(reply);
-    return(token);
+    return(IAM_VAR_GenerateAndStoreToken_newToken);
 }
 
 
 // 加密验证，加密方式和请求服务传过来的鉴权加密方式相同
 // 正确返回为一个加密后的十六进制字符串（service名+service密码+时间戳），错误返回为NULL
-char* encrypt_string(const char* service_name, const char* service_passwd, const char* timestamp) {
+char* IAM_FUN_EncryptString(const char* IAM_VAR_EncryptString_serviceName, const char* IAM_VAR_EncryptString_servicePasswd, const char* IAM_VAR_EncryptString_timeStamp, const char* IAM_VAR_EncryptString_requestId) {
     // 计算输入字符串的长度并分配足够的空间，加2是因为两个加号
-    size_t len = strlen(service_name) + strlen(service_passwd) + strlen(timestamp) + 2;
-    char* input = malloc(len + 1);
-    if (input == NULL) {
-        fprintf(stderr, "encrypt_string function memory allocation failed\n");
+    size_t IAM_VAR_EncryptString_len = strlen(IAM_VAR_EncryptString_serviceName) + strlen(IAM_VAR_EncryptString_servicePasswd) + strlen(IAM_VAR_EncryptString_timeStamp) + 2;
+    char* IAM_VAR_EncryptString_input = malloc(IAM_VAR_EncryptString_len + 1);
+    if (IAM_VAR_EncryptString_input == NULL) {
+        dzlog_error("[%s]IAM_FUN_EncryptString function memory allocation failed.", IAM_VAR_EncryptString_requestId);
         return NULL;
     }
 
     // 将三个字符串用加号连接
-    sprintf(input, "%s+%s+%s", service_name, service_passwd, timestamp);
+    sprintf(IAM_VAR_EncryptString_input, "%s+%s+%s", IAM_VAR_EncryptString_serviceName, IAM_VAR_EncryptString_servicePasswd, IAM_VAR_EncryptString_timeStamp);
 
     // 进行SHA-256加密
     unsigned char hash[SHA256_DIGEST_LENGTH];
-    SHA256((unsigned char*)input, strlen(input), hash);
-    free(input);
+    SHA256((unsigned char*)IAM_VAR_EncryptString_input, strlen(IAM_VAR_EncryptString_input), hash);
+    free(IAM_VAR_EncryptString_input);
 
     // 将哈希值转换为十六进制字符串
-    char* output = malloc(SHA256_DIGEST_LENGTH * 2 + 1);
-    if (output == NULL) {
-        fprintf(stderr, "encrypt_string function memory allocation failed\n");
+    char* IAM_VAR_EncryptString_output = malloc(SHA256_DIGEST_LENGTH * 2 + 1);
+    if (IAM_VAR_EncryptString_output == NULL) {
+        dzlog_error("[%s]IAM_FUN_EncryptString function memory allocation failed.", IAM_VAR_EncryptString_requestId);
         return NULL;
     }
     for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-        sprintf(output + i * 2, "%02x", hash[i]);
+        sprintf(IAM_VAR_EncryptString_output + i * 2, "%02x", hash[i]);
     }
 
-    return output;
+    return IAM_VAR_EncryptString_output;
 }
 
 
 // 验证匹配，用encrypt_string函数进行相同加密方式验算，然后与请求服务发送来的加密字符串匹配
 // 正确返回true，错误返回false
-bool verify_request(const char* encrypted_string_from_A, const char* service_name, const char* service_passwd, const char* timestamp) {
+bool IAM_FUN_VerifyRequest(const char* IAM_VAR_VerifyRequest_encryptedStringToVerified, const char* IAM_VAR_VerifyRequest_serviceName, const char* IAM_VAR_VerifyRequest_servicePasswd, const char* IAM_VAR_VerifyRequest_timeStamp, const char* IAM_VAR_VerifyRequest_requestId) {
     // 使用服务名、密码和时间戳进行加密
-    char* encrypted = encrypt_string(service_name, service_passwd, timestamp);
-    if (encrypted == NULL) {
-        fprintf(stderr, "%s service user request for token, authentication failed\n", service_name);
+    char* IAM_VAR_VerifyRequest_correctEncryptedString = IAM_FUN_EncryptString(IAM_VAR_VerifyRequest_serviceName, IAM_VAR_VerifyRequest_servicePasswd, IAM_VAR_VerifyRequest_timeStamp, IAM_VAR_VerifyRequest_requestId);
+    if (IAM_VAR_VerifyRequest_correctEncryptedString == NULL) {
+        dzlog_error("[%s]%s service user request for token, authentication failed\n", IAM_VAR_VerifyRequest_requestId, IAM_VAR_VerifyRequest_serviceName);
         return false;
     }
 
-    bool is_valid = strcmp(encrypted, encrypted_string_from_A) == 0;
+    bool IAM_VAR_VerifyRequest_isValid = strcmp(IAM_VAR_VerifyRequest_correctEncryptedString, IAM_VAR_VerifyRequest_encryptedStringToVerified) == 0;
     // 释放加密字符串
-    free(encrypted);
-    return is_valid;
+    free(IAM_VAR_VerifyRequest_correctEncryptedString);
+    return IAM_VAR_VerifyRequest_isValid;
 }
 
 
 // 用于写入响应数据的函数
-static size_t write_response(void *ptr, size_t size, size_t nmemb, char **response) {
-    size_t new_len = strlen(*response) + size * nmemb;
-    *response = realloc(*response, new_len + 1);
-    if (*response == NULL) {
-        fprintf(stderr, "write_response realloc() failed\n");
+static size_t IAM_FUN_WriteResponse(void *IAM_VAR_WriteResponse_ptr, size_t IAM_VAR_WriteResponse_size, size_t IAM_VAR_WriteResponse_nmemb, char **IAM_VAR_WriteResponse_response) {
+    size_t IAM_VAR_WriteResponse_newLen = strlen(*IAM_VAR_WriteResponse_response) + IAM_VAR_WriteResponse_size * IAM_VAR_WriteResponse_nmemb;
+    *IAM_VAR_WriteResponse_response = realloc(*IAM_VAR_WriteResponse_response, IAM_VAR_WriteResponse_newLen + 1);
+    if (*IAM_VAR_WriteResponse_response == NULL) {
+        dzlog_error("IAM_FUN_WriteResponse realloc() failed\n");
         exit(EXIT_FAILURE);
     }
-    memcpy(*response + strlen(*response), ptr, size * nmemb);
-    (*response)[new_len] = '\0';
-    return size * nmemb;
+    memcpy(*IAM_VAR_WriteResponse_response + strlen(*IAM_VAR_WriteResponse_response), IAM_VAR_WriteResponse_ptr, IAM_VAR_WriteResponse_size * IAM_VAR_WriteResponse_nmemb);
+    (*IAM_VAR_WriteResponse_response)[IAM_VAR_WriteResponse_newLen] = '\0';
+    return IAM_VAR_WriteResponse_size * IAM_VAR_WriteResponse_nmemb;
 }
 
 
 // 从数据库服务获取申请token的service的密码
-char* get_service_password(const char* service_url, const char* token, const char* service_name) {
-    CURL *curl;
-    CURLcode res;
-    char *data = NULL;
-    char *response = calloc(1, 1);
+char* IAM_FUN_GetServicePassword(const char* IAM_VAR_GetServicePassword_serviceUrl, const char* IAM_VAR_GetServicePassword_token, const char* IAM_VAR_GetServicePassword_serviceName, const char* IAM_VAR_GetServicePassword_requestId) {
+    json_error_t IAM_VAR_GetTokenHandler_dataJsonError;
+    CURL *IAM_VAR_GetServicePassword_curl;
+    CURLcode IAM_VAR_GetServicePassword_res;
+    char *IAM_VAR_GetServicePassword_data = NULL;
+    char *IAM_VAR_GetServicePassword_response = calloc(1, 1);
 
     // 初始化CURL会话
-    curl = curl_easy_init();
-    if (curl) {
+    IAM_VAR_GetServicePassword_curl = curl_easy_init();
+    if (IAM_VAR_GetServicePassword_curl) {
         // 设置URL和POST数据
-        char post_data[256];
-        sprintf(post_data, "service_name=%s", service_name);
-        curl_easy_setopt(curl, CURLOPT_URL, service_url);
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_data);
+        char IAM_VAR_GetServicePassword_postData[256];
+        sprintf(IAM_VAR_GetServicePassword_postData, "{\"service_username\": \"%s\"}", IAM_VAR_GetServicePassword_serviceName);
+        curl_easy_setopt(IAM_VAR_GetServicePassword_curl, CURLOPT_URL, IAM_VAR_GetServicePassword_serviceUrl);
+        curl_easy_setopt(IAM_VAR_GetServicePassword_curl, CURLOPT_POSTFIELDS, IAM_VAR_GetServicePassword_postData);
 
         // 设置自定义标头
-        struct curl_slist *headers = NULL;
-        char auth_header[256];
-        sprintf(auth_header, "Authorization: %s", token);
-        headers = curl_slist_append(headers, auth_header);
-        headers = curl_slist_append(headers, "Content-Type: application/json");
-        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+        struct curl_slist *IAM_VAR_GetServicePassword_headers = NULL;
+        char IAM_VAR_GetServicePassword_serviceNameHeader[256];
+        char IAM_VAR_GetServicePassword_authHeader[256];
+        sprintf(IAM_VAR_GetServicePassword_serviceNameHeader, "ServiceName: IAM_SERVICE");
+        sprintf(IAM_VAR_GetServicePassword_authHeader, "Authorization: %s", IAM_VAR_GetServicePassword_token);
+        IAM_VAR_GetServicePassword_headers = curl_slist_append(IAM_VAR_GetServicePassword_headers, IAM_VAR_GetServicePassword_serviceNameHeader);
+        IAM_VAR_GetServicePassword_headers = curl_slist_append(IAM_VAR_GetServicePassword_headers, IAM_VAR_GetServicePassword_authHeader);
+        IAM_VAR_GetServicePassword_headers = curl_slist_append(IAM_VAR_GetServicePassword_headers, "Content-Type: application/json");
+        curl_easy_setopt(IAM_VAR_GetServicePassword_curl, CURLOPT_HTTPHEADER, IAM_VAR_GetServicePassword_headers);
 
         // 设置回调函数以处理响应
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_response);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+        curl_easy_setopt(IAM_VAR_GetServicePassword_curl, CURLOPT_WRITEFUNCTION, IAM_FUN_WriteResponse);
+        curl_easy_setopt(IAM_VAR_GetServicePassword_curl, CURLOPT_WRITEDATA, &IAM_VAR_GetServicePassword_response);
 
         // 发送请求
-        res = curl_easy_perform(curl);
+        IAM_VAR_GetServicePassword_res = curl_easy_perform(IAM_VAR_GetServicePassword_curl);
 
         // 检查请求返回
-        if (res != CURLE_OK) {
-            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+        if (IAM_VAR_GetServicePassword_res != CURLE_OK) {
+            dzlog_error("[%s]curl_easy_perform() failed: %s\n", IAM_VAR_GetServicePassword_requestId, curl_easy_strerror(IAM_VAR_GetServicePassword_res));
         } else {
             // 分析JSON响应
-            struct json_object *parsed_json;
-            struct json_object *service_passwd;
-
-            parsed_json = json_tokener_parse(response);
-            if (!json_object_object_get_ex(parsed_json, "service_passwd", &service_passwd)) {
-                fprintf(stderr, "get_service_password failed: %s No corresponding password found\n", service_name);
+            json_t *IAM_VAR_GetServicePassword_parsedJson = json_loads(IAM_VAR_GetServicePassword_response, 0, &IAM_VAR_GetTokenHandler_dataJsonError);
+            if (!IAM_VAR_GetServicePassword_parsedJson) {
+                dzlog_error("[%s]IAM_FUN_GetServicePassword Error parsing JSON: %s",IAM_VAR_GetServicePassword_requestId, IAM_VAR_GetTokenHandler_dataJsonError.text);
 
                 // 清理
-                curl_slist_free_all(headers);
-                curl_easy_cleanup(curl);
-                free(response);
+                curl_slist_free_all(IAM_VAR_GetServicePassword_headers);
+                curl_easy_cleanup(IAM_VAR_GetServicePassword_curl);
+                free(IAM_VAR_GetServicePassword_response);
                 return NULL;
             }
 
-            data = strdup(json_object_get_string(service_passwd));
-            json_object_put(parsed_json);
+            json_t *IAM_VAR_GetServicePassword_servicePasswdJson = json_object_get(IAM_VAR_GetServicePassword_parsedJson, "ServicePassword");
+            if (!json_is_string(IAM_VAR_GetServicePassword_servicePasswdJson)) {
+                dzlog_error("[%s]Error: ServicePassword is not a string.", IAM_VAR_GetServicePassword_requestId);
+                json_decref(IAM_VAR_GetServicePassword_parsedJson);
+                curl_slist_free_all(IAM_VAR_GetServicePassword_headers);
+                curl_easy_cleanup(IAM_VAR_GetServicePassword_curl);
+                free(IAM_VAR_GetServicePassword_response);
+                return NULL;
+            }
+
+            const char* IAM_VAR_GetServicePassword_servicePasswdChar = json_string_value(IAM_VAR_GetServicePassword_servicePasswdJson);
+            IAM_VAR_GetServicePassword_data = strdup(IAM_VAR_GetServicePassword_servicePasswdChar);
+            json_decref(IAM_VAR_GetServicePassword_parsedJson);
         }
 
-        curl_slist_free_all(headers);
-        curl_easy_cleanup(curl);
+        curl_slist_free_all(IAM_VAR_GetServicePassword_headers);
+        curl_easy_cleanup(IAM_VAR_GetServicePassword_curl);
     }
 
-    free(response);
+    free(IAM_VAR_GetServicePassword_response);
     // 返回从数据库服务那获取的密码
-    return data;
+    return IAM_VAR_GetServicePassword_data;
 }
 
 
 // 通过verify_request对请求服务进行鉴权，而后用generate_and_store_token进行token创建和存储
 // 正确返回为token字符串，错误返回为"illegal_request"
-char* handle_request_from_A_service(const AppConfig* app_config, const char* service_username, const char* encrypted_string, const char* timestamp) {
+char* IAM_FUN_InterfaceCore(const AppConfig* app_config, const char* IAM_VAR_InterfaceCore_reqAuthServiceName, const char* IAM_VAR_InterfaceCore_encryptedString, const char* IAM_VAR_InterfaceCore_timeStamp, const char* IAM_VAR_InterfaceCore_requestId) {
     // 确保app_config不为空
     if (app_config == NULL) {
-        fprintf(stderr, "App configuration is null.\n");
+        dzlog_error("[%s] App configuration is null.", IAM_VAR_InterfaceCore_requestId);
         return strdup("illegal_request");
     }
-    // 获取C服务配置
-    char service_url[256];
-    sprintf(service_url, "http://%s:%s/get_service_passwd", app_config->dbop_service_config.url, app_config->dbop_service_config.port);
+    // 获DBOP证服务配置
+    char IAM_VAR_InterfaceCore_dbUrl[256];
+    sprintf(IAM_VAR_InterfaceCore_dbUrl, "http://%s:%s/get_service_passwd", app_config->IAM_GLV_dbopServiceHost, app_config->IAM_GLV_dbopServicePort);
 
-    // 与C服务通信获取服务密码
-    char* service_passwd = get_service_password(service_url, global_b_service_token, service_username);
-    if (service_passwd == NULL) {
-        free(service_passwd);
-        fprintf(stderr, "Failed to get service password from C service.\n");
+    // 与DBOP通信获取服务密码
+    char* IAM_VAR_InterfaceCore_servicePasswd = IAM_FUN_GetServicePassword(IAM_VAR_InterfaceCore_dbUrl, IAM_GLV_selfUseToken, IAM_VAR_InterfaceCore_reqAuthServiceName, IAM_VAR_InterfaceCore_requestId);
+    if (IAM_VAR_InterfaceCore_servicePasswd == NULL) {
+        free(IAM_VAR_InterfaceCore_servicePasswd);
+        dzlog_error("[%s] Failed to get service password from C service.", IAM_VAR_InterfaceCore_requestId);
         return strdup("illegal_request");
     }
 
     // 验证请求
-    if (verify_request(encrypted_string, service_passwd, timestamp)) {
-        char* new_token = generate_and_store_token(app_config, service_username);
-        if (new_token == NULL) {
-            free(service_passwd);
-            fprintf(stderr, "illegal_request,Failed to generate and store token.\n");
+    if (IAM_FUN_VerifyRequest(IAM_VAR_InterfaceCore_encryptedString, IAM_VAR_InterfaceCore_reqAuthServiceName, IAM_VAR_InterfaceCore_servicePasswd, IAM_VAR_InterfaceCore_timeStamp, IAM_VAR_InterfaceCore_requestId)) {
+        char* IAM_VAR_InterfaceCore_newToken = IAM_FUN_GenerateAndStoreToken(app_config, IAM_VAR_InterfaceCore_reqAuthServiceName, IAM_VAR_InterfaceCore_requestId);
+        if (IAM_VAR_InterfaceCore_newToken == NULL) {
+            free(IAM_VAR_InterfaceCore_servicePasswd);
+            dzlog_error("[%s] illegal_request,Failed to generate and store IAM_VAR_GetServicePassword_token.", IAM_VAR_InterfaceCore_requestId);
             return strdup("illegal_request");
         }
-        free(service_passwd);
-        return new_token;
+        free(IAM_VAR_InterfaceCore_servicePasswd);
+        return IAM_VAR_InterfaceCore_newToken;
     } else {
-        free(service_passwd);
-        fprintf(stderr, "illegal_request,Password verification failed.\n");
+        free(IAM_VAR_InterfaceCore_servicePasswd);
+        dzlog_error("[%s] illegal_request,Password verification failed.", IAM_VAR_InterfaceCore_requestId);
         return strdup("illegal_request");
     }
 }
 
 
 // 请求地址样例curl "http://192.168.1.1:10089/get_token/?service_username=billing&encrypt_str=1asdwn1jn2ezlflaw1nj231&date=2023-12-12%2010:39:07"
-void get_token_handler(struct evhttp_request *req, void *arg) {
-     AppConfig* app_config = (AppConfig*)arg;
-    struct evkeyvalq params;
-    const char *service_username = NULL;
-    const char *encrypt_str = NULL;
-    const char *date_time = NULL;
+void IAM_FUN_GetTokenHandler(struct evhttp_request *IAM_VAR_GetTokenHandler_request, void *IAM_VAR_GetTokenHandler_voidCfg) {
+    AppConfig *IAM_VAR_GetTokenHandler_cfg = (AppConfig *)IAM_VAR_GetTokenHandler_voidCfg;
+    const char *IAM_VAR_GetTokenHandler_requestId = evhttp_find_header(evhttp_request_get_input_headers(IAM_VAR_GetTokenHandler_request), "X-Request-ID");
+    char uuid_str[37];  // UUID字符串的长度
+    if (!IAM_VAR_GetTokenHandler_requestId) {
+        // 如果请求中没有X-Request-ID头部，生成一个UUID作为请求ID
+        uuid_t uuid;
+        uuid_generate(uuid);
+        uuid_unparse(uuid, uuid_str);
+        IAM_VAR_GetTokenHandler_requestId = uuid_str;
+    }
+    dzlog_info("[%s]Processing API request to GetTokenHandler.", IAM_VAR_GetTokenHandler_requestId);
+    // 从 POST 数据中读取 JSON 参数
+    struct evbuffer *IAM_VAR_GetTokenHandler_inputBuffer = evhttp_request_get_input_buffer(IAM_VAR_GetTokenHandler_request);
+    size_t IAM_VAR_GetTokenHandler_bufferLen = evbuffer_get_length(IAM_VAR_GetTokenHandler_inputBuffer);
+    char IAM_VAR_GetTokenHandler_postData[IAM_VAR_GetTokenHandler_bufferLen + 1];
+    evbuffer_remove(IAM_VAR_GetTokenHandler_inputBuffer, IAM_VAR_GetTokenHandler_postData, IAM_VAR_GetTokenHandler_bufferLen);
+    IAM_VAR_GetTokenHandler_postData[IAM_VAR_GetTokenHandler_bufferLen] = '\0';
 
-    // 获取请求的URI
-    const char* uri = evhttp_request_get_uri(req);
+    json_error_t IAM_VAR_GetTokenHandler_dataJsonError;
+    json_t *IAM_VAR_GetTokenHandler_dataJsonAll = json_loads(IAM_VAR_GetTokenHandler_postData, 0, &IAM_VAR_GetTokenHandler_dataJsonError);
 
-    // 解析URI以获取路径
-    struct evhttp_uri *decoded_uri = evhttp_uri_parse(uri);
-    if (!decoded_uri) {
-        // 如果URI解析失败，发送错误响应
-        evhttp_send_reply(req, HTTP_BADREQUEST, "Bad Request", NULL);
-        free(decoded_uri);
+    dzlog_info("[%s]Parsing POST data.", IAM_VAR_GetTokenHandler_requestId);
+    if (!IAM_VAR_GetTokenHandler_dataJsonAll) {
+        dzlog_error("Failed to parse JSON from request body, request id: %s \n Error parsing JSON: %s", IAM_VAR_GetTokenHandler_requestId, IAM_VAR_GetTokenHandler_dataJsonError.text);
+        evhttp_send_reply(IAM_VAR_GetTokenHandler_request, 400, "Bad Request", NULL);
+        return;
+    }
+    json_t *IAM_VAR_GetTokenHandler_serviceUsernameJson = json_object_get(IAM_VAR_GetTokenHandler_dataJsonAll, "service_username");
+    json_t *IAM_VAR_GetTokenHandler_encryptStringJson = json_object_get(IAM_VAR_GetTokenHandler_dataJsonAll, "encrypt_str");
+    json_t *IAM_VAR_GetTokenHandler_timestampJson = json_object_get(IAM_VAR_GetTokenHandler_dataJsonAll, "date");
+
+    const char *IAM_VAR_GetTokenHandler_serviceUsername = json_is_string(IAM_VAR_GetTokenHandler_serviceUsernameJson) ? json_string_value(IAM_VAR_GetTokenHandler_serviceUsernameJson) : NULL;
+    const char *IAM_VAR_GetTokenHandler_encryptString = json_is_string(IAM_VAR_GetTokenHandler_encryptStringJson) ? json_string_value(IAM_VAR_GetTokenHandler_encryptStringJson) : NULL;
+    const char *IAM_VAR_GetTokenHandler_timestamp = json_is_string(IAM_VAR_GetTokenHandler_timestampJson) ? json_string_value(IAM_VAR_GetTokenHandler_timestampJson) : NULL;
+
+    // 检查是否所有需要的参数都已经正确获取
+    if (!IAM_VAR_GetTokenHandler_serviceUsername || !IAM_VAR_GetTokenHandler_encryptString || !IAM_VAR_GetTokenHandler_timestamp) {
+        // 处理错误：某些参数未获取或不是字符串
+        json_decref(IAM_VAR_GetTokenHandler_dataJsonAll);
         return;
     }
 
-    // 检查路径是否为"/get_token/"
-    const char* path = evhttp_uri_get_path(decoded_uri);
-    if (path == NULL || strcmp(path, "/get_token/") != 0) {
-        // 如果路径不匹配，发送错误响应
-        evhttp_send_reply(req, HTTP_NOTFOUND, "Not Found", NULL);
-        evhttp_uri_free(decoded_uri);
-        free(decoded_uri);
-        return;
-    }
-
-    // 解析URL参数
-    evhttp_parse_query(uri, &params);
-    service_username = evhttp_find_header(&params, "service_username");
-    encrypt_str = evhttp_find_header(&params, "encrypt_str");
-    date_time = evhttp_find_header(&params, "date");
-
-    // 调用业务逻辑
-    char* result = handle_request_from_A_service(app_config, service_username, encrypt_str, date_time);
-
-    if (strcmp(result, "illegal_request") != 0) {
-        // 设置成功响应
-        struct evbuffer *buf = evbuffer_new();
-        if (buf) {
-            evbuffer_add_printf(buf, "Token: %s", result);
-            evhttp_send_reply(req, HTTP_OK, "OK", buf);
-            evbuffer_free(buf);
+    char* IAM_VAR_GetTokenHandler_authResult = IAM_FUN_InterfaceCore(IAM_VAR_GetTokenHandler_cfg, IAM_VAR_GetTokenHandler_serviceUsername, IAM_VAR_GetTokenHandler_encryptString, IAM_VAR_GetTokenHandler_timestamp, IAM_VAR_GetTokenHandler_requestId);
+    if (strcmp(IAM_VAR_GetTokenHandler_authResult, "illegal_request") != 0) {
+        struct evbuffer *IAM_VAR_GetTokenHandler_buffer = evbuffer_new();
+        if (IAM_VAR_GetTokenHandler_buffer) {
+            evbuffer_add_printf(IAM_VAR_GetTokenHandler_buffer, "{\"Token\":\"%s\"}", IAM_VAR_GetTokenHandler_authResult);
+            evhttp_send_reply(IAM_VAR_GetTokenHandler_request, HTTP_OK, "OK", IAM_VAR_GetTokenHandler_buffer);
+            evbuffer_free(IAM_VAR_GetTokenHandler_buffer);
         }
-        free(result);
+        free(IAM_VAR_GetTokenHandler_authResult);
     } else {
-        // 设置错误响应
-        evhttp_send_reply(req, HTTP_BAD_REQUEST, "Request verification failed", NULL);
-        free(result);
+        evhttp_send_reply(IAM_VAR_GetTokenHandler_request, 400, "Request verification failed", NULL);
+        free(IAM_VAR_GetTokenHandler_authResult);
     }
 }
 
 
-// 触发器，去触发generate_and_store_token来生成IAM自身服务的token
-void token_refresh_callback(evutil_socket_t fd, short event, void *arg) {
-    AppConfig *app_config = (AppConfig *)arg;
-    char* token = generate_and_store_token(app_config, "IAM_SERVICE");
 
-    if (token == NULL) {
+// 触发器，去触发generate_and_store_token来生成IAM自身服务的token
+void IAM_FUN_TokenRefreshCallback(evutil_socket_t IAM_VAR_TokenRefreshCallback_socketFd, short IAM_VAR_TokenRefreshCallback_eventType, void *arg) {
+    AppConfig *app_config = (AppConfig *)arg;
+    char* IAM_VAR_TokenRefreshCallback_newToken = IAM_FUN_GenerateAndStoreToken(app_config, "IAM_SERVICE", "IAM_SERVICE");
+
+    if (IAM_VAR_TokenRefreshCallback_newToken == NULL) {
         fprintf(stderr, "Failed to generate and store token. Stopping service.\n");
         // 停止事件循环，这将导致 main 函数中的 event_base_dispatch 返回
-        event_base_loopexit(event_get_base(fd), NULL);
+        event_base_loopexit(event_get_base(IAM_GLV_tokenRefreshEvent), NULL);
         return;
     }
 
-    // 释放旧的 global_b_service_token 内存
-    if (global_b_service_token != NULL) {
-        free(global_b_service_token);
+    // 释放旧的 IAM_GLV_selfUseToken 内存
+    if (IAM_GLV_selfUseToken != NULL) {
+        free(IAM_GLV_selfUseToken);
     }
 
-    // 将新生成的 token 赋值给 global_b_service_token
-    global_b_service_token = token;
+    // 将新生成的 IAM_VAR_TokenRefreshCallback_newToken 赋值给 IAM_GLV_selfUseToken
+    IAM_GLV_selfUseToken = IAM_VAR_TokenRefreshCallback_newToken;
 }
 
 
 int main() {
-    struct event_base *base;
-    struct evhttp *http;
-    struct evhttp_bound_socket *handle;
-    struct event *token_refresh_event;
-    struct timeval token_refresh_time = {25 * 60, 0}; 
+    struct evhttp *IAM_VAR_Main_HttpServerInstance;
+    struct evhttp_bound_socket *IAM_VAR_Main_HttpSocket;
+    struct timeval IAM_VAR_Main_TokenRefreshTime = {25 * 60, 0}; 
+    struct event_base *IAM_VAR_Main_eventBase = event_base_new();
+    struct evhttp *IAM_VAR_Main_httpServer = evhttp_new(IAM_VAR_Main_eventBase);
 
     // 初始化随机数种子
     srand(time(NULL));  
 
-    AppConfig app_config = parse_config("config/iam_config.yaml");
-    redis_ctx = initialize_redis(&app_config.redis_config);
+    AppConfig IAM_VAR_Main_cfg = IAM_FUN_MainConfigParse("config/iam_config.yaml");
+    IAM_GLV_redisConnectPool = IAM_FUN_InitializeRedisPool(&IAM_VAR_Main_cfg, 10);
     
+    IAM_FUN_InitLogging(&IAM_VAR_Main_cfg);
+
+    evhttp_set_cb(IAM_VAR_Main_httpServer, "/get_token", IAM_FUN_GetTokenHandler, &IAM_VAR_Main_cfg);
     // 初始化libevent的多线程支持
     // evthread_use_pthreads();
     
     // 初始化libcurl的多线程支持
     // curl_global_init(CURL_GLOBAL_ALL);
 
-    base = event_base_new();
-    if (!base) {
-        fprintf(stderr, "Could not initialize libevent!\n");
-        return 1;
-    }
-
-    http = evhttp_new(base);
-    if (!http) {
-        fprintf(stderr, "Could not create evhttp. Exiting.\n");
-        return 1;
-    }
-
+    // 先生成一个自己的token
+    IAM_FUN_TokenRefreshCallback(-1, 0, &IAM_VAR_Main_cfg);
     // 每隔token_refresh_time分钟就会去重新生成一个自己的token
-    token_refresh_event = event_new(base, -1, EV_PERSIST, token_refresh_callback, &app_config);
-    evtimer_add(token_refresh_event, &token_refresh_time);
+    IAM_GLV_tokenRefreshEvent = event_new(IAM_VAR_Main_eventBase, -1, EV_PERSIST, IAM_FUN_TokenRefreshCallback, &IAM_VAR_Main_cfg);
+    evtimer_add(IAM_GLV_tokenRefreshEvent, &IAM_VAR_Main_TokenRefreshTime);
 
-    evhttp_set_gencb(http, get_token_handler, NULL);
-
-    handle = evhttp_bind_socket_with_handle(http, app_config.server_ip, atoi(app_config.server_port));
-    if (!handle) {
-        fprintf(stderr, "Could not bind to port %s.\n", app_config.server_port);
+    if (evhttp_bind_socket(IAM_VAR_Main_httpServer, "0.0.0.0", atoi(IAM_VAR_Main_cfg.IAM_GLV_serverPort)) != 0) {
+        // 这里后面要补错误处理逻辑
+        // watting to do
         return 1;
     }
 
-    event_base_dispatch(base);
+    // 启动事件循环
+    event_base_dispatch(IAM_VAR_Main_eventBase);
 
-    event_free(token_refresh_event);
-    evhttp_free(http);
-    event_base_free(base);
+    // 释放 libevent 和 libevhttp 资源
+    evhttp_free(IAM_VAR_Main_httpServer);
+    event_base_free(IAM_VAR_Main_eventBase);
 
-    if (redis_ctx) {
-        redisFree(redis_ctx);
+    if (IAM_GLV_tokenRefreshEvent) {
+        event_free(IAM_GLV_tokenRefreshEvent);
     }
 
     // 清理libcurl资源(不是我想加的，我感觉没必要，这个是让gpt加注释的时候她补上的)
