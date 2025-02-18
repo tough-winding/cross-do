@@ -127,7 +127,7 @@ CREATE TABLE `user` (
   `user_id` char(36) NOT NULL,
   `user_permission` int DEFAULT NULL,
   `user_name` varchar(24) DEFAULT NULL,
-  `passwd` varchar(64) DEFAULT NULL,
+  `user_password` varchar(64) DEFAULT NULL,
   `avatar` varchar(64) DEFAULT NULL,
   `real_name` varchar(20) DEFAULT NULL,
   `id_card` char(18) DEFAULT NULL,

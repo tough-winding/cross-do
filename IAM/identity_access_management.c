@@ -1,5 +1,5 @@
 // 整体目的：用以给服务间通讯的各个组件生成请求用token，对内发布socket
-// 编译命令： gcc -o identity_access_management.exe identity_access_management.c -lyaml -lhiredis -lcurl -levent -levent_pthreads -lssl -lcrypto -lpthread -lzlog -luuid -ljansson -std=c99
+// 编译命令： gcc -o identity_access_management.exe identity_access_management.c -lyaml -lhiredis -lcurl -levent -levent_pthreads -lssl -lcrypto -lpthread -lzlog -luuid -ljansson -std=c99 -g -O3
 /*
     访问接口样例及返回体样例
     REQUEST:    根据加密串和service服务名，时间戳，来获取30分钟时限的token
@@ -563,12 +563,12 @@ void IAM_FUN_TokenRefreshCallback(evutil_socket_t IAM_VAR_TokenRefreshCallback_s
 int main() {
     struct evhttp *IAM_VAR_Main_HttpServerInstance;
     struct evhttp_bound_socket *IAM_VAR_Main_HttpSocket;
-    struct timeval IAM_VAR_Main_TokenRefreshTime = {25 * 60, 0}; 
+    struct timeval IAM_VAR_Main_TokenRefreshTime = {25 * 60, 0};
     struct event_base *IAM_VAR_Main_eventBase = event_base_new();
     struct evhttp *IAM_VAR_Main_httpServer = evhttp_new(IAM_VAR_Main_eventBase);
 
     // 初始化随机数种子
-    srand(time(NULL));  
+    srand(time(NULL));
 
     AppConfig IAM_VAR_Main_cfg = IAM_FUN_MainConfigParse("config/iam_config.yaml");
     IAM_GLV_redisConnectPool = IAM_FUN_InitializeRedisPool(&IAM_VAR_Main_cfg, 10);
@@ -578,7 +578,7 @@ int main() {
     evhttp_set_cb(IAM_VAR_Main_httpServer, "/get_token", IAM_FUN_GetTokenHandler, &IAM_VAR_Main_cfg);
     // 初始化libevent的多线程支持
     // evthread_use_pthreads();
-    
+
     // 初始化libcurl的多线程支持
     // curl_global_init(CURL_GLOBAL_ALL);
 
