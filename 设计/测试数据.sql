@@ -87,6 +87,7 @@ DROP TABLE IF EXISTS `project`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `project` (
   `project_id` char(36) NOT NULL,
+  `user_id` char(36) NOT NULL,
   `user_name` varchar(24) DEFAULT NULL,
   `user_age` tinyint DEFAULT NULL,
   `real_name` varchar(20) DEFAULT NULL,
@@ -112,7 +113,7 @@ CREATE TABLE `project` (
 
 LOCK TABLES `project` WRITE;
 /*!40000 ALTER TABLE `project` DISABLE KEYS */;
-INSERT INTO `project` VALUES ('a5a6a73e-7f79-4e9c-891b-6b0f2db3e3ab','唐百',28,'唐铁嘴',8,'[{\"患者\":{\"唐百\":\"请志愿者看下这次的资料合格了吗？\"},\"志愿者\":{\"释迦摩尼\":\"您的资料还存在以下问题：病历不完整、没有医生签字证明。请补充好之后再提交一下。\"}},{\"患者\":{\"唐百\":\"我又调整了下，您再看下呢？\"},\"释迦摩尼\":{\"bceac\":\"这次可以了，给您通过了。\"}}]','e7b15d41-df6c-4f2a-a4d9-2c0e94380e2b','[\"e7b15d41-df6c-4f2a-a4d9-2c0e94380e2b\"]',1,'d9ac8c21-1d3a-4d3c-a83a-29f76360f68d','2023-01-02 15:00:00',10000,5000,2500,'2023-01-02 16:00:00','[{\"time\":\"2023-01-02 15:00:00\",\"content\":\"刚刚确诊为***，心情很是沉重，医生说需要******来治疗\",\"images\":\"http://10.0.0.15:9000/pathography/a5a6a73e-7f79-4e9c-891b-6b0f2db3e3ab/20200102150000-1.jpg;http://10.0.0.15:9000/pathography/a5a6a73e-7f79-4e9c-891b-6b0f2db3e3ab/20200102150000-2.jpg\"},{\"time\":\"2020-01-02 16:00:00\",\"content\":\"医生刚刚又说，可能还有其他问题，唉。\",\"images\":\"\"}]');
+INSERT INTO `project` VALUES ('a5a6a73e-7f79-4e9c-891b-6b0f2db3e3ab','1a2b3c4d-5e6f-7a8b-9c0d-ef11g2h3i4j5','唐百',28,'唐铁嘴',8,'[{\"患者\":{\"唐百\":\"请志愿者看下这次的资料合格了吗？\"},\"志愿者\":{\"释迦摩尼\":\"您的资料还存在以下问题：病历不完整、没有医生签字证明。请补充好之后再提交一下。\"}},{\"患者\":{\"唐百\":\"我又调整了下，您再看下呢？\"},\"释迦摩尼\":{\"bceac\":\"这次可以了，给您通过了。\"}}]','e7b15d41-df6c-4f2a-a4d9-2c0e94380e2b','[\"e7b15d41-df6c-4f2a-a4d9-2c0e94380e2b\"]',1,'d9ac8c21-1d3a-4d3c-a83a-29f76360f68d','2023-01-02 15:00:00',10000,5000,2500,'2023-01-02 16:00:00','[{\"time\":\"2023-01-02 15:00:00\",\"content\":\"刚刚确诊为***，心情很是沉重，医生说需要******来治疗\",\"images\":\"http://10.0.0.15:9000/pathography/a5a6a73e-7f79-4e9c-891b-6b0f2db3e3ab/20200102150000-1.jpg;http://10.0.0.15:9000/pathography/a5a6a73e-7f79-4e9c-891b-6b0f2db3e3ab/20200102150000-2.jpg\"},{\"time\":\"2020-01-02 16:00:00\",\"content\":\"医生刚刚又说，可能还有其他问题，唉。\",\"images\":\"\"}]');
 /*!40000 ALTER TABLE `project` ENABLE KEYS */;
 UNLOCK TABLES;
 
