@@ -7,13 +7,9 @@
                 curl -X POST "http://服务ip:服务端口/get_service_passwd" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"service_name":"分配的服务名"}'
                 curl -X POST "http://192.168.1.10:1900/get_service_passwd" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"service_username":"ftp"}'
     200RETURN： {"ServiceName":"ftp", "ServicePassword":"anotherlongpassword987654"}  
-    REQUEST：   在user表中添加账户（测试用接口，没啥用）
-                curl -X POST "http://服务ip:服务端口/add_user_from_pool" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"user":"用户名", "password":"密码"}'
-                curl -X POST "http://192.168.1.10:1900/add_user_from_pool" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"user":"test_user1", "password":"12345"}'
-    200RETURN： 什么都不返回
-    REQUEST：   在user表中添加手机号
-                curl -X POST "http://服务ip:服务端口/add_user_phone" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"phone_number":"用户名"}'
-                curl -X POST "http://192.168.1.10:1900/add_user_phone" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"phone_number":"13166655511"}'
+    REQUEST：   在user表中添加用户
+                curl -X POST "http://服务ip:服务端口/add_user" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"user_id":"用户ID", "user_name":"用户名", "user_passwd":"用户密码字符串", "user_permission":账号分类数字, "phone_number":"用户手机号"}'
+                curl -X POST "http://192.168.1.10:1900/add_user" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d {"user_id":"d7aa0e59-9be5-4c76-9bf1-ee937791b8a8", "user_name":"两茫茫", "user_passwd":"qwe1j31l23nubadbuiy13", "user_permission":3, "phone_number":"18212312310"}'
     200RETURN： 什么都不返回
     REQUEST：   在project表中添加projectid、患者ID、患者年龄、患者真实姓名
                 curl -X POST "http://服务ip:服务端口/create_project" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"project_id":"project ID", "user_id":"用户ID", "user_age":用户年龄, "real_name":"用户真实姓名"}'
@@ -49,10 +45,16 @@
 #include <pthread.h>
 
 pthread_mutex_t DBOP_GLV_redisConnection_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t DBOP_GLV_mysqlConnection_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 #define HTTP_OK 200
 #define HTTP_FORBIDDEN 403
 #define HTTP_INTERNAL 500
+#define MAX_DB_POOL_SIZE 100  // 定义最大数据库连接池大小
+
+// 存储实际使用的连接池大小
+int DBOP_GLV_actualDBPoolSize = 10;  // 默认值为10
+int DBOP_GLV_actualRedisPoolSize = 10;  // 默认值为10
 
 // 声明结构体，用以存储常量
 typedef struct {
@@ -67,16 +69,17 @@ typedef struct {
     char* DBOP_GLV_redisServerIp;
     char* DBOP_GLV_redisServerPort;
     char* DBOP_GLV_redisServerPassword;
+    char* DBOP_GLV_databasePoolSize;  // 数据库连接池大小
+    char* DBOP_GLV_redisPoolSize;     // Redis连接池大小
 } AppConfig;
 
 // 预处理语句句柄结构体
 typedef struct {
     MYSQL *mysql;
     MYSQL_STMT *stmt_check_phone;
-    MYSQL_STMT *stmt_insert_phone;
     MYSQL_STMT *stmt_add_user;
     MYSQL_STMT *stmt_get_service_passwd;
-    MYSQL_STMT *stmt_insert_project;
+    MYSQL_STMT *stmt_add_project;
 } DB_CONNECTION;
 
 // 初始化dzlog
@@ -138,12 +141,16 @@ AppConfig DBOP_FUN_MainConfigParse(const char* DBOP_VAR_MainConfigParse_fileName
                     DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_dbPrivilegePassword = strdup((char*)DBOP_VAR_MainConfigParse_yamlEvent.data.scalar.value);
                 } else if (strcmp(DBOP_VAR_MainConfigParse_currentKey, "user_database_name") == 0) {
                     DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_dbName = strdup((char*)DBOP_VAR_MainConfigParse_yamlEvent.data.scalar.value);
+                } else if (strcmp(DBOP_VAR_MainConfigParse_currentKey, "database_pool_size") == 0) {
+                    DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_databasePoolSize = strdup((char*)DBOP_VAR_MainConfigParse_yamlEvent.data.scalar.value);
                 } else if (strcmp(DBOP_VAR_MainConfigParse_currentKey, "redis_server") == 0) {
                     DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_redisServerIp = strdup((char*)DBOP_VAR_MainConfigParse_yamlEvent.data.scalar.value);
                 } else if (strcmp(DBOP_VAR_MainConfigParse_currentKey, "redis_port") == 0) {
                     DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_redisServerPort = strdup((char*)DBOP_VAR_MainConfigParse_yamlEvent.data.scalar.value);
                 } else if (strcmp(DBOP_VAR_MainConfigParse_currentKey, "redis_password") == 0) {
                     DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_redisServerPassword = strdup((char*)DBOP_VAR_MainConfigParse_yamlEvent.data.scalar.value);
+                } else if (strcmp(DBOP_VAR_MainConfigParse_currentKey, "redis_pool_size") == 0) {
+                    DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_redisPoolSize = strdup((char*)DBOP_VAR_MainConfigParse_yamlEvent.data.scalar.value);
                 }
                 free(DBOP_VAR_MainConfigParse_currentKey);
                 DBOP_VAR_MainConfigParse_currentKey = NULL;
@@ -175,9 +182,11 @@ AppConfig DBOP_FUN_MainConfigParse(const char* DBOP_VAR_MainConfigParse_fileName
     if (!DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_dbPrivilegeUser) dzlog_error("Missing configuration: database_privilege_user");
     if (!DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_dbPrivilegePassword) dzlog_error("Missing configuration: database_privilege_password");
     if (!DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_dbName) dzlog_error("Missing configuration: user_database_name.");
+    if (!DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_databasePoolSize) dzlog_error("Missing configuration: database_pool_size.");
     if (!DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_redisServerIp) dzlog_error("Missing configuration: redis_ip.");
     if (!DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_redisServerPort) dzlog_error("Missing configuration: redis_port.");
     if (!DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_redisServerPassword) dzlog_error("Missing configuration: redis_password.");
+    if (!DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_redisPoolSize) dzlog_error("Missing configuration: redis_pool_size.");
 
     if (!DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_serverPort ||
         !DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_logFile ||
@@ -187,9 +196,11 @@ AppConfig DBOP_FUN_MainConfigParse(const char* DBOP_VAR_MainConfigParse_fileName
         !DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_dbPrivilegeUser ||
         !DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_dbPrivilegePassword ||
         !DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_dbName ||
+        !DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_databasePoolSize ||
         !DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_redisServerIp ||
         !DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_redisServerPort ||
-        !DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_redisServerPassword) {
+        !DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_redisServerPassword ||
+        !DBOP_VAR_MainConfigParse_mainConfig.DBOP_GLV_redisPoolSize) {
         exit(EXIT_FAILURE);
     }
 
@@ -206,6 +217,11 @@ void DBOP_FUN_FreeConfig(AppConfig *DBOP_VAR_FreeConfig_cfg) {
     free(DBOP_VAR_FreeConfig_cfg->DBOP_GLV_dbPrivilegePassword);
     free(DBOP_VAR_FreeConfig_cfg->DBOP_GLV_logFile);
     free(DBOP_VAR_FreeConfig_cfg->DBOP_GLV_dbName);
+    free(DBOP_VAR_FreeConfig_cfg->DBOP_GLV_databasePoolSize);
+    free(DBOP_VAR_FreeConfig_cfg->DBOP_GLV_redisServerIp);
+    free(DBOP_VAR_FreeConfig_cfg->DBOP_GLV_redisServerPort);
+    free(DBOP_VAR_FreeConfig_cfg->DBOP_GLV_redisServerPassword);
+    free(DBOP_VAR_FreeConfig_cfg->DBOP_GLV_redisPoolSize);
 }
 
 
@@ -216,7 +232,6 @@ void DBOP_FUN_FreeConfig(AppConfig *DBOP_VAR_FreeConfig_cfg) {
 typedef struct {
     redisContext** DBOP_GLV_redisConnections; // 指向Redis连接的指针数组
     int DBOP_GLV_poolSize;
-    pthread_mutex_t DBOP_GLV_poolMutex; // 用于同步访问的互斥锁
 } RedisPool;
 
 RedisPool* DBOP_GLV_redisConnectPool = NULL;
@@ -261,7 +276,6 @@ RedisPool* DBOP_FUN_InitializeRedisPool(const AppConfig* config, int poolSize) {
     RedisPool* DBOP_VAR_InitializeRedisPool_pool = (RedisPool*)malloc(sizeof(RedisPool));
     DBOP_VAR_InitializeRedisPool_pool->DBOP_GLV_redisConnections = (redisContext**)malloc(sizeof(redisContext*) * poolSize);
     DBOP_VAR_InitializeRedisPool_pool->DBOP_GLV_poolSize = poolSize;
-    pthread_mutex_init(&DBOP_VAR_InitializeRedisPool_pool->DBOP_GLV_poolMutex, NULL);
 
     for (int i = 0; i < poolSize; i++) {
         DBOP_VAR_InitializeRedisPool_pool->DBOP_GLV_redisConnections[i] = DBOP_FUN_InitializeRedis(config);
@@ -274,15 +288,11 @@ RedisPool* DBOP_FUN_InitializeRedisPool(const AppConfig* config, int poolSize) {
 // 检查redis是否可用，如果不可用则重新初始化redis连接
 // 正常返回true，异常且重新初始化redis连接失败则停止服务运行
 bool DBOP_FUN_CheckAndReinitializeRedis(const AppConfig* DBOP_VAR_CheckAndReinitializeRedis_config, int DBOP_VAR_CheckAndReinitializeRedis_index) {
-    // 使用互斥锁，让DBOP_FUN_CheckAndReinitializeRedis永远单线程执行
-    // pthread_mutex_lock(&DBOP_GLV_redisConnection_mutex);
     // 使用一个简单的命令来检查Redis连接
     if (DBOP_GLV_redisConnectPool->DBOP_GLV_redisConnections[DBOP_VAR_CheckAndReinitializeRedis_index] != NULL) {
         redisReply *reply = redisCommand(DBOP_GLV_redisConnectPool->DBOP_GLV_redisConnections[DBOP_VAR_CheckAndReinitializeRedis_index], "PING");
         if (reply != NULL && reply->type != REDIS_REPLY_ERROR) {
             freeReplyObject(reply);
-            // 解除互斥锁
-            pthread_mutex_unlock(&DBOP_GLV_redisConnection_mutex);
             return true;
         }
         // 清理失败的回复
@@ -305,9 +315,34 @@ bool DBOP_FUN_CheckAndReinitializeRedis(const AppConfig* DBOP_VAR_CheckAndReinit
         exit(EXIT_FAILURE);
     }
 
-    // 解除互斥锁
-    // pthread_mutex_unlock(&DBOP_GLV_redisConnection_mutex);
     return true;
+}
+
+
+// 销毁Redis连接池
+void DBOP_FUN_DestroyRedisPool(RedisPool* pool) {
+    if (pool == NULL) {
+        return;
+    }
+    
+    // 加锁保护Redis连接池销毁
+    pthread_mutex_lock(&DBOP_GLV_redisConnection_mutex);
+    
+    // 释放所有Redis连接
+    for (int i = 0; i < pool->DBOP_GLV_poolSize; i++) {
+        if (pool->DBOP_GLV_redisConnections[i] != NULL) {
+            redisFree(pool->DBOP_GLV_redisConnections[i]);
+            pool->DBOP_GLV_redisConnections[i] = NULL;
+        }
+    }
+    
+    // 释放连接数组和池结构
+    free(pool->DBOP_GLV_redisConnections);
+    free(pool);
+    
+    pthread_mutex_unlock(&DBOP_GLV_redisConnection_mutex);
+    
+    dzlog_info("Redis connection pool destroyed");
 }
 
 
@@ -319,20 +354,40 @@ bool DBOP_FUN_CheckAndReinitializeRedis(const AppConfig* DBOP_VAR_CheckAndReinit
 
 bool DBOP_FUN_AuthenticateRequest(const AppConfig* DBOP_VAR_AuthenticateRequest_appConfig, const char* DBOP_VAR_AuthenticateRequest_serviceName, const char* DBOP_VAR_AuthenticateRequest_authToken) {
     bool DBOP_VAR_AuthenticateRequest_isAuthenticated = false;
-    int DBOP_VAR_AuthenticateRequest_index = rand() % 10;
+    
+    // 线程安全的随机数生成
+    unsigned int seed = (unsigned int)pthread_self();
+    int DBOP_VAR_AuthenticateRequest_index = rand_r(&seed) % DBOP_GLV_actualRedisPoolSize;
+    
+    // 确保索引在有效范围内
+    if (DBOP_VAR_AuthenticateRequest_index < 0 || DBOP_VAR_AuthenticateRequest_index >= DBOP_GLV_actualRedisPoolSize) {
+        dzlog_warn("Redis connection pool index %d out of range (0-%d), using index 0", 
+                  DBOP_VAR_AuthenticateRequest_index, DBOP_GLV_actualRedisPoolSize - 1);
+        DBOP_VAR_AuthenticateRequest_index = 0;
+    }
+    
+    // 加锁保护Redis连接池访问
+    pthread_mutex_lock(&DBOP_GLV_redisConnection_mutex);
+    
     if (DBOP_GLV_redisConnectPool->DBOP_GLV_redisConnections[DBOP_VAR_AuthenticateRequest_index] == NULL || DBOP_GLV_redisConnectPool->DBOP_GLV_redisConnections[DBOP_VAR_AuthenticateRequest_index]->err) {
         // 如果连接无效，调用DBOP_FUN_CheckAndReinitializeRedis来尝试恢复连接
         if (!DBOP_FUN_CheckAndReinitializeRedis(DBOP_VAR_AuthenticateRequest_appConfig, DBOP_VAR_AuthenticateRequest_index)) {
             // 如果连接仍然无法恢复，处理错误
             dzlog_error("Redis operation failed: Redis connection cannot be established.\n");
+            pthread_mutex_unlock(&DBOP_GLV_redisConnection_mutex);
             return DBOP_VAR_AuthenticateRequest_isAuthenticated;
         }
     }
+    
     redisReply *DBOP_VAR_AuthenticateRequest_reply = redisCommand(DBOP_GLV_redisConnectPool->DBOP_GLV_redisConnections[DBOP_VAR_AuthenticateRequest_index], "GET %s", DBOP_VAR_AuthenticateRequest_serviceName);
+    
     if (DBOP_VAR_AuthenticateRequest_reply != NULL && DBOP_VAR_AuthenticateRequest_reply->type == REDIS_REPLY_STRING) {
         DBOP_VAR_AuthenticateRequest_isAuthenticated = (strcmp(DBOP_VAR_AuthenticateRequest_reply->str, DBOP_VAR_AuthenticateRequest_authToken) == 0);
     }
+    
     freeReplyObject(DBOP_VAR_AuthenticateRequest_reply);
+    pthread_mutex_unlock(&DBOP_GLV_redisConnection_mutex);
+    
     return DBOP_VAR_AuthenticateRequest_isAuthenticated;
 }
 
@@ -344,7 +399,7 @@ bool DBOP_FUN_AuthenticateRequest(const AppConfig* DBOP_VAR_AuthenticateRequest_
 
 
 // mysql声明连接池
-DB_CONNECTION *DBOP_GLV_mysqlConnectPool[10];
+DB_CONNECTION *DBOP_GLV_mysqlConnectPool[MAX_DB_POOL_SIZE];
 
 
 void DBOP_FUN_InitializeMySQLConnection(DB_CONNECTION *DBOP_VAR_InitializeMySQLConnection_connect, AppConfig *DBOP_VAR_InitializeMySQLConnection_cfg) {
@@ -370,13 +425,6 @@ void DBOP_FUN_InitializeMySQLConnection(DB_CONNECTION *DBOP_VAR_InitializeMySQLC
         exit(EXIT_FAILURE);
     }
 
-    DBOP_VAR_InitializeMySQLConnection_connect->stmt_insert_phone = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
-    const char *insert_phone_sql = "INSERT INTO user (user_id, phone_number) VALUES (?, ?);";
-    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_insert_phone, insert_phone_sql, strlen(insert_phone_sql))) {
-        dzlog_error("Failed to prepare insert statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_insert_phone));
-        exit(EXIT_FAILURE);
-    }
-
     DBOP_VAR_InitializeMySQLConnection_connect->stmt_add_user = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
     const char *add_user_sql = "INSERT INTO user (user_id, user_name, user_password, user_permission, phone_number) VALUES (?, ?, ?, ?, ?);";
     if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_add_user, add_user_sql, strlen(add_user_sql))) {
@@ -389,30 +437,58 @@ void DBOP_FUN_InitializeMySQLConnection(DB_CONNECTION *DBOP_VAR_InitializeMySQLC
         dzlog_error("Failed to prepare check statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_get_service_passwd));
         exit(EXIT_FAILURE);
     }
-    DBOP_VAR_InitializeMySQLConnection_connect->stmt_insert_project = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_add_project = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
     const char *insert_project_sql = "INSERT INTO project (project_id, user_id, user_age, real_name) VALUES (?, ?, ?, ?);";
-    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_insert_project, insert_project_sql, strlen(insert_project_sql))) {
-        dzlog_error("Failed to prepare insert statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_insert_project));
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_add_project, insert_project_sql, strlen(insert_project_sql))) {
+        dzlog_error("Failed to prepare insert statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_add_project));
         exit(EXIT_FAILURE);
     }
 }
 
 // 初始化mysql连接池
 void DBOP_FUN_InitializeConnPool(AppConfig *DBOP_VAR_InitializeConnPool_cfg) {
-    for (int i = 0; i < 10; i++) {
+    // 加锁保护MySQL连接池初始化
+    pthread_mutex_lock(&DBOP_GLV_mysqlConnection_mutex);
+    
+    // 从配置获取数据库连接池大小，默认为10
+    int dbPoolSize = 10;
+    if (DBOP_VAR_InitializeConnPool_cfg->DBOP_GLV_databasePoolSize != NULL) {
+        dbPoolSize = atoi(DBOP_VAR_InitializeConnPool_cfg->DBOP_GLV_databasePoolSize);
+        if (dbPoolSize <= 0) {
+            dbPoolSize = 10; // 如果配置无效，使用默认值
+        }
+    }
+    
+    // 确保连接池大小不超过最大值
+    if (dbPoolSize > MAX_DB_POOL_SIZE) {
+        dbPoolSize = MAX_DB_POOL_SIZE;
+        dzlog_warn("Database pool size exceeds maximum limit, using %d instead", MAX_DB_POOL_SIZE);
+    }
+    
+    // 保存实际的连接池大小
+    DBOP_GLV_actualDBPoolSize = dbPoolSize;
+    
+    for (int i = 0; i < dbPoolSize; i++) {
         DBOP_GLV_mysqlConnectPool[i] = malloc(sizeof(DB_CONNECTION));  // 分配内存
         DBOP_FUN_InitializeMySQLConnection(DBOP_GLV_mysqlConnectPool[i], DBOP_VAR_InitializeConnPool_cfg);
     }
+    
+    pthread_mutex_unlock(&DBOP_GLV_mysqlConnection_mutex);
+    dzlog_info("Initialized database connection pool with %d connections", dbPoolSize);
 }
 
 // 销毁mysql连接池
 void DBOP_FUN_DestroyConnPool() {
-    for (int i = 0; i < 10; i++) {
+    // 加锁保护MySQL连接池销毁
+    pthread_mutex_lock(&DBOP_GLV_mysqlConnection_mutex);
+    
+    for (int i = 0; i < DBOP_GLV_actualDBPoolSize; i++) {
+        if (DBOP_GLV_mysqlConnectPool[i] == NULL) {
+            continue;  // 跳过未初始化的连接
+        }
+        
         if (DBOP_GLV_mysqlConnectPool[i]->stmt_check_phone != NULL) {
             mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_check_phone);
-        }
-        if (DBOP_GLV_mysqlConnectPool[i]->stmt_insert_phone != NULL) {
-            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_insert_phone);
         }
         if (DBOP_GLV_mysqlConnectPool[i]->stmt_add_user != NULL) {
             mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_add_user);
@@ -420,15 +496,17 @@ void DBOP_FUN_DestroyConnPool() {
         if (DBOP_GLV_mysqlConnectPool[i]->stmt_get_service_passwd != NULL) {
             mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_get_service_passwd);
         }
-        if (DBOP_GLV_mysqlConnectPool[i]->stmt_insert_project != NULL) {
-            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_insert_project);
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_add_project != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_add_project);
         }
         if (DBOP_GLV_mysqlConnectPool[i]->mysql != NULL) {
             mysql_close(DBOP_GLV_mysqlConnectPool[i]->mysql);
         }
         free(DBOP_GLV_mysqlConnectPool[i]);
     }
-    dzlog_info("MySQL connection pool has been destroyed.");
+    
+    pthread_mutex_unlock(&DBOP_GLV_mysqlConnection_mutex);
+    dzlog_info("Database connection pool destroyed");
 }
 
 
@@ -440,17 +518,14 @@ void DBOP_FUN_ReinitializeConnPool(AppConfig *DBOP_VAR_ReinitializeConnPool_cfg,
     if (DBOP_VAR_ReinitializeConnPool_connect->stmt_check_phone != NULL) {
         mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_check_phone);
     }
-    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_insert_phone != NULL) {
-        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_insert_phone);
-    }
     if (DBOP_VAR_ReinitializeConnPool_connect->stmt_add_user != NULL) {
         mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_add_user);
     }
     if (DBOP_VAR_ReinitializeConnPool_connect->stmt_get_service_passwd != NULL) {
         mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_get_service_passwd);
     }
-    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_insert_project != NULL) {
-        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_insert_project);
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_add_project != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_add_project);
     }
     if (DBOP_VAR_ReinitializeConnPool_connect->mysql != NULL) {
         mysql_close(DBOP_VAR_ReinitializeConnPool_connect->mysql);
@@ -465,6 +540,16 @@ void DBOP_FUN_ReinitializeConnPool(AppConfig *DBOP_VAR_ReinitializeConnPool_cfg,
 
 // 检查mysql数据库连接状态
 DB_CONNECTION* DBOP_FUN_GetConnectFromPool(AppConfig *DBOP_VAR_GetConnectFromPool_cfg, int index) {
+    // 确保索引在有效范围内
+    if (index < 0 || index >= DBOP_GLV_actualDBPoolSize) {
+        dzlog_warn("Connection pool index %d out of range (0-%d), using index 0 instead", 
+                  index, DBOP_GLV_actualDBPoolSize - 1);
+        index = 0;  // 使用第一个连接作为备选
+    }
+
+    // 加锁保护MySQL连接池访问
+    pthread_mutex_lock(&DBOP_GLV_mysqlConnection_mutex);
+    
     DB_CONNECTION *DBOP_VAR_GetConnectFromPool_connect = DBOP_GLV_mysqlConnectPool[index];
     
     if (mysql_ping(DBOP_VAR_GetConnectFromPool_connect->mysql) != 0) {  // 检查连接是否有效
@@ -472,181 +557,12 @@ DB_CONNECTION* DBOP_FUN_GetConnectFromPool(AppConfig *DBOP_VAR_GetConnectFromPoo
         DBOP_FUN_ReinitializeConnPool(DBOP_VAR_GetConnectFromPool_cfg, index);
     }
 
+    pthread_mutex_unlock(&DBOP_GLV_mysqlConnection_mutex);
     return DBOP_VAR_GetConnectFromPool_connect;
 }
 
 
 // ------------------------mysql通用操作逻辑结束----------------------------
-
-
-
-// ------------------------mysql添加user_phone api逻辑开始----------------------------
-
-
-// 添加用户的sql数据化输出
-// 样例，后续按需添加相应sql函数
-int DBOP_FUN_ExecuteAddUserPhone(DB_CONNECTION *DBOP_VAR_ExecuteAddUserPhone_connect, const char *DBOP_VAR_ExecuteAddUserPhone_waitAddUserPhone, const char *DBOP_VAR_ExecuteAddUserPhone_requestId) {
-    dzlog_info("[req: %s] DBOP_FUN_ExecuteAddUserPhone is checking", DBOP_VAR_ExecuteAddUserPhone_requestId);
-
-    char DBOP_VAR_ExecuteAddUserPhone_noConstWaitAddUserPhone[256];
-    strncpy(DBOP_VAR_ExecuteAddUserPhone_noConstWaitAddUserPhone, DBOP_VAR_ExecuteAddUserPhone_waitAddUserPhone, sizeof(DBOP_VAR_ExecuteAddUserPhone_noConstWaitAddUserPhone) - 1);
-    DBOP_VAR_ExecuteAddUserPhone_noConstWaitAddUserPhone[sizeof(DBOP_VAR_ExecuteAddUserPhone_noConstWaitAddUserPhone) - 1] = '\0';
-
-    // 检查phone是否存在
-    MYSQL_BIND DBOP_VAR_ExecuteAddUserPhone_checkBind[1];
-    memset(DBOP_VAR_ExecuteAddUserPhone_checkBind, 0, sizeof(DBOP_VAR_ExecuteAddUserPhone_checkBind));
-
-    DBOP_VAR_ExecuteAddUserPhone_checkBind[0].buffer_type = MYSQL_TYPE_STRING;
-    DBOP_VAR_ExecuteAddUserPhone_checkBind[0].buffer = (char *)DBOP_VAR_ExecuteAddUserPhone_noConstWaitAddUserPhone;
-    DBOP_VAR_ExecuteAddUserPhone_checkBind[0].buffer_length = strlen(DBOP_VAR_ExecuteAddUserPhone_noConstWaitAddUserPhone);
-
-    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteAddUserPhone_connect->stmt_check_phone, DBOP_VAR_ExecuteAddUserPhone_checkBind)) {
-        dzlog_error("[req: %s] Failed to bind check param: %s", DBOP_VAR_ExecuteAddUserPhone_requestId, mysql_stmt_error(DBOP_VAR_ExecuteAddUserPhone_connect->stmt_check_phone));
-        return -1; // 表示绑定参数失败
-    }
-
-    if (mysql_stmt_execute(DBOP_VAR_ExecuteAddUserPhone_connect->stmt_check_phone)) {
-        dzlog_error("[req: %s] Failed to execute check statement: %s", DBOP_VAR_ExecuteAddUserPhone_requestId, mysql_stmt_error(DBOP_VAR_ExecuteAddUserPhone_connect->stmt_check_phone));
-        return -1; // 表示执行语句失败
-    }
-
-    MYSQL_BIND DBOP_VAR_ExecuteAddUserPhone_checkResult[1];
-    memset(DBOP_VAR_ExecuteAddUserPhone_checkResult, 0, sizeof(DBOP_VAR_ExecuteAddUserPhone_checkResult));
-    int count;
-    DBOP_VAR_ExecuteAddUserPhone_checkResult[0].buffer_type = MYSQL_TYPE_LONG;
-    DBOP_VAR_ExecuteAddUserPhone_checkResult[0].buffer = &count;
-
-    if (mysql_stmt_bind_result(DBOP_VAR_ExecuteAddUserPhone_connect->stmt_check_phone, DBOP_VAR_ExecuteAddUserPhone_checkResult)) {
-        dzlog_error("[req: %s] Failed to bind check result: %s", DBOP_VAR_ExecuteAddUserPhone_requestId, mysql_stmt_error(DBOP_VAR_ExecuteAddUserPhone_connect->stmt_check_phone));
-        return -1; // 表示绑定结果失败
-    }
-
-    if (mysql_stmt_fetch(DBOP_VAR_ExecuteAddUserPhone_connect->stmt_check_phone)) {
-        dzlog_error("[req: %s] Failed to fetch check result: %s", DBOP_VAR_ExecuteAddUserPhone_requestId, mysql_stmt_error(DBOP_VAR_ExecuteAddUserPhone_connect->stmt_check_phone));
-        return -1; // 表示获取结果失败
-    }
-    mysql_stmt_free_result(DBOP_VAR_ExecuteAddUserPhone_connect->stmt_check_phone);
-
-    if (count > 0) {
-        dzlog_info("[req: %s] Phone number already exists", DBOP_VAR_ExecuteAddUserPhone_requestId);
-        return 1; // 表示phone已存在
-    }
-
-    // 插入新的phone
-    char DBOP_VAR_ExecuteAddUserPhone_userId[37];
-    uuid_t binuuid;
-    uuid_generate_random(binuuid);
-    uuid_unparse_lower(binuuid, DBOP_VAR_ExecuteAddUserPhone_userId);
-
-    MYSQL_BIND DBOP_VAR_ExecuteAddUserPhone_bindParams[2];
-    memset(DBOP_VAR_ExecuteAddUserPhone_bindParams, 0, sizeof(DBOP_VAR_ExecuteAddUserPhone_bindParams));
-
-    DBOP_VAR_ExecuteAddUserPhone_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
-    DBOP_VAR_ExecuteAddUserPhone_bindParams[0].buffer = DBOP_VAR_ExecuteAddUserPhone_userId;
-    DBOP_VAR_ExecuteAddUserPhone_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteAddUserPhone_userId);
-
-    DBOP_VAR_ExecuteAddUserPhone_bindParams[1].buffer_type = MYSQL_TYPE_STRING;
-    DBOP_VAR_ExecuteAddUserPhone_bindParams[1].buffer = DBOP_VAR_ExecuteAddUserPhone_noConstWaitAddUserPhone;
-    DBOP_VAR_ExecuteAddUserPhone_bindParams[1].buffer_length = strlen(DBOP_VAR_ExecuteAddUserPhone_noConstWaitAddUserPhone);
-
-    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteAddUserPhone_connect->stmt_insert_phone, DBOP_VAR_ExecuteAddUserPhone_bindParams)) {
-        dzlog_error("[req: %s] Failed to bind insert param: %s", DBOP_VAR_ExecuteAddUserPhone_requestId, mysql_stmt_error(DBOP_VAR_ExecuteAddUserPhone_connect->stmt_insert_phone));
-        return -1; // 表示绑定插入参数失败
-    }
-
-    if (mysql_stmt_execute(DBOP_VAR_ExecuteAddUserPhone_connect->stmt_insert_phone)) {
-        dzlog_error("[req: %s] Failed to execute insert statement: %s", DBOP_VAR_ExecuteAddUserPhone_requestId, mysql_stmt_error(DBOP_VAR_ExecuteAddUserPhone_connect->stmt_insert_phone));
-        return -1; // 表示执行插入语句失败
-    }
-
-    dzlog_info("[req: %s] Successfully added user phone", DBOP_VAR_ExecuteAddUserPhone_requestId);
-    return 0; // 表示成功
-}
-
-
-
-
-
-// 添加用户手机的虚拟路径执行函数
-void DBOP_FUN_ApiAddUserPhone(struct evhttp_request *DBOP_VAR_ApiAddUserPhone_request, void *DBOP_VAR_ApiAddUserPhone_voidCfg) {
-    AppConfig *DBOP_VAR_ApiAddUserPhone_cfg = (AppConfig *)DBOP_VAR_ApiAddUserPhone_voidCfg;
-    const char *DBOP_VAR_ApiAddUserPhone_requestId = evhttp_find_header(evhttp_request_get_input_headers(DBOP_VAR_ApiAddUserPhone_request), "X-Request-ID");
-    char uuid_str[37];  // UUID字符串的长度
-    if (!DBOP_VAR_ApiAddUserPhone_requestId) {
-        // 如果请求中没有X-Request-ID头部，生成一个UUID作为请求ID
-        uuid_t uuid;
-        uuid_generate(uuid);
-        uuid_unparse(uuid, uuid_str);
-        DBOP_VAR_ApiAddUserPhone_requestId = uuid_str;
-    }
-    dzlog_info("[req: %s] Processing API request to ApiAddUserPhone.", DBOP_VAR_ApiAddUserPhone_requestId);
-    // 解析 HTTP 请求中的查询字符串并存储在 DBOP_VAR_ApiAddUserPhone_headers 结构体中
-    struct evkeyvalq DBOP_VAR_ApiAddUserPhone_headers;
-    evhttp_parse_query_str(evhttp_uri_get_query(evhttp_request_get_evhttp_uri(DBOP_VAR_ApiAddUserPhone_request)), &DBOP_VAR_ApiAddUserPhone_headers);
-    dzlog_info("[req: %s] Parsing query string from request.", DBOP_VAR_ApiAddUserPhone_requestId);
-    // 请求鉴权
-    const char *DBOP_VAR_ApiAddUserPhone_serviceName = evhttp_find_header(evhttp_request_get_input_headers(DBOP_VAR_ApiAddUserPhone_request), "ServiceName");
-    const char *DBOP_VAR_ApiAddUserPhone_token = evhttp_find_header(evhttp_request_get_input_headers(DBOP_VAR_ApiAddUserPhone_request), "Authorization");
-    if (DBOP_FUN_AuthenticateRequest(DBOP_VAR_ApiAddUserPhone_cfg, DBOP_VAR_ApiAddUserPhone_serviceName, DBOP_VAR_ApiAddUserPhone_token)) {
-        dzlog_info("[req: %s] Request authentication approval.", DBOP_VAR_ApiAddUserPhone_requestId);
-    } else {
-        dzlog_warn("[req: %s] Unauthorized access attempt.", DBOP_VAR_ApiAddUserPhone_requestId);
-        evhttp_send_reply(DBOP_VAR_ApiAddUserPhone_request, 401, "Unauthorized", NULL);
-        return;
-    }
-    // 从 POST 数据中读取 JSON 参数
-    struct evbuffer *DBOP_VAR_ApiAddUserPhone_inputBuffer = evhttp_request_get_input_buffer(DBOP_VAR_ApiAddUserPhone_request);
-    size_t DBOP_VAR_ApiAddUserPhone_bufferLen = evbuffer_get_length(DBOP_VAR_ApiAddUserPhone_inputBuffer);
-    char DBOP_VAR_ApiAddUserPhone_postData[DBOP_VAR_ApiAddUserPhone_bufferLen + 1];
-    evbuffer_remove(DBOP_VAR_ApiAddUserPhone_inputBuffer, DBOP_VAR_ApiAddUserPhone_postData, DBOP_VAR_ApiAddUserPhone_bufferLen);
-    DBOP_VAR_ApiAddUserPhone_postData[DBOP_VAR_ApiAddUserPhone_bufferLen] = '\0';
-
-    json_error_t DBOP_VAR_ApiAddUserPhone_dataJsonError;
-    json_t *DBOP_VAR_ApiAddUserPhone_dataJsonAll = json_loads(DBOP_VAR_ApiAddUserPhone_postData, 0, &DBOP_VAR_ApiAddUserPhone_dataJsonError);
-    dzlog_info("Parsing POST data, request id: %s", DBOP_VAR_ApiAddUserPhone_requestId);
-    if (!DBOP_VAR_ApiAddUserPhone_dataJsonAll) {
-        dzlog_error("Failed to parse JSON from request body, request id: %s", DBOP_VAR_ApiAddUserPhone_requestId);
-        evhttp_send_reply(DBOP_VAR_ApiAddUserPhone_request, 400, "Bad Request", NULL);
-        return;
-    }
-
-    json_t *DBOP_VAR_ApiAddUserPhone_dataJsonPhoneNumber = json_object_get(DBOP_VAR_ApiAddUserPhone_dataJsonAll, "phone_number");
-
-    if (!json_is_string(DBOP_VAR_ApiAddUserPhone_dataJsonPhoneNumber)) {
-        dzlog_error("Invalid JSON data received. Expecting string types for 'phone_number'.");
-        evhttp_send_reply(DBOP_VAR_ApiAddUserPhone_request, 400, "Bad Request", NULL);
-        json_decref(DBOP_VAR_ApiAddUserPhone_dataJsonAll);
-        return;
-    }
-    dzlog_info("[req: %s] Validating JSON data.", DBOP_VAR_ApiAddUserPhone_requestId);
-
-    const char *DBOP_VAR_ApiAddUserPhone_waitAddUserPhone = json_string_value(DBOP_VAR_ApiAddUserPhone_dataJsonPhoneNumber);
-
-    dzlog_info("[req: %s] Executing database operation for ApiAddUserPhone: %s", DBOP_VAR_ApiAddUserPhone_requestId, DBOP_VAR_ApiAddUserPhone_waitAddUserPhone);
-    // 调用数据库函数
-    int index = rand() % 10;  // 随机选择一个索引
-    DB_CONNECTION *DBOP_VAR_ApiAddUserPhone_mysqlConnect = DBOP_FUN_GetConnectFromPool(DBOP_VAR_ApiAddUserPhone_cfg, index);  // 从连接池中取出一个连接
-
-    // 发送HTTP响应
-    int result = DBOP_FUN_ExecuteAddUserPhone(DBOP_VAR_ApiAddUserPhone_mysqlConnect, DBOP_VAR_ApiAddUserPhone_waitAddUserPhone, DBOP_VAR_ApiAddUserPhone_requestId);
-
-    if (result == 1) {
-        // phone 已存在，返回 403
-        evhttp_send_reply(DBOP_VAR_ApiAddUserPhone_request, HTTP_FORBIDDEN, "Phone already exists", NULL);
-        dzlog_info("[req: %s] Phone already exists, returning 403", DBOP_VAR_ApiAddUserPhone_requestId);
-    } else if (result == 0) {
-        // 成功添加，返回 200
-        evhttp_send_reply(DBOP_VAR_ApiAddUserPhone_request, HTTP_OK, "OK", NULL);
-        dzlog_info("[req: %s] Successfully added phone, returning 200", DBOP_VAR_ApiAddUserPhone_requestId);
-    } else {
-        // 其他错误，返回 500
-        evhttp_send_reply(DBOP_VAR_ApiAddUserPhone_request, HTTP_INTERNAL, "Internal Server Error", NULL);
-        dzlog_error("[req: %s] Failed to add phone, returning 500", DBOP_VAR_ApiAddUserPhone_requestId);
-    }
-}
-
-
-// ------------------------mysql添加user_phone api逻辑结束----------------------------
 
 
 
@@ -657,10 +573,57 @@ void DBOP_FUN_ApiAddUserPhone(struct evhttp_request *DBOP_VAR_ApiAddUserPhone_re
 int DBOP_FUN_ExecuteAddUser(DB_CONNECTION *DBOP_VAR_ExecuteAddUser_connect, const char *DBOP_VAR_ExecuteAddUser_userId, const char *DBOP_VAR_ExecuteAddUser_userName, const char *DBOP_VAR_ExecuteAddUser_userPasswd, int DBOP_VAR_ExecuteAddUser_userPermission, const char *DBOP_VAR_ExecuteAddUser_phoneNumber, const char *DBOP_VAR_ExecuteAddUser_requestId) {
     dzlog_info("[req: %s] DBOP_FUN_ExecuteAddUser is starting", DBOP_VAR_ExecuteAddUser_requestId);
 
+    // ------------------------手机号检查逻辑开始----------------------------
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteAddUser is checking", DBOP_VAR_ExecuteAddUser_requestId);
+
+    char DBOP_VAR_ExecuteAddUser_noConstWaitAddUserPhone[256];
+    strncpy(DBOP_VAR_ExecuteAddUser_noConstWaitAddUserPhone, DBOP_VAR_ExecuteAddUser_phoneNumber, sizeof(DBOP_VAR_ExecuteAddUser_noConstWaitAddUserPhone) - 1);
+    DBOP_VAR_ExecuteAddUser_noConstWaitAddUserPhone[sizeof(DBOP_VAR_ExecuteAddUser_noConstWaitAddUserPhone) - 1] = '\0';
+
+    // 检查phone是否存在
+    MYSQL_BIND DBOP_VAR_ExecuteAddUser_checkBind[1];
+    memset(DBOP_VAR_ExecuteAddUser_checkBind, 0, sizeof(DBOP_VAR_ExecuteAddUser_checkBind));
+
+    DBOP_VAR_ExecuteAddUser_checkBind[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteAddUser_checkBind[0].buffer = (char *)DBOP_VAR_ExecuteAddUser_noConstWaitAddUserPhone;
+    DBOP_VAR_ExecuteAddUser_checkBind[0].buffer_length = strlen(DBOP_VAR_ExecuteAddUser_noConstWaitAddUserPhone);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteAddUser_connect->stmt_check_phone, DBOP_VAR_ExecuteAddUser_checkBind)) {
+        dzlog_error("[req: %s] Failed to bind check param: %s", DBOP_VAR_ExecuteAddUser_requestId, mysql_stmt_error(DBOP_VAR_ExecuteAddUser_connect->stmt_check_phone));
+        return -1; // 表示绑定参数失败
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteAddUser_connect->stmt_check_phone)) {
+        dzlog_error("[req: %s] Failed to execute check statement: %s", DBOP_VAR_ExecuteAddUser_requestId, mysql_stmt_error(DBOP_VAR_ExecuteAddUser_connect->stmt_check_phone));
+        return -1; // 表示执行语句失败
+    }
+
+    MYSQL_BIND DBOP_VAR_ExecuteAddUser_checkResult[1];
+    memset(DBOP_VAR_ExecuteAddUser_checkResult, 0, sizeof(DBOP_VAR_ExecuteAddUser_checkResult));
+    int count;
+    DBOP_VAR_ExecuteAddUser_checkResult[0].buffer_type = MYSQL_TYPE_LONG;
+    DBOP_VAR_ExecuteAddUser_checkResult[0].buffer = &count;
+
+    if (mysql_stmt_bind_result(DBOP_VAR_ExecuteAddUser_connect->stmt_check_phone, DBOP_VAR_ExecuteAddUser_checkResult)) {
+        dzlog_error("[req: %s] Failed to bind check result: %s", DBOP_VAR_ExecuteAddUser_requestId, mysql_stmt_error(DBOP_VAR_ExecuteAddUser_connect->stmt_check_phone));
+        return -1; // 表示绑定结果失败
+    }
+
+    if (mysql_stmt_fetch(DBOP_VAR_ExecuteAddUser_connect->stmt_check_phone)) {
+        dzlog_error("[req: %s] Failed to fetch check result: %s", DBOP_VAR_ExecuteAddUser_requestId, mysql_stmt_error(DBOP_VAR_ExecuteAddUser_connect->stmt_check_phone));
+        return -1; // 表示获取结果失败
+    }
+    mysql_stmt_free_result(DBOP_VAR_ExecuteAddUser_connect->stmt_check_phone);
+
+    if (count > 0) {
+        dzlog_info("[req: %s] Phone number already exists", DBOP_VAR_ExecuteAddUser_requestId);
+        return 1; // 表示phone已存在
+    }
+    // ------------------------手机号检查逻辑结束----------------------------
+
     MYSQL_BIND DBOP_VAR_ExecuteAddUser_bindParams[5];
     memset(DBOP_VAR_ExecuteAddUser_bindParams, 0, sizeof(DBOP_VAR_ExecuteAddUser_bindParams));
 
-    
     DBOP_VAR_ExecuteAddUser_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
     DBOP_VAR_ExecuteAddUser_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteAddUser_userId;
     DBOP_VAR_ExecuteAddUser_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteAddUser_userId);
@@ -680,7 +643,6 @@ int DBOP_FUN_ExecuteAddUser(DB_CONNECTION *DBOP_VAR_ExecuteAddUser_connect, cons
     DBOP_VAR_ExecuteAddUser_bindParams[4].buffer_type = MYSQL_TYPE_STRING;
     DBOP_VAR_ExecuteAddUser_bindParams[4].buffer = (char *)DBOP_VAR_ExecuteAddUser_phoneNumber;
     DBOP_VAR_ExecuteAddUser_bindParams[4].buffer_length = strlen(DBOP_VAR_ExecuteAddUser_phoneNumber);
-
 
     if (mysql_stmt_bind_param(DBOP_VAR_ExecuteAddUser_connect->stmt_add_user, DBOP_VAR_ExecuteAddUser_bindParams)) {
         dzlog_error("[req: %s] Failed to bind insert param: %s", DBOP_VAR_ExecuteAddUser_requestId, mysql_stmt_error(DBOP_VAR_ExecuteAddUser_connect->stmt_add_user));
@@ -762,8 +724,11 @@ void DBOP_FUN_ApiAddUser(struct evhttp_request *DBOP_VAR_ApiAddUser_request, voi
     int DBOP_VAR_ApiAddUser_userPermission = json_integer_value(DBOP_VAR_ApiAddUser_dataJsonUserPermission);
     const char *DBOP_VAR_ApiAddUser_phoneNumber = json_string_value(DBOP_VAR_ApiAddUser_dataJsonPhoneNumber);
     
+    dzlog_info("[%s] Executing database operation for ApiAddUser: userId=%s, userName=%s, permissionLevel=%d, phoneNumber=%s", DBOP_VAR_ApiAddUser_requestId, DBOP_VAR_ApiAddUser_userId, DBOP_VAR_ApiAddUser_userName, DBOP_VAR_ApiAddUser_userPermission, DBOP_VAR_ApiAddUser_phoneNumber);
 
-    int index = rand() % 10;
+    // 调用数据库函数 - 使用线程安全的随机数生成
+    unsigned int seed = (unsigned int)pthread_self();
+    int index = rand_r(&seed) % DBOP_GLV_actualDBPoolSize;  // 使用实际的连接池大小
     DB_CONNECTION *DBOP_VAR_ApiAddUser_mysqlConnect = DBOP_FUN_GetConnectFromPool(DBOP_VAR_ApiAddUser_cfg, index);
 
     int result = DBOP_FUN_ExecuteAddUser(DBOP_VAR_ApiAddUser_mysqlConnect, DBOP_VAR_ApiAddUser_userId, DBOP_VAR_ApiAddUser_userName, DBOP_VAR_ApiAddUser_userPasswd, DBOP_VAR_ApiAddUser_userPermission, DBOP_VAR_ApiAddUser_phoneNumber, DBOP_VAR_ApiAddUser_requestId);
@@ -771,6 +736,9 @@ void DBOP_FUN_ApiAddUser(struct evhttp_request *DBOP_VAR_ApiAddUser_request, voi
     if (result == 0) {
         evhttp_send_reply(DBOP_VAR_ApiAddUser_request, HTTP_OK, "OK", NULL);
         dzlog_info("[req: %s] Successfully created user, returning 200", DBOP_VAR_ApiAddUser_requestId);
+    } else if (result == 1) {
+        evhttp_send_reply(DBOP_VAR_ApiAddUser_request, 400, "Phone number already exists", NULL);
+        dzlog_error("[req: %s] Phone number already exists, returning 400", DBOP_VAR_ApiAddUser_requestId);
     } else {
         evhttp_send_reply(DBOP_VAR_ApiAddUser_request, HTTP_INTERNAL, "Internal Server Error", NULL);
         dzlog_error("[req: %s] Failed to create user, returning 500", DBOP_VAR_ApiAddUser_requestId);
@@ -778,8 +746,6 @@ void DBOP_FUN_ApiAddUser(struct evhttp_request *DBOP_VAR_ApiAddUser_request, voi
 
     json_decref(DBOP_VAR_ApiAddUser_dataJsonAll);
 }
-
-
 // ------------------------mysql添加用户api逻辑结束----------------------------
 
 
@@ -812,13 +778,13 @@ int DBOP_FUN_ExecuteCreateProject(DB_CONNECTION *DBOP_VAR_ExecuteCreateProject_c
     DBOP_VAR_ExecuteCreateProject_bindParams[3].buffer = (char *)DBOP_VAR_ExecuteCreateProject_realName;
     DBOP_VAR_ExecuteCreateProject_bindParams[3].buffer_length = strlen(DBOP_VAR_ExecuteCreateProject_realName);
 
-    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteCreateProject_connect->stmt_insert_project, DBOP_VAR_ExecuteCreateProject_bindParams)) {
-        dzlog_error("[req: %s] Failed to bind insert param: %s", DBOP_VAR_ExecuteCreateProject_requestId, mysql_stmt_error(DBOP_VAR_ExecuteCreateProject_connect->stmt_insert_project));
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteCreateProject_connect->stmt_add_project, DBOP_VAR_ExecuteCreateProject_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind insert param: %s", DBOP_VAR_ExecuteCreateProject_requestId, mysql_stmt_error(DBOP_VAR_ExecuteCreateProject_connect->stmt_add_project));
         return -1; // 表示绑定插入参数失败
     }
 
-    if (mysql_stmt_execute(DBOP_VAR_ExecuteCreateProject_connect->stmt_insert_project)) {
-        dzlog_error("[req: %s] Failed to execute insert statement: %s", DBOP_VAR_ExecuteCreateProject_requestId, mysql_stmt_error(DBOP_VAR_ExecuteCreateProject_connect->stmt_insert_project));
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteCreateProject_connect->stmt_add_project)) {
+        dzlog_error("[req: %s] Failed to execute insert statement: %s", DBOP_VAR_ExecuteCreateProject_requestId, mysql_stmt_error(DBOP_VAR_ExecuteCreateProject_connect->stmt_add_project));
         return -1; // 表示执行插入语句失败
     }
 
@@ -843,7 +809,7 @@ void DBOP_FUN_ApiCreateProject(struct evhttp_request *DBOP_VAR_ApiCreateProject_
     // 解析 HTTP 请求中的查询字符串并存储在 DBOP_VAR_ApiCreateProject_headers 结构体中
     struct evkeyvalq DBOP_VAR_ApiCreateProject_headers;
     evhttp_parse_query_str(evhttp_uri_get_query(evhttp_request_get_evhttp_uri(DBOP_VAR_ApiCreateProject_request)), &DBOP_VAR_ApiCreateProject_headers);
-
+    dzlog_info("Parsing query string from request, request id: %s", DBOP_VAR_ApiCreateProject_requestId);
     // 请求鉴权
     const char *DBOP_VAR_ApiCreateProject_serviceName = evhttp_find_header(evhttp_request_get_input_headers(DBOP_VAR_ApiCreateProject_request), "ServiceName");
     const char *DBOP_VAR_ApiCreateProject_token = evhttp_find_header(evhttp_request_get_input_headers(DBOP_VAR_ApiCreateProject_request), "Authorization");
@@ -854,7 +820,6 @@ void DBOP_FUN_ApiCreateProject(struct evhttp_request *DBOP_VAR_ApiCreateProject_
         evhttp_send_reply(DBOP_VAR_ApiCreateProject_request, 401, "Unauthorized", NULL);
         return;
     }
-
     // 从 POST 数据中读取 JSON 参数
     struct evbuffer *DBOP_VAR_ApiCreateProject_inputBuffer = evhttp_request_get_input_buffer(DBOP_VAR_ApiCreateProject_request);
     size_t DBOP_VAR_ApiCreateProject_bufferLen = evbuffer_get_length(DBOP_VAR_ApiCreateProject_inputBuffer);
@@ -893,8 +858,9 @@ void DBOP_FUN_ApiCreateProject(struct evhttp_request *DBOP_VAR_ApiCreateProject_
     int DBOP_VAR_ApiCreateProject_userAge = json_integer_value(DBOP_VAR_ApiCreateProject_dataJsonUserAge);
     const char *DBOP_VAR_ApiCreateProject_realName = json_string_value(DBOP_VAR_ApiCreateProject_dataJsonRealName);
 
-    // 调用数据库函数
-    int index = rand() % 10;  // 随机选择一个索引
+    // 调用数据库函数 - 使用线程安全的随机数生成
+    unsigned int seed = (unsigned int)pthread_self();
+    int index = rand_r(&seed) % DBOP_GLV_actualDBPoolSize;  // 使用实际的连接池大小
     DB_CONNECTION *DBOP_VAR_ApiCreateProject_mysqlConnect = DBOP_FUN_GetConnectFromPool(DBOP_VAR_ApiCreateProject_cfg, index);  // 从连接池中取出一个连接
 
     // 发送HTTP响应
@@ -1042,8 +1008,9 @@ void DBOP_FUN_ApiGetServicePasswd(struct evhttp_request *DBOP_VAR_ApiGetServiceP
     const char *DBOP_VAR_ApiGetServicePasswd_waitGetPassword = json_string_value(DBOP_VAR_ApiGetServicePasswd_dataJsonServiceName);
 
     dzlog_info("[%s] Executing database operation for ApiGetServicePasswd: %s", DBOP_VAR_ApiGetServicePasswd_requestId, DBOP_VAR_ApiGetServicePasswd_waitGetPassword);
-    // 调用数据库函数
-    int index = rand() % 10;  // 随机选择一个索引
+    // 调用数据库函数 - 使用线程安全的随机数生成
+    unsigned int seed = (unsigned int)pthread_self();
+    int index = rand_r(&seed) % DBOP_GLV_actualDBPoolSize;  // 使用实际的连接池大小
     DB_CONNECTION *DBOP_VAR_ApiGetServicePasswd_mysqlConnect = DBOP_FUN_GetConnectFromPool(DBOP_VAR_ApiGetServicePasswd_cfg, index);  // 从连接池中取出一个连接
     char* DBOP_VAR_ApiGetServicePasswd_returnPassword = DBOP_FUN_ExecuteGetServicePassword(DBOP_VAR_ApiGetServicePasswd_mysqlConnect, DBOP_VAR_ApiGetServicePasswd_waitGetPassword);
     // 创建返回体evbuffer实例
@@ -1087,9 +1054,30 @@ int main() {
     AppConfig DBOP_VAR_Main_cfg = DBOP_FUN_MainConfigParse("config/config.yaml"); //初始化结构体
     struct event_base *DBOP_VAR_Main_eventBase = event_base_new();
     struct evhttp *DBOP_VAR_Main_httpServer = evhttp_new(DBOP_VAR_Main_eventBase);
-    srand(time(NULL));
+    
+    // 使用更安全的随机数种子初始化
+    struct timespec ts;
+    clock_gettime(CLOCK_REALTIME, &ts);
+    srand((unsigned int)(ts.tv_nsec ^ ts.tv_sec));
 
-    DBOP_GLV_redisConnectPool = DBOP_FUN_InitializeRedisPool(&DBOP_VAR_Main_cfg, 10);
+    // 从配置获取Redis连接池大小，默认为10
+    int redisPoolSize = 10;
+    if (DBOP_VAR_Main_cfg.DBOP_GLV_redisPoolSize != NULL) {
+        redisPoolSize = atoi(DBOP_VAR_Main_cfg.DBOP_GLV_redisPoolSize);
+        if (redisPoolSize <= 0) {
+            redisPoolSize = 10; // 如果配置无效，使用默认值
+        }
+    }
+    
+    // 保存实际的 Redis 连接池大小
+    DBOP_GLV_actualRedisPoolSize = redisPoolSize;
+    
+    // 加锁保护Redis连接池初始化
+    pthread_mutex_lock(&DBOP_GLV_redisConnection_mutex);
+    DBOP_GLV_redisConnectPool = DBOP_FUN_InitializeRedisPool(&DBOP_VAR_Main_cfg, redisPoolSize);
+    pthread_mutex_unlock(&DBOP_GLV_redisConnection_mutex);
+    
+    dzlog_info("Initialized Redis connection pool with %d connections", redisPoolSize);
     
     DBOP_FUN_InitLogging(&DBOP_VAR_Main_cfg);
     
@@ -1098,8 +1086,6 @@ int main() {
     // 路径路由
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/add_user", DBOP_FUN_ApiAddUser, &DBOP_VAR_Main_cfg);
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/get_service_passwd", DBOP_FUN_ApiGetServicePasswd, &DBOP_VAR_Main_cfg);
-    //evhttp_set_cb(DBOP_VAR_Main_httpServer, "/get_user_by_phone", DBOP_FUN_ApiGetUserByPhone, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/add_user_phone", DBOP_FUN_ApiAddUserPhone, &DBOP_VAR_Main_cfg);
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/create_project", DBOP_FUN_ApiCreateProject, &DBOP_VAR_Main_cfg);
 
     // 绑定到 0.0.0.0:DBOP_GLV_serverPort
@@ -1111,13 +1097,13 @@ int main() {
     // 启动事件循环
     event_base_dispatch(DBOP_VAR_Main_eventBase);
 
-    // 释放 libevent 和 libevhttp 资源
+    // 清理资源
+    DBOP_FUN_DestroyConnPool();
+    DBOP_FUN_DestroyRedisPool(DBOP_GLV_redisConnectPool);
+    DBOP_FUN_FreeConfig(&DBOP_VAR_Main_cfg);
     evhttp_free(DBOP_VAR_Main_httpServer);
     event_base_free(DBOP_VAR_Main_eventBase);
-
-    // 销毁数据库连接池和释放配置资源
-    DBOP_FUN_DestroyConnPool();
-    DBOP_FUN_FreeConfig(&DBOP_VAR_Main_cfg);
+    
     //关闭zlog
     zlog_fini();
     return 0;

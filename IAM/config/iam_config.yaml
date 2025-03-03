@@ -1,8 +1,9 @@
-redis_server: "192.168.1.100"
-redis_port: "6900"
-redis_password: "a1b2c3"
-dbop_service_url: "192.168.1.200"
-dbop_service_port: "19000"
-server_port: "10089"
-server_ip: "0.0.0.0"
-log_file: "logs/identity_access_management/"
+redis_server: 192.168.1.100
+redis_port: 6900
+redis_password: a1b2c3
+dbop_service_url: 192.168.1.200
+dbop_service_port: 19000
+server_port: 10089
+server_ip: 0.0.0.0
+log_file: /home/iam/logs/identity_access_management/
+log_config: /home/iam/config/zlog.conf
