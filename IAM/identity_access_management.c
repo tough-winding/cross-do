@@ -28,7 +28,7 @@
 #include <jansson.h>
 
 // libvent多线程支持头文件
-// #include <event2/thread.h>
+#include <event2/thread.h>
 
 // 目前为单线程、http
 // 代码结构支持多线程场景，必要时只需要解除多线程支持的注释即可
@@ -288,13 +288,13 @@ char* IAM_FUN_GenerateAndStoreToken(const AppConfig* IAM_VAR_GenerateAndStoreTok
     redisReply* reply = redisCommand(IAM_GLV_redisConnectPool->IAM_GLV_redisConnections[IAM_VAR_AuthenticateRequest_index], "SETEX %s 1800 %s", IAM_VAR_GenerateAndStoreToken_serviceUsername, IAM_VAR_GenerateAndStoreToken_newToken);
     if (reply->type == REDIS_REPLY_ERROR) {
         dzlog_error("[%s]Error reported when writing service name %s to Redis: %s", IAM_VAR_GenerateAndStoreToken_requestId, IAM_VAR_GenerateAndStoreToken_serviceUsername, reply->str);
-        free(reply);
+        freeReplyObject(reply);
         return NULL;
     } else {
         dzlog_debug("[%s]Token generated and stored successfully for service name: %s", IAM_VAR_GenerateAndStoreToken_requestId, IAM_VAR_GenerateAndStoreToken_serviceUsername);
     }
     
-    free(reply);
+    freeReplyObject(reply);
     return(IAM_VAR_GenerateAndStoreToken_newToken);
 }
 
@@ -454,7 +454,6 @@ char* IAM_FUN_InterfaceCore(const AppConfig* app_config, const char* IAM_VAR_Int
     // 与DBOP通信获取服务密码
     char* IAM_VAR_InterfaceCore_servicePasswd = IAM_FUN_GetServicePassword(IAM_VAR_InterfaceCore_dbUrl, IAM_GLV_selfUseToken, IAM_VAR_InterfaceCore_reqAuthServiceName, IAM_VAR_InterfaceCore_requestId);
     if (IAM_VAR_InterfaceCore_servicePasswd == NULL) {
-        free(IAM_VAR_InterfaceCore_servicePasswd);
         dzlog_error("[%s] Failed to get service password from C service.", IAM_VAR_InterfaceCore_requestId);
         return strdup("illegal_request");
     }
@@ -541,7 +540,7 @@ void IAM_FUN_GetTokenHandler(struct evhttp_request *IAM_VAR_GetTokenHandler_requ
 // 触发器，去触发generate_and_store_token来生成IAM自身服务的token
 void IAM_FUN_TokenRefreshCallback(evutil_socket_t IAM_VAR_TokenRefreshCallback_socketFd, short IAM_VAR_TokenRefreshCallback_eventType, void *arg) {
     AppConfig *app_config = (AppConfig *)arg;
-    char* IAM_VAR_TokenRefreshCallback_newToken = IAM_FUN_GenerateAndStoreToken(app_config, "IAM_SERVICE", "IAM_SERVICE");
+    char* IAM_VAR_TokenRefreshCallback_newToken = IAM_FUN_GenerateAndStoreToken(app_config, "IAM_SERVICE", "TOKEN_REFRESH");
 
     if (IAM_VAR_TokenRefreshCallback_newToken == NULL) {
         fprintf(stderr, "Failed to generate and store token. Stopping service.\n");
@@ -577,10 +576,10 @@ int main() {
 
     evhttp_set_cb(IAM_VAR_Main_httpServer, "/get_token", IAM_FUN_GetTokenHandler, &IAM_VAR_Main_cfg);
     // 初始化libevent的多线程支持
-    // evthread_use_pthreads();
+    evthread_use_pthreads();
 
     // 初始化libcurl的多线程支持
-    // curl_global_init(CURL_GLOBAL_ALL);
+    curl_global_init(CURL_GLOBAL_ALL);
 
     // 先生成一个自己的token
     IAM_FUN_TokenRefreshCallback(-1, 0, &IAM_VAR_Main_cfg);
@@ -591,6 +590,52 @@ int main() {
     if (evhttp_bind_socket(IAM_VAR_Main_httpServer, "0.0.0.0", atoi(IAM_VAR_Main_cfg.IAM_GLV_serverPort)) != 0) {
         // 这里后面要补错误处理逻辑
         // watting to do
+        dzlog_error("Failed to bind socket to port %s. Exiting.", IAM_VAR_Main_cfg.IAM_GLV_serverPort);
+        
+        // 释放资源
+        if (IAM_GLV_tokenRefreshEvent) {
+            event_free(IAM_GLV_tokenRefreshEvent);
+        }
+        
+        evhttp_free(IAM_VAR_Main_httpServer);
+        event_base_free(IAM_VAR_Main_eventBase);
+        
+        // 释放Redis连接池资源
+        if (IAM_GLV_redisConnectPool) {
+            for (int i = 0; i < IAM_GLV_redisConnectPool->IAM_GLV_poolSize; i++) {
+                if (IAM_GLV_redisConnectPool->IAM_GLV_redisConnections[i]) {
+                    redisFree(IAM_GLV_redisConnectPool->IAM_GLV_redisConnections[i]);
+                }
+            }
+            free(IAM_GLV_redisConnectPool->IAM_GLV_redisConnections);
+            pthread_mutex_destroy(&IAM_GLV_redisConnectPool->IAM_GLV_poolMutex);
+            free(IAM_GLV_redisConnectPool);
+        }
+        
+        // 释放配置结构体中的字符串成员
+        free(IAM_VAR_Main_cfg.IAM_GLV_redisServerIp);
+        free(IAM_VAR_Main_cfg.IAM_GLV_redisServerPort);
+        free(IAM_VAR_Main_cfg.IAM_GLV_redisServerPassword);
+        free(IAM_VAR_Main_cfg.IAM_GLV_dbopServiceHost);
+        free(IAM_VAR_Main_cfg.IAM_GLV_dbopServicePort);
+        free(IAM_VAR_Main_cfg.IAM_GLV_serverIp);
+        free(IAM_VAR_Main_cfg.IAM_GLV_serverPort);
+        free(IAM_VAR_Main_cfg.IAM_GLV_logConfig);
+        
+        // 释放全局token
+        if (IAM_GLV_selfUseToken) {
+            free(IAM_GLV_selfUseToken);
+        }
+        
+        // 销毁互斥锁
+        pthread_mutex_destroy(&IAM_GLV_redisConnection_mutex);
+        
+        // 关闭日志系统
+        zlog_fini();
+        
+        // 清理libcurl资源
+        curl_global_cleanup();
+        
         return 1;
     }
 
@@ -605,7 +650,40 @@ int main() {
         event_free(IAM_GLV_tokenRefreshEvent);
     }
 
-    // 清理libcurl资源(不是我想加的，我感觉没必要，这个是让gpt加注释的时候她补上的)
+    // 释放Redis连接池资源
+    if (IAM_GLV_redisConnectPool) {
+        for (int i = 0; i < IAM_GLV_redisConnectPool->IAM_GLV_poolSize; i++) {
+            if (IAM_GLV_redisConnectPool->IAM_GLV_redisConnections[i]) {
+                redisFree(IAM_GLV_redisConnectPool->IAM_GLV_redisConnections[i]);
+            }
+        }
+        free(IAM_GLV_redisConnectPool->IAM_GLV_redisConnections);
+        pthread_mutex_destroy(&IAM_GLV_redisConnectPool->IAM_GLV_poolMutex);
+        free(IAM_GLV_redisConnectPool);
+    }
+
+    // 释放配置结构体中的字符串成员
+    free(IAM_VAR_Main_cfg.IAM_GLV_redisServerIp);
+    free(IAM_VAR_Main_cfg.IAM_GLV_redisServerPort);
+    free(IAM_VAR_Main_cfg.IAM_GLV_redisServerPassword);
+    free(IAM_VAR_Main_cfg.IAM_GLV_dbopServiceHost);
+    free(IAM_VAR_Main_cfg.IAM_GLV_dbopServicePort);
+    free(IAM_VAR_Main_cfg.IAM_GLV_serverIp);
+    free(IAM_VAR_Main_cfg.IAM_GLV_serverPort);
+    free(IAM_VAR_Main_cfg.IAM_GLV_logConfig);
+
+    // 释放全局token
+    if (IAM_GLV_selfUseToken) {
+        free(IAM_GLV_selfUseToken);
+    }
+
+    // 销毁互斥锁
+    pthread_mutex_destroy(&IAM_GLV_redisConnection_mutex);
+
+    // 关闭日志系统
+    zlog_fini();
+
+    // 清理libcurl资源
     curl_global_cleanup();
 
     return 0;
