@@ -15,6 +15,11 @@
                 curl -X POST "http://服务ip:服务端口/create_project" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"project_id":"project ID", "user_id":"用户ID", "user_age":用户年龄, "real_name":"用户真实姓名"}'
                 curl -X POST "http://192.168.1.10:1900/create_project" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"project_id":"d7aa0e59-9be6-4c76-9bf1-ee937791b8a8", "user_id":"b8a1a6f9-739d-4a5d-9183-1d7ad9e1f6db", "user_age":32, "real_name":"李通"}'
     200RETURN： 什么都不返回
+    REQUEST:    更新最后一次登录时间
+                curl -X POST "http://服务ip:服务端口/update_login_time" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"user_id":"用户ID"}'
+                curl -X POST "http://192.168.1.10:1900/update_login_time" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"user_id":"b8a1a6f9-739d-4a5d-9183-1d7ad9e1f6db"}'
+    200RETURN： 什么都不返回
+    
 
 */
 /*
@@ -80,6 +85,7 @@ typedef struct {
     MYSQL_STMT *stmt_add_user;
     MYSQL_STMT *stmt_get_service_passwd;
     MYSQL_STMT *stmt_add_project;
+    MYSQL_STMT *stmt_update_login_time;
 } DB_CONNECTION;
 
 // 初始化dzlog
@@ -443,6 +449,12 @@ void DBOP_FUN_InitializeMySQLConnection(DB_CONNECTION *DBOP_VAR_InitializeMySQLC
         dzlog_error("Failed to prepare insert statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_add_project));
         exit(EXIT_FAILURE);
     }
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_login_time = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *update_login_time_sql = "UPDATE user SET login_time = NOW() WHERE user_id = ?;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_login_time, update_login_time_sql, strlen(update_login_time_sql))) {
+        dzlog_error("Failed to prepare update statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_login_time));
+        exit(EXIT_FAILURE);
+    }
 }
 
 // 初始化mysql连接池
@@ -499,6 +511,9 @@ void DBOP_FUN_DestroyConnPool() {
         if (DBOP_GLV_mysqlConnectPool[i]->stmt_add_project != NULL) {
             mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_add_project);
         }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_update_login_time != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_update_login_time);
+        }
         if (DBOP_GLV_mysqlConnectPool[i]->mysql != NULL) {
             mysql_close(DBOP_GLV_mysqlConnectPool[i]->mysql);
         }
@@ -526,6 +541,9 @@ void DBOP_FUN_ReinitializeConnPool(AppConfig *DBOP_VAR_ReinitializeConnPool_cfg,
     }
     if (DBOP_VAR_ReinitializeConnPool_connect->stmt_add_project != NULL) {
         mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_add_project);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_update_login_time != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_update_login_time);
     }
     if (DBOP_VAR_ReinitializeConnPool_connect->mysql != NULL) {
         mysql_close(DBOP_VAR_ReinitializeConnPool_connect->mysql);
@@ -563,6 +581,82 @@ DB_CONNECTION* DBOP_FUN_GetConnectFromPool(AppConfig *DBOP_VAR_GetConnectFromPoo
 
 
 // ------------------------mysql通用操作逻辑结束----------------------------
+
+
+// ------------------------API通用辅助函数开始----------------------------
+
+// 获取或生成请求ID
+const char* DBOP_FUN_GetOrGenerateRequestId(struct evhttp_request *DBOP_VAR_GetOrGenerateRequestId_request, char *DBOP_VAR_GetOrGenerateRequestId_uuidBuffer) {
+    const char *DBOP_VAR_GetOrGenerateRequestId_requestId = evhttp_find_header(evhttp_request_get_input_headers(DBOP_VAR_GetOrGenerateRequestId_request), "X-Request-ID");
+    if (!DBOP_VAR_GetOrGenerateRequestId_requestId) {
+        // 如果请求中没有X-Request-ID头部，生成一个UUID作为请求ID
+        uuid_t uuid;
+        uuid_generate(uuid);
+        uuid_unparse(uuid, DBOP_VAR_GetOrGenerateRequestId_uuidBuffer);
+        DBOP_VAR_GetOrGenerateRequestId_requestId = DBOP_VAR_GetOrGenerateRequestId_uuidBuffer;
+    }
+    return DBOP_VAR_GetOrGenerateRequestId_requestId;
+}
+
+// 执行请求鉴权
+bool DBOP_FUN_HandleAuthentication(struct evhttp_request *DBOP_VAR_HandleAuthentication_request, AppConfig *DBOP_VAR_HandleAuthentication_cfg, const char *DBOP_VAR_HandleAuthentication_requestId) {
+    const char *DBOP_VAR_HandleAuthentication_serviceName = evhttp_find_header(evhttp_request_get_input_headers(DBOP_VAR_HandleAuthentication_request), "ServiceName");
+    const char *DBOP_VAR_HandleAuthentication_token = evhttp_find_header(evhttp_request_get_input_headers(DBOP_VAR_HandleAuthentication_request), "Authorization");
+    
+    if (DBOP_FUN_AuthenticateRequest(DBOP_VAR_HandleAuthentication_cfg, DBOP_VAR_HandleAuthentication_serviceName, DBOP_VAR_HandleAuthentication_token)) {
+        dzlog_info("[req: %s] Request authentication approval.", DBOP_VAR_HandleAuthentication_requestId);
+        return true;
+    } else {
+        dzlog_warn("[req: %s] Unauthorized access attempt.", DBOP_VAR_HandleAuthentication_requestId);
+        evhttp_send_reply(DBOP_VAR_HandleAuthentication_request, 401, "Unauthorized", NULL);
+        return false;
+    }
+}
+
+// 解析POST数据为JSON
+json_t* DBOP_FUN_ParsePostDataToJson(struct evhttp_request *DBOP_VAR_ParsePostDataToJson_request, const char *DBOP_VAR_ParsePostDataToJson_requestId) {
+    struct evbuffer *DBOP_VAR_ParsePostDataToJson_inputBuffer = evhttp_request_get_input_buffer(DBOP_VAR_ParsePostDataToJson_request);
+    size_t DBOP_VAR_ParsePostDataToJson_bufferLen = evbuffer_get_length(DBOP_VAR_ParsePostDataToJson_inputBuffer);
+    char DBOP_VAR_ParsePostDataToJson_postData[DBOP_VAR_ParsePostDataToJson_bufferLen + 1];
+    evbuffer_remove(DBOP_VAR_ParsePostDataToJson_inputBuffer, DBOP_VAR_ParsePostDataToJson_postData, DBOP_VAR_ParsePostDataToJson_bufferLen);
+    DBOP_VAR_ParsePostDataToJson_postData[DBOP_VAR_ParsePostDataToJson_bufferLen] = '\0';
+
+    json_error_t DBOP_VAR_ParsePostDataToJson_dataJsonError;
+    json_t *DBOP_VAR_ParsePostDataToJson_dataJsonAll = json_loads(DBOP_VAR_ParsePostDataToJson_postData, 0, &DBOP_VAR_ParsePostDataToJson_dataJsonError);
+    dzlog_info("[req: %s] Parsing POST data.", DBOP_VAR_ParsePostDataToJson_requestId);
+    
+    if (!DBOP_VAR_ParsePostDataToJson_dataJsonAll) {
+        dzlog_error("[req: %s] Failed to parse JSON from request body.", DBOP_VAR_ParsePostDataToJson_requestId);
+        evhttp_send_reply(DBOP_VAR_ParsePostDataToJson_request, 400, "Bad Request", NULL);
+        return NULL;
+    }
+    
+    return DBOP_VAR_ParsePostDataToJson_dataJsonAll;
+}
+
+// 获取数据库连接
+DB_CONNECTION* DBOP_FUN_GetDatabaseConnection(AppConfig *DBOP_VAR_GetDatabaseConnection_cfg) {
+    // 使用线程安全的随机数生成
+    unsigned int seed = (unsigned int)pthread_self();
+    int index = rand_r(&seed) % DBOP_GLV_actualDBPoolSize;
+    return DBOP_FUN_GetConnectFromPool(DBOP_VAR_GetDatabaseConnection_cfg, index);
+}
+
+// 发送标准HTTP响应
+void DBOP_FUN_SendStandardResponse(struct evhttp_request *DBOP_VAR_SendStandardResponse_request, int DBOP_VAR_SendStandardResponse_result, const char *DBOP_VAR_SendStandardResponse_requestId, const char *DBOP_VAR_SendStandardResponse_operationName) {
+    if (DBOP_VAR_SendStandardResponse_result == 0) {
+        evhttp_send_reply(DBOP_VAR_SendStandardResponse_request, HTTP_OK, "OK", NULL);
+        dzlog_info("[req: %s] Successfully completed %s, returning 200", DBOP_VAR_SendStandardResponse_requestId, DBOP_VAR_SendStandardResponse_operationName);
+    } else if (DBOP_VAR_SendStandardResponse_result == 1) {
+        evhttp_send_reply(DBOP_VAR_SendStandardResponse_request, 400, "Bad Request", NULL);
+        dzlog_warn("[req: %s] %s failed with validation error, returning 400", DBOP_VAR_SendStandardResponse_requestId, DBOP_VAR_SendStandardResponse_operationName);
+    } else {
+        evhttp_send_reply(DBOP_VAR_SendStandardResponse_request, HTTP_INTERNAL, "Internal Server Error", NULL);
+        dzlog_error("[req: %s] Failed to complete %s, returning 500", DBOP_VAR_SendStandardResponse_requestId, DBOP_VAR_SendStandardResponse_operationName);
+    }
+}
+
+// ------------------------API通用辅助函数结束----------------------------
 
 
 
@@ -660,42 +754,19 @@ int DBOP_FUN_ExecuteAddUser(DB_CONNECTION *DBOP_VAR_ExecuteAddUser_connect, cons
 
 void DBOP_FUN_ApiAddUser(struct evhttp_request *DBOP_VAR_ApiAddUser_request, void *DBOP_VAR_ApiAddUser_voidCfg) {
     AppConfig *DBOP_VAR_ApiAddUser_cfg = (AppConfig *)DBOP_VAR_ApiAddUser_voidCfg;
-    const char *DBOP_VAR_ApiAddUser_requestId = evhttp_find_header(evhttp_request_get_input_headers(DBOP_VAR_ApiAddUser_request), "X-Request-ID");
-    char uuid_str[37];  // UUID字符串的长度
-    if (!DBOP_VAR_ApiAddUser_requestId) {
-        // 如果请求中没有X-Request-ID头部，生成一个UUID作为请求ID
-        uuid_t uuid;
-        uuid_generate(uuid);
-        uuid_unparse(uuid, uuid_str);
-        DBOP_VAR_ApiAddUser_requestId = uuid_str;
-    }
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiAddUser_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiAddUser_request, uuid_str);
+    
     dzlog_info("[req: %s] Processing API request to ApiAddUser.", DBOP_VAR_ApiAddUser_requestId);
 
-    struct evkeyvalq DBOP_VAR_ApiAddUser_headers;
-    evhttp_parse_query_str(evhttp_uri_get_query(evhttp_request_get_evhttp_uri(DBOP_VAR_ApiAddUser_request)), &DBOP_VAR_ApiAddUser_headers);
-
-    const char *DBOP_VAR_ApiAddUser_serviceName = evhttp_find_header(evhttp_request_get_input_headers(DBOP_VAR_ApiAddUser_request), "ServiceName");
-    const char *DBOP_VAR_ApiAddUser_token = evhttp_find_header(evhttp_request_get_input_headers(DBOP_VAR_ApiAddUser_request), "Authorization");
-    if (DBOP_FUN_AuthenticateRequest(DBOP_VAR_ApiAddUser_cfg, DBOP_VAR_ApiAddUser_serviceName, DBOP_VAR_ApiAddUser_token)) {
-        dzlog_info("[req: %s] Request authentication approval.", DBOP_VAR_ApiAddUser_requestId);
-    } else {
-        dzlog_warn("[req: %s] Unauthorized access attempt.", DBOP_VAR_ApiAddUser_requestId);
-        evhttp_send_reply(DBOP_VAR_ApiAddUser_request, 401, "Unauthorized", NULL);
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiAddUser_request, DBOP_VAR_ApiAddUser_cfg, DBOP_VAR_ApiAddUser_requestId)) {
         return;
     }
 
-    struct evbuffer *DBOP_VAR_ApiAddUser_inputBuffer = evhttp_request_get_input_buffer(DBOP_VAR_ApiAddUser_request);
-    size_t DBOP_VAR_ApiAddUser_bufferLen = evbuffer_get_length(DBOP_VAR_ApiAddUser_inputBuffer);
-    char DBOP_VAR_ApiAddUser_postData[DBOP_VAR_ApiAddUser_bufferLen + 1];
-    evbuffer_remove(DBOP_VAR_ApiAddUser_inputBuffer, DBOP_VAR_ApiAddUser_postData, DBOP_VAR_ApiAddUser_bufferLen);
-    DBOP_VAR_ApiAddUser_postData[DBOP_VAR_ApiAddUser_bufferLen] = '\0';
-
-    json_error_t DBOP_VAR_ApiAddUser_dataJsonError;
-    json_t *DBOP_VAR_ApiAddUser_dataJsonAll = json_loads(DBOP_VAR_ApiAddUser_postData, 0, &DBOP_VAR_ApiAddUser_dataJsonError);
-    dzlog_info("[req: %s] Parsing POST data.", DBOP_VAR_ApiAddUser_requestId);
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiAddUser_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiAddUser_request, DBOP_VAR_ApiAddUser_requestId);
     if (!DBOP_VAR_ApiAddUser_dataJsonAll) {
-        dzlog_error("[req: %s] Failed to parse JSON from request body.", DBOP_VAR_ApiAddUser_requestId);
-        evhttp_send_reply(DBOP_VAR_ApiAddUser_request, 400, "Bad Request", NULL);
         return;
     }
 
@@ -716,8 +787,6 @@ void DBOP_FUN_ApiAddUser(struct evhttp_request *DBOP_VAR_ApiAddUser_request, voi
         return;
     }
 
-    dzlog_info("[req: %s] Executing database operation for ApiAddUser.", DBOP_VAR_ApiAddUser_requestId);
-
     const char *DBOP_VAR_ApiAddUser_userId = json_string_value(DBOP_VAR_ApiAddUser_dataJsonUserId);
     const char *DBOP_VAR_ApiAddUser_userName = json_string_value(DBOP_VAR_ApiAddUser_dataJsonUserName);
     const char *DBOP_VAR_ApiAddUser_userPasswd = json_string_value(DBOP_VAR_ApiAddUser_dataJsonUserPasswd);
@@ -726,13 +795,11 @@ void DBOP_FUN_ApiAddUser(struct evhttp_request *DBOP_VAR_ApiAddUser_request, voi
     
     dzlog_info("[%s] Executing database operation for ApiAddUser: userId=%s, userName=%s, permissionLevel=%d, phoneNumber=%s", DBOP_VAR_ApiAddUser_requestId, DBOP_VAR_ApiAddUser_userId, DBOP_VAR_ApiAddUser_userName, DBOP_VAR_ApiAddUser_userPermission, DBOP_VAR_ApiAddUser_phoneNumber);
 
-    // 调用数据库函数 - 使用线程安全的随机数生成
-    unsigned int seed = (unsigned int)pthread_self();
-    int index = rand_r(&seed) % DBOP_GLV_actualDBPoolSize;  // 使用实际的连接池大小
-    DB_CONNECTION *DBOP_VAR_ApiAddUser_mysqlConnect = DBOP_FUN_GetConnectFromPool(DBOP_VAR_ApiAddUser_cfg, index);
-
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiAddUser_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiAddUser_cfg);
     int result = DBOP_FUN_ExecuteAddUser(DBOP_VAR_ApiAddUser_mysqlConnect, DBOP_VAR_ApiAddUser_userId, DBOP_VAR_ApiAddUser_userName, DBOP_VAR_ApiAddUser_userPasswd, DBOP_VAR_ApiAddUser_userPermission, DBOP_VAR_ApiAddUser_phoneNumber, DBOP_VAR_ApiAddUser_requestId);
 
+    // 发送响应
     if (result == 0) {
         evhttp_send_reply(DBOP_VAR_ApiAddUser_request, HTTP_OK, "OK", NULL);
         dzlog_info("[req: %s] Successfully created user, returning 200", DBOP_VAR_ApiAddUser_requestId);
@@ -795,44 +862,19 @@ int DBOP_FUN_ExecuteCreateProject(DB_CONNECTION *DBOP_VAR_ExecuteCreateProject_c
 // 创建项目的API接口
 void DBOP_FUN_ApiCreateProject(struct evhttp_request *DBOP_VAR_ApiCreateProject_request, void *DBOP_VAR_ApiCreateProject_voidCfg) {
     AppConfig *DBOP_VAR_ApiCreateProject_cfg = (AppConfig *)DBOP_VAR_ApiCreateProject_voidCfg;
-    const char *DBOP_VAR_ApiCreateProject_requestId = evhttp_find_header(evhttp_request_get_input_headers(DBOP_VAR_ApiCreateProject_request), "X-Request-ID");
-    char uuid_str[37];  // UUID字符串的长度
-    if (!DBOP_VAR_ApiCreateProject_requestId) {
-        // 如果请求中没有X-Request-ID头部，生成一个UUID作为请求ID
-        uuid_t uuid;
-        uuid_generate(uuid);
-        uuid_unparse(uuid, uuid_str);
-        DBOP_VAR_ApiCreateProject_requestId = uuid_str;
-    }
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiCreateProject_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiCreateProject_request, uuid_str);
+    
     dzlog_info("[req: %s] Processing API request to ApiCreateProject.", DBOP_VAR_ApiCreateProject_requestId);
 
-    // 解析 HTTP 请求中的查询字符串并存储在 DBOP_VAR_ApiCreateProject_headers 结构体中
-    struct evkeyvalq DBOP_VAR_ApiCreateProject_headers;
-    evhttp_parse_query_str(evhttp_uri_get_query(evhttp_request_get_evhttp_uri(DBOP_VAR_ApiCreateProject_request)), &DBOP_VAR_ApiCreateProject_headers);
-    dzlog_info("Parsing query string from request, request id: %s", DBOP_VAR_ApiCreateProject_requestId);
     // 请求鉴权
-    const char *DBOP_VAR_ApiCreateProject_serviceName = evhttp_find_header(evhttp_request_get_input_headers(DBOP_VAR_ApiCreateProject_request), "ServiceName");
-    const char *DBOP_VAR_ApiCreateProject_token = evhttp_find_header(evhttp_request_get_input_headers(DBOP_VAR_ApiCreateProject_request), "Authorization");
-    if (DBOP_FUN_AuthenticateRequest(DBOP_VAR_ApiCreateProject_cfg, DBOP_VAR_ApiCreateProject_serviceName, DBOP_VAR_ApiCreateProject_token)) {
-        dzlog_info("[req: %s] Request authentication approval.", DBOP_VAR_ApiCreateProject_requestId);
-    } else {
-        dzlog_warn("[req: %s] Unauthorized access attempt.", DBOP_VAR_ApiCreateProject_requestId);
-        evhttp_send_reply(DBOP_VAR_ApiCreateProject_request, 401, "Unauthorized", NULL);
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiCreateProject_request, DBOP_VAR_ApiCreateProject_cfg, DBOP_VAR_ApiCreateProject_requestId)) {
         return;
     }
-    // 从 POST 数据中读取 JSON 参数
-    struct evbuffer *DBOP_VAR_ApiCreateProject_inputBuffer = evhttp_request_get_input_buffer(DBOP_VAR_ApiCreateProject_request);
-    size_t DBOP_VAR_ApiCreateProject_bufferLen = evbuffer_get_length(DBOP_VAR_ApiCreateProject_inputBuffer);
-    char DBOP_VAR_ApiCreateProject_postData[DBOP_VAR_ApiCreateProject_bufferLen + 1];
-    evbuffer_remove(DBOP_VAR_ApiCreateProject_inputBuffer, DBOP_VAR_ApiCreateProject_postData, DBOP_VAR_ApiCreateProject_bufferLen);
-    DBOP_VAR_ApiCreateProject_postData[DBOP_VAR_ApiCreateProject_bufferLen] = '\0';
-
-    json_error_t DBOP_VAR_ApiCreateProject_dataJsonError;
-    json_t *DBOP_VAR_ApiCreateProject_dataJsonAll = json_loads(DBOP_VAR_ApiCreateProject_postData, 0, &DBOP_VAR_ApiCreateProject_dataJsonError);
-    dzlog_info("[req: %s] Parsing POST data.", DBOP_VAR_ApiCreateProject_requestId);
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiCreateProject_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiCreateProject_request, DBOP_VAR_ApiCreateProject_requestId);
     if (!DBOP_VAR_ApiCreateProject_dataJsonAll) {
-        dzlog_error("[req: %s] Failed to parse JSON from request body.", DBOP_VAR_ApiCreateProject_requestId);
-        evhttp_send_reply(DBOP_VAR_ApiCreateProject_request, 400, "Bad Request", NULL);
         return;
     }
 
@@ -851,35 +893,115 @@ void DBOP_FUN_ApiCreateProject(struct evhttp_request *DBOP_VAR_ApiCreateProject_
         return;
     }
 
-    dzlog_info("[req: %s] Executing database operation for ApiCreateProject.", DBOP_VAR_ApiCreateProject_requestId);
-
     const char *DBOP_VAR_ApiCreateProject_projectId = json_string_value(DBOP_VAR_ApiCreateProject_dataJsonProjectId);
     const char *DBOP_VAR_ApiCreateProject_userName = json_string_value(DBOP_VAR_ApiCreateProject_dataJsonUserId);
     int DBOP_VAR_ApiCreateProject_userAge = json_integer_value(DBOP_VAR_ApiCreateProject_dataJsonUserAge);
     const char *DBOP_VAR_ApiCreateProject_realName = json_string_value(DBOP_VAR_ApiCreateProject_dataJsonRealName);
 
-    // 调用数据库函数 - 使用线程安全的随机数生成
-    unsigned int seed = (unsigned int)pthread_self();
-    int index = rand_r(&seed) % DBOP_GLV_actualDBPoolSize;  // 使用实际的连接池大小
-    DB_CONNECTION *DBOP_VAR_ApiCreateProject_mysqlConnect = DBOP_FUN_GetConnectFromPool(DBOP_VAR_ApiCreateProject_cfg, index);  // 从连接池中取出一个连接
-
-    // 发送HTTP响应
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiCreateProject_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiCreateProject_cfg);
     int result = DBOP_FUN_ExecuteCreateProject(DBOP_VAR_ApiCreateProject_mysqlConnect, DBOP_VAR_ApiCreateProject_projectId, DBOP_VAR_ApiCreateProject_userName, DBOP_VAR_ApiCreateProject_userAge, DBOP_VAR_ApiCreateProject_realName, DBOP_VAR_ApiCreateProject_requestId);
 
-    if (result == 0) {
-        // 成功创建，返回 200
-        evhttp_send_reply(DBOP_VAR_ApiCreateProject_request, HTTP_OK, "OK", NULL);
-        dzlog_info("[req: %s] Successfully created project, returning 200", DBOP_VAR_ApiCreateProject_requestId);
-    } else {
-        // 其他错误，返回 500
-        evhttp_send_reply(DBOP_VAR_ApiCreateProject_request, HTTP_INTERNAL, "Internal Server Error", NULL);
-        dzlog_error("[req: %s] Failed to create project, returning 500", DBOP_VAR_ApiCreateProject_requestId);
-    }
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiCreateProject_request, result, DBOP_VAR_ApiCreateProject_requestId, "create project");
 
     json_decref(DBOP_VAR_ApiCreateProject_dataJsonAll);
 }
 
 // ------------------------mysql创建project api逻辑结束----------------------------
+
+
+// ------------------------mysql更新最后一次登录时间api逻辑开始----------------------------
+
+// 更新最后一次登录时间的sql数据化输出
+int DBOP_FUN_ExecuteUpdateLoginTime(DB_CONNECTION *DBOP_VAR_ExecuteUpdateLoginTime_connect, const char *DBOP_VAR_ExecuteUpdateLoginTime_userId, const char *DBOP_VAR_ExecuteUpdateLoginTime_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteUpdateLoginTime is starting", DBOP_VAR_ExecuteUpdateLoginTime_requestId);
+
+    // 保护原始参数不被修改，复制一份用户ID作为更新的参数
+    char DBOP_VAR_ExecuteUpdateLoginTime_noConstUserId[256];
+    strncpy(DBOP_VAR_ExecuteUpdateLoginTime_noConstUserId, DBOP_VAR_ExecuteUpdateLoginTime_userId, sizeof(DBOP_VAR_ExecuteUpdateLoginTime_noConstUserId) - 1);
+    DBOP_VAR_ExecuteUpdateLoginTime_noConstUserId[sizeof(DBOP_VAR_ExecuteUpdateLoginTime_noConstUserId) - 1] = '\0';
+
+    MYSQL_BIND DBOP_VAR_ExecuteUpdateLoginTime_bindParams[1];
+    memset(DBOP_VAR_ExecuteUpdateLoginTime_bindParams, 0, sizeof(DBOP_VAR_ExecuteUpdateLoginTime_bindParams));
+
+    // 绑定user_id参数
+    DBOP_VAR_ExecuteUpdateLoginTime_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateLoginTime_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteUpdateLoginTime_noConstUserId;
+    DBOP_VAR_ExecuteUpdateLoginTime_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteUpdateLoginTime_noConstUserId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteUpdateLoginTime_connect->stmt_update_login_time, DBOP_VAR_ExecuteUpdateLoginTime_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind update param: %s", DBOP_VAR_ExecuteUpdateLoginTime_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateLoginTime_connect->stmt_update_login_time));
+        return -1; // 表示绑定参数失败
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteUpdateLoginTime_connect->stmt_update_login_time)) {
+        dzlog_error("[req: %s] Failed to execute update statement: %s", DBOP_VAR_ExecuteUpdateLoginTime_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateLoginTime_connect->stmt_update_login_time));
+        return -1; // 表示执行语句失败
+    }
+
+    // 检查是否有行被更新
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteUpdateLoginTime_connect->stmt_update_login_time);
+    if (affected_rows == 0) {
+        dzlog_warn("[req: %s] No user found with user_id: %s", DBOP_VAR_ExecuteUpdateLoginTime_requestId, DBOP_VAR_ExecuteUpdateLoginTime_userId);
+        return 1; // 表示用户不存在
+    }
+
+    dzlog_info("[req: %s] Successfully updated login time for user: %s", DBOP_VAR_ExecuteUpdateLoginTime_requestId, DBOP_VAR_ExecuteUpdateLoginTime_userId);
+    return 0; // 表示成功
+}
+
+// 更新最后一次登录时间的API接口
+void DBOP_FUN_ApiUpdateLoginTime(struct evhttp_request *DBOP_VAR_ApiUpdateLoginTime_request, void *DBOP_VAR_ApiUpdateLoginTime_voidCfg) {
+    AppConfig *DBOP_VAR_ApiUpdateLoginTime_cfg = (AppConfig *)DBOP_VAR_ApiUpdateLoginTime_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiUpdateLoginTime_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiUpdateLoginTime_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiUpdateLoginTime.", DBOP_VAR_ApiUpdateLoginTime_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiUpdateLoginTime_request, DBOP_VAR_ApiUpdateLoginTime_cfg, DBOP_VAR_ApiUpdateLoginTime_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiUpdateLoginTime_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiUpdateLoginTime_request, DBOP_VAR_ApiUpdateLoginTime_requestId);
+    if (!DBOP_VAR_ApiUpdateLoginTime_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiUpdateLoginTime_dataJsonUserId = json_object_get(DBOP_VAR_ApiUpdateLoginTime_dataJsonAll, "user_id");
+    if (!json_is_string(DBOP_VAR_ApiUpdateLoginTime_dataJsonUserId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string type for 'user_id'", DBOP_VAR_ApiUpdateLoginTime_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiUpdateLoginTime_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiUpdateLoginTime_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiUpdateLoginTime_userId = json_string_value(DBOP_VAR_ApiUpdateLoginTime_dataJsonUserId);
+    dzlog_info("[req: %s] Executing database operation for ApiUpdateLoginTime: userId=%s", DBOP_VAR_ApiUpdateLoginTime_requestId, DBOP_VAR_ApiUpdateLoginTime_userId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiUpdateLoginTime_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiUpdateLoginTime_cfg);
+    int result = DBOP_FUN_ExecuteUpdateLoginTime(DBOP_VAR_ApiUpdateLoginTime_mysqlConnect, DBOP_VAR_ApiUpdateLoginTime_userId, DBOP_VAR_ApiUpdateLoginTime_requestId);
+
+    // 发送响应
+    if (result == 0) {
+        evhttp_send_reply(DBOP_VAR_ApiUpdateLoginTime_request, HTTP_OK, "OK", NULL);
+        dzlog_info("[req: %s] Successfully updated login time, returning 200", DBOP_VAR_ApiUpdateLoginTime_requestId);
+    } else if (result == 1) {
+        evhttp_send_reply(DBOP_VAR_ApiUpdateLoginTime_request, 404, "User not found", NULL);
+        dzlog_warn("[req: %s] User not found, returning 404", DBOP_VAR_ApiUpdateLoginTime_requestId);
+    } else {
+        evhttp_send_reply(DBOP_VAR_ApiUpdateLoginTime_request, HTTP_INTERNAL, "Internal Server Error", NULL);
+        dzlog_error("[req: %s] Failed to update login time, returning 500", DBOP_VAR_ApiUpdateLoginTime_requestId);
+    }
+
+    json_decref(DBOP_VAR_ApiUpdateLoginTime_dataJsonAll);
+}
+
+// ------------------------mysql更新最后一次登录时间api逻辑结束----------------------------
 
 
 // ------------------------mysql根据servicename查询对应servicepassword逻辑开始----------------------------
@@ -1087,6 +1209,7 @@ int main() {
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/add_user", DBOP_FUN_ApiAddUser, &DBOP_VAR_Main_cfg);
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/get_service_passwd", DBOP_FUN_ApiGetServicePasswd, &DBOP_VAR_Main_cfg);
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/create_project", DBOP_FUN_ApiCreateProject, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/update_login_time", DBOP_FUN_ApiUpdateLoginTime, &DBOP_VAR_Main_cfg);
 
     // 绑定到 0.0.0.0:DBOP_GLV_serverPort
     if (evhttp_bind_socket(DBOP_VAR_Main_httpServer, "0.0.0.0", atoi(DBOP_VAR_Main_cfg.DBOP_GLV_serverPort)) != 0) {
