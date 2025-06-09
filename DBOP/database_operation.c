@@ -11,15 +11,50 @@
                 curl -X POST "http://服务ip:服务端口/add_user" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"user_id":"用户ID", "user_name":"用户名", "user_passwd":"用户密码字符串", "user_permission":账号分类数字, "phone_number":"用户手机号"}'
                 curl -X POST "http://192.168.1.10:1900/add_user" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d {"user_id":"d7aa0e59-9be5-4c76-9bf1-ee937791b8a8", "user_name":"两茫茫", "user_passwd":"qwe1j31l23nubadbuiy13", "user_permission":3, "phone_number":"18212312310"}'
     200RETURN： 什么都不返回
-    REQUEST：   在project表中添加projectid、患者ID、患者年龄、患者真实姓名
-                curl -X POST "http://服务ip:服务端口/create_project" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"project_id":"project ID", "user_id":"用户ID", "user_age":用户年龄, "real_name":"用户真实姓名"}'
-                curl -X POST "http://192.168.1.10:1900/create_project" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"project_id":"d7aa0e59-9be6-4c76-9bf1-ee937791b8a8", "user_id":"b8a1a6f9-739d-4a5d-9183-1d7ad9e1f6db", "user_age":32, "real_name":"李通"}'
-    200RETURN： 什么都不返回
     REQUEST:    更新最后一次登录时间
                 curl -X POST "http://服务ip:服务端口/update_login_time" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"user_id":"用户ID"}'
                 curl -X POST "http://192.168.1.10:1900/update_login_time" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"user_id":"b8a1a6f9-739d-4a5d-9183-1d7ad9e1f6db"}'
     200RETURN： 什么都不返回
-    
+    REQUEST:    更新用户个性化信息
+                curl -X POST "http://服务ip:服务端口/update_user_info" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"user_id":"用户ID", "user_name":"用户名", "avatar":"用户头像路径", "personal_note": "个人说明"}'
+                curl -X POST "http://192.168.1.10:1900/update_user_info" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"user_id":"b8a1a6f9-739d-4a5d-9183-1d7ad9e1f6db", "user_name":"李通", "avatar":"https://www.test.com/img/flexible/logo/pc/result.png", "personal_note": "生死两茫茫"}'
+    200RETURN： 什么都不返回
+    REQUEST:    更新用户手机号
+                curl -X POST "http://服务ip:服务端口/update_user_phone" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"user_id":"用户ID", "phone_number":"用户手机号"}'
+                curl -X POST "http://192.168.1.10:1900/update_user_phone" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"user_id":"b8a1a6f9-739d-4a5d-9183-1d7ad9e1f6db", "phone_number": "19212345678"}'
+    200RETURN： 什么都不返回
+    REQUEST:    更新用户微信ID
+                curl -X POST "http://服务ip:服务端口/update_user_phone" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"user_id":"用户ID", "weixin_openid":"用户微信OpenID"}'
+                curl -X POST "http://192.168.1.10:1900/update_user_phone" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"user_id":"b8a1a6f9-739d-4a5d-9183-1d7ad9e1f6db", "weixin_openid": "4fcb6538-9b7e-4f25-8a01-47016843b7a6"}'
+    200RETURN： 什么都不返回
+    REQUEST:    更新用户权限组
+                curl -X POST "http://服务ip:服务端口/update_user_permission" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"user_id":"用户ID", "user_permission":账号分类数字}'
+                curl -X POST "http://192.168.1.10:1900/update_user_permission" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"user_id":"b8a1a6f9-739d-4a5d-9183-1d7ad9e1f6db", "user_permission": 1}'
+    200RETURN： 什么都不返回
+    REQUEST:    修改用户密码
+                curl -X POST "http://服务ip:服务端口/update_user_passwd" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"user_id":"用户ID", "passwd":"用户密码字符串"}'
+                curl -X POST "http://192.168.1.10:1900/update_user_passwd" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"user_id":"b8a1a6f9-739d-4a5d-9183-1d7ad9e1f6db", "passwd": "kojiqjwe1312uj2"}'
+    200RETURN： 什么都不返回
+    REQUEST:    创建项目
+                curl -X POST "http://服务ip:服务端口/create_project" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"project_id":"项目ID", "user_id":"用户ID", "user_name":"用户名", "user_age":"用户年龄", "real_name":"用户姓名"}'
+                curl -X POST "http://192.168.1.10:1900/create_project" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"project_id":"f47ac10b-58cc-4372-a567-0e02b2c3d479", "user_id":"b8a1a6f9-739d-4a5d-9183-1d7ad9e1f6db", "user_name":"李通", "user_age":67, "real_name":"李通达"}'
+    200RETURN： 什么都不返回
+    REQUEST:    更新验证记录
+                curl -X POST "http://服务ip:服务端口/update_verification_record" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"project_id":"项目ID", "update_verification_record":"消息json"}'
+                curl -X POST "http://192.168.1.10:1900/update_verification_record" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"project_id":"f47ac10b-58cc-4372-a567-0e02b2c3d479", "update_verification_record":"[{"patient":{"我在遥望":"请志愿者看下这次的资料合格了吗？","attachment":["https://minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/病历初稿.pdf","https://minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/检查报告.jpg"],"time":"2025-05-27T14:00:00+08:00"},"volunteer":{"bceac":"您的资料还存在以下问题：病历不完整，没有医生签字证明。请补充好之后再提交一下。","attachment":[],"time":"2025-05-27T14:15:00+08:00"}},{"patient":{"我在遥望":"我又调整了一下，您再看下呢？","attachment":["https://minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/补充病历.pdf","https://minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/医生签字页.png"],"time":"2025-05-27T15:00:00+08:00"},"volunteer":{"bceac":"这次可以了，给您通过了。","attachment":[],"time":"2025-05-27T15:10:00+08:00"}}]"}'
+    200RETURN： 什么都不返回
+    REQUEST:    更新项目状态
+                curl -X POST "http://服务ip:服务端口/update_projest_status" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"project_id":"项目ID", "projest_status":项目状态码}'
+                curl -X POST "http://192.168.1.10:1900/update_projest_status" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"project_id":"f47ac10b-58cc-4372-a567-0e02b2c3d479", "projest_status":1}'
+    200RETURN： 什么都不返回
+    REQUEST:    更新病情记录
+                curl -X POST "http://服务ip:服务端口/update_projest_pathography" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"project_id":"项目ID", "pathography":"记录JSON"}'
+                curl -X POST "http://192.168.1.10:1900/update_projest_pathography" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"project_id":"f47ac10b-58cc-4372-a567-0e02b2c3d479", "pathography":"[{"time":"2020-01-05 14:03:01","content":"刚刚确诊为***，心情很是沉重，医生说需要******来治疗","attachment":["minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/20200105140301-1.jpg","minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/20200105140301-2.jpg"]},{"time":"2020-01-15 12:25:31","content":"这一周多的治疗效果好多了，现在又有点希望了","attachment":["minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/20200115122531-1.jpg","minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/20200115122531-2.jpg"]}]"}'
+    200RETURN： 什么都不返回
+    REQUEST:    更新项目负责志愿者ID
+                curl -X POST "http://服务ip:服务端口/update_project_volunteer" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"project_id":"项目ID", "volunteer_id":"志愿者ID"}'
+                curl -X POST "http://192.168.1.10:1900/update_project_volunteer" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"project_id":"f47ac10b-58cc-4372-a567-0e02b2c3d479", "volunteer_id":"8f76fa9c-18d2-41a9-bdd6-6c8e4c489872"}'
+    200RETURN： 什么都不返回
 
 */
 /*
@@ -86,6 +121,17 @@ typedef struct {
     MYSQL_STMT *stmt_get_service_passwd;
     MYSQL_STMT *stmt_add_project;
     MYSQL_STMT *stmt_update_login_time;
+    MYSQL_STMT *stmt_update_user_info;
+    MYSQL_STMT *stmt_update_user_phone;
+    MYSQL_STMT *stmt_update_user_weixinid;
+    MYSQL_STMT *stmt_update_user_permission;
+    MYSQL_STMT *stmt_update_user_passwd;
+    MYSQL_STMT *stmt_update_user_project_info;
+    MYSQL_STMT *stmt_update_verification_record;
+    MYSQL_STMT *stmt_update_project_status;
+    MYSQL_STMT *stmt_update_project_pathography;
+    MYSQL_STMT *stmt_update_project_volunteer;
+    MYSQL_STMT *stmt_get_project_volunteer_info;
 } DB_CONNECTION;
 
 // 初始化dzlog
@@ -444,7 +490,7 @@ void DBOP_FUN_InitializeMySQLConnection(DB_CONNECTION *DBOP_VAR_InitializeMySQLC
         exit(EXIT_FAILURE);
     }
     DBOP_VAR_InitializeMySQLConnection_connect->stmt_add_project = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
-    const char *insert_project_sql = "INSERT INTO project (project_id, user_id, user_age, real_name) VALUES (?, ?, ?, ?);";
+    const char *insert_project_sql = "INSERT INTO project (project_id, user_id, user_name, user_age, real_name, project_status, project_create_time) VALUES (?, ?, ?, ?, ?, 1, NOW());";
     if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_add_project, insert_project_sql, strlen(insert_project_sql))) {
         dzlog_error("Failed to prepare insert statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_add_project));
         exit(EXIT_FAILURE);
@@ -453,6 +499,94 @@ void DBOP_FUN_InitializeMySQLConnection(DB_CONNECTION *DBOP_VAR_InitializeMySQLC
     const char *update_login_time_sql = "UPDATE user SET login_time = NOW() WHERE user_id = ?;";
     if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_login_time, update_login_time_sql, strlen(update_login_time_sql))) {
         dzlog_error("Failed to prepare update statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_login_time));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化更新用户个性化信息预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_user_info = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *update_user_info_sql = "UPDATE user SET user_name = ?, avatar = ?, personal_note = ? WHERE user_id = ?;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_user_info, update_user_info_sql, strlen(update_user_info_sql))) {
+        dzlog_error("Failed to prepare update user info statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_user_info));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化更新用户手机号预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_user_phone = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *update_user_phone_sql = "UPDATE user SET phone_number = ? WHERE user_id = ?;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_user_phone, update_user_phone_sql, strlen(update_user_phone_sql))) {
+        dzlog_error("Failed to prepare update user phone statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_user_phone));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化更新用户微信ID预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_user_weixinid = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *update_user_weixinid_sql = "UPDATE user SET weixin_openid = ? WHERE user_id = ?;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_user_weixinid, update_user_weixinid_sql, strlen(update_user_weixinid_sql))) {
+        dzlog_error("Failed to prepare update user weixinid statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_user_weixinid));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化更新用户权限组预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_user_permission = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *update_user_permission_sql = "UPDATE user SET user_permission = ? WHERE user_id = ?;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_user_permission, update_user_permission_sql, strlen(update_user_permission_sql))) {
+        dzlog_error("Failed to prepare update user permission statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_user_permission));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化修改用户密码预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_user_passwd = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *update_user_passwd_sql = "UPDATE user SET user_password = ? WHERE user_id = ?;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_user_passwd, update_user_passwd_sql, strlen(update_user_passwd_sql))) {
+        dzlog_error("Failed to prepare update user passwd statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_user_passwd));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化更新用户项目信息预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_user_project_info = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *update_user_project_info_sql = "UPDATE user SET existing_projects = 1, project_id = ? WHERE user_id = ?;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_user_project_info, update_user_project_info_sql, strlen(update_user_project_info_sql))) {
+        dzlog_error("Failed to prepare update user project info statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_user_project_info));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化更新验证记录预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_verification_record = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *update_verification_record_sql = "UPDATE project SET verification_record = ? WHERE project_id = ?;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_verification_record, update_verification_record_sql, strlen(update_verification_record_sql))) {
+        dzlog_error("Failed to prepare update verification record statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_verification_record));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化更新项目状态预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_project_status = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *update_project_status_sql = "UPDATE project SET project_status = ? WHERE project_id = ?;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_project_status, update_project_status_sql, strlen(update_project_status_sql))) {
+        dzlog_error("Failed to prepare update project status statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_project_status));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化更新病情记录预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_project_pathography = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *update_project_pathography_sql = "UPDATE project SET pathography = ? WHERE project_id = ?;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_project_pathography, update_project_pathography_sql, strlen(update_project_pathography_sql))) {
+        dzlog_error("Failed to prepare update project pathography statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_project_pathography));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化更新项目负责志愿者ID预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_project_volunteer = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *update_project_volunteer_sql = "UPDATE project SET current_volunteer = ?, previous_volunteers = ? WHERE project_id = ?;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_project_volunteer, update_project_volunteer_sql, strlen(update_project_volunteer_sql))) {
+        dzlog_error("Failed to prepare update project volunteer statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_project_volunteer));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化查询项目志愿者信息预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_get_project_volunteer_info = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *get_project_volunteer_info_sql = "SELECT current_volunteer, previous_volunteers FROM project WHERE project_id = ?;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_get_project_volunteer_info, get_project_volunteer_info_sql, strlen(get_project_volunteer_info_sql))) {
+        dzlog_error("Failed to prepare get project volunteer info statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_get_project_volunteer_info));
         exit(EXIT_FAILURE);
     }
 }
@@ -514,6 +648,39 @@ void DBOP_FUN_DestroyConnPool() {
         if (DBOP_GLV_mysqlConnectPool[i]->stmt_update_login_time != NULL) {
             mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_update_login_time);
         }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_update_user_info != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_update_user_info);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_update_user_phone != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_update_user_phone);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_update_user_weixinid != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_update_user_weixinid);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_update_user_permission != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_update_user_permission);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_update_user_passwd != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_update_user_passwd);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_update_user_project_info != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_update_user_project_info);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_update_verification_record != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_update_verification_record);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_update_project_status != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_update_project_status);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_update_project_pathography != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_update_project_pathography);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_update_project_volunteer != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_update_project_volunteer);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_get_project_volunteer_info != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_get_project_volunteer_info);
+        }
         if (DBOP_GLV_mysqlConnectPool[i]->mysql != NULL) {
             mysql_close(DBOP_GLV_mysqlConnectPool[i]->mysql);
         }
@@ -544,6 +711,39 @@ void DBOP_FUN_ReinitializeConnPool(AppConfig *DBOP_VAR_ReinitializeConnPool_cfg,
     }
     if (DBOP_VAR_ReinitializeConnPool_connect->stmt_update_login_time != NULL) {
         mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_update_login_time);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_update_user_info != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_update_user_info);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_update_user_phone != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_update_user_phone);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_update_user_weixinid != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_update_user_weixinid);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_update_user_permission != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_update_user_permission);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_update_user_passwd != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_update_user_passwd);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_update_user_project_info != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_update_user_project_info);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_update_verification_record != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_update_verification_record);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_update_project_status != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_update_project_status);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_update_project_pathography != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_update_project_pathography);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_update_project_volunteer != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_update_project_volunteer);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_get_project_volunteer_info != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_get_project_volunteer_info);
     }
     if (DBOP_VAR_ReinitializeConnPool_connect->mysql != NULL) {
         mysql_close(DBOP_VAR_ReinitializeConnPool_connect->mysql);
@@ -819,43 +1019,125 @@ void DBOP_FUN_ApiAddUser(struct evhttp_request *DBOP_VAR_ApiAddUser_request, voi
 // ------------------------mysql创建project api逻辑开始----------------------------
 
 // 创建项目的sql数据化输出
-int DBOP_FUN_ExecuteCreateProject(DB_CONNECTION *DBOP_VAR_ExecuteCreateProject_connect, const char *DBOP_VAR_ExecuteCreateProject_projectId, const char *DBOP_VAR_ExecuteCreateProject_userID, int DBOP_VAR_ExecuteCreateProject_userAge, const char *DBOP_VAR_ExecuteCreateProject_realName, const char *DBOP_VAR_ExecuteCreateProject_requestId) {
+int DBOP_FUN_ExecuteCreateProject(DB_CONNECTION *DBOP_VAR_ExecuteCreateProject_connect, const char *DBOP_VAR_ExecuteCreateProject_projectId, const char *DBOP_VAR_ExecuteCreateProject_userID, const char *DBOP_VAR_ExecuteCreateProject_userName, int DBOP_VAR_ExecuteCreateProject_userAge, const char *DBOP_VAR_ExecuteCreateProject_realName, const char *DBOP_VAR_ExecuteCreateProject_requestId) {
     dzlog_info("[req: %s] DBOP_FUN_ExecuteCreateProject is starting", DBOP_VAR_ExecuteCreateProject_requestId);
 
-    MYSQL_BIND DBOP_VAR_ExecuteCreateProject_bindParams[4];
+    // 保护原始参数不被修改，复制参数
+    char DBOP_VAR_ExecuteCreateProject_noConstProjectId[256];
+    char DBOP_VAR_ExecuteCreateProject_noConstUserId[256];
+    char DBOP_VAR_ExecuteCreateProject_noConstUserName[256];
+    char DBOP_VAR_ExecuteCreateProject_noConstRealName[256];
+
+    strncpy(DBOP_VAR_ExecuteCreateProject_noConstProjectId, DBOP_VAR_ExecuteCreateProject_projectId, sizeof(DBOP_VAR_ExecuteCreateProject_noConstProjectId) - 1);
+    DBOP_VAR_ExecuteCreateProject_noConstProjectId[sizeof(DBOP_VAR_ExecuteCreateProject_noConstProjectId) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteCreateProject_noConstUserId, DBOP_VAR_ExecuteCreateProject_userID, sizeof(DBOP_VAR_ExecuteCreateProject_noConstUserId) - 1);
+    DBOP_VAR_ExecuteCreateProject_noConstUserId[sizeof(DBOP_VAR_ExecuteCreateProject_noConstUserId) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteCreateProject_noConstUserName, DBOP_VAR_ExecuteCreateProject_userName, sizeof(DBOP_VAR_ExecuteCreateProject_noConstUserName) - 1);
+    DBOP_VAR_ExecuteCreateProject_noConstUserName[sizeof(DBOP_VAR_ExecuteCreateProject_noConstUserName) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteCreateProject_noConstRealName, DBOP_VAR_ExecuteCreateProject_realName, sizeof(DBOP_VAR_ExecuteCreateProject_noConstRealName) - 1);
+    DBOP_VAR_ExecuteCreateProject_noConstRealName[sizeof(DBOP_VAR_ExecuteCreateProject_noConstRealName) - 1] = '\0';
+
+    // 开始事务
+    if (mysql_autocommit(DBOP_VAR_ExecuteCreateProject_connect->mysql, 0)) {
+        dzlog_error("[req: %s] Failed to start transaction: %s", DBOP_VAR_ExecuteCreateProject_requestId, mysql_error(DBOP_VAR_ExecuteCreateProject_connect->mysql));
+        return -1;
+    }
+
+    // 第一步：插入项目记录
+    MYSQL_BIND DBOP_VAR_ExecuteCreateProject_bindParams[5];
     memset(DBOP_VAR_ExecuteCreateProject_bindParams, 0, sizeof(DBOP_VAR_ExecuteCreateProject_bindParams));
 
     // 绑定project_id
     DBOP_VAR_ExecuteCreateProject_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
-    DBOP_VAR_ExecuteCreateProject_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteCreateProject_projectId;
-    DBOP_VAR_ExecuteCreateProject_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteCreateProject_projectId);
+    DBOP_VAR_ExecuteCreateProject_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteCreateProject_noConstProjectId;
+    DBOP_VAR_ExecuteCreateProject_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteCreateProject_noConstProjectId);
 
     // 绑定user_id
     DBOP_VAR_ExecuteCreateProject_bindParams[1].buffer_type = MYSQL_TYPE_STRING;
-    DBOP_VAR_ExecuteCreateProject_bindParams[1].buffer = (char *)DBOP_VAR_ExecuteCreateProject_userID;
-    DBOP_VAR_ExecuteCreateProject_bindParams[1].buffer_length = strlen(DBOP_VAR_ExecuteCreateProject_userID);
+    DBOP_VAR_ExecuteCreateProject_bindParams[1].buffer = (char *)DBOP_VAR_ExecuteCreateProject_noConstUserId;
+    DBOP_VAR_ExecuteCreateProject_bindParams[1].buffer_length = strlen(DBOP_VAR_ExecuteCreateProject_noConstUserId);
+
+    // 绑定user_name
+    DBOP_VAR_ExecuteCreateProject_bindParams[2].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateProject_bindParams[2].buffer = (char *)DBOP_VAR_ExecuteCreateProject_noConstUserName;
+    DBOP_VAR_ExecuteCreateProject_bindParams[2].buffer_length = strlen(DBOP_VAR_ExecuteCreateProject_noConstUserName);
 
     // 绑定user_age
-    DBOP_VAR_ExecuteCreateProject_bindParams[2].buffer_type = MYSQL_TYPE_TINY;
-    DBOP_VAR_ExecuteCreateProject_bindParams[2].buffer = &DBOP_VAR_ExecuteCreateProject_userAge;
-    DBOP_VAR_ExecuteCreateProject_bindParams[2].buffer_length = sizeof(DBOP_VAR_ExecuteCreateProject_userAge);
+    DBOP_VAR_ExecuteCreateProject_bindParams[3].buffer_type = MYSQL_TYPE_TINY;
+    DBOP_VAR_ExecuteCreateProject_bindParams[3].buffer = &DBOP_VAR_ExecuteCreateProject_userAge;
+    DBOP_VAR_ExecuteCreateProject_bindParams[3].buffer_length = sizeof(DBOP_VAR_ExecuteCreateProject_userAge);
 
     // 绑定real_name
-    DBOP_VAR_ExecuteCreateProject_bindParams[3].buffer_type = MYSQL_TYPE_STRING;
-    DBOP_VAR_ExecuteCreateProject_bindParams[3].buffer = (char *)DBOP_VAR_ExecuteCreateProject_realName;
-    DBOP_VAR_ExecuteCreateProject_bindParams[3].buffer_length = strlen(DBOP_VAR_ExecuteCreateProject_realName);
+    DBOP_VAR_ExecuteCreateProject_bindParams[4].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateProject_bindParams[4].buffer = (char *)DBOP_VAR_ExecuteCreateProject_noConstRealName;
+    DBOP_VAR_ExecuteCreateProject_bindParams[4].buffer_length = strlen(DBOP_VAR_ExecuteCreateProject_noConstRealName);
 
     if (mysql_stmt_bind_param(DBOP_VAR_ExecuteCreateProject_connect->stmt_add_project, DBOP_VAR_ExecuteCreateProject_bindParams)) {
         dzlog_error("[req: %s] Failed to bind insert param: %s", DBOP_VAR_ExecuteCreateProject_requestId, mysql_stmt_error(DBOP_VAR_ExecuteCreateProject_connect->stmt_add_project));
-        return -1; // 表示绑定插入参数失败
+        mysql_rollback(DBOP_VAR_ExecuteCreateProject_connect->mysql);
+        mysql_autocommit(DBOP_VAR_ExecuteCreateProject_connect->mysql, 1);
+        return -1;
     }
 
     if (mysql_stmt_execute(DBOP_VAR_ExecuteCreateProject_connect->stmt_add_project)) {
         dzlog_error("[req: %s] Failed to execute insert statement: %s", DBOP_VAR_ExecuteCreateProject_requestId, mysql_stmt_error(DBOP_VAR_ExecuteCreateProject_connect->stmt_add_project));
-        return -1; // 表示执行插入语句失败
+        mysql_rollback(DBOP_VAR_ExecuteCreateProject_connect->mysql);
+        mysql_autocommit(DBOP_VAR_ExecuteCreateProject_connect->mysql, 1);
+        return -1;
     }
 
-    dzlog_info("[req: %s] Successfully created project", DBOP_VAR_ExecuteCreateProject_requestId);
+    // 第二步：更新用户表的项目信息
+    MYSQL_BIND DBOP_VAR_ExecuteCreateProject_bindUserParams[2];
+    memset(DBOP_VAR_ExecuteCreateProject_bindUserParams, 0, sizeof(DBOP_VAR_ExecuteCreateProject_bindUserParams));
+
+    // 绑定project_id
+    DBOP_VAR_ExecuteCreateProject_bindUserParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateProject_bindUserParams[0].buffer = (char *)DBOP_VAR_ExecuteCreateProject_noConstProjectId;
+    DBOP_VAR_ExecuteCreateProject_bindUserParams[0].buffer_length = strlen(DBOP_VAR_ExecuteCreateProject_noConstProjectId);
+
+    // 绑定user_id
+    DBOP_VAR_ExecuteCreateProject_bindUserParams[1].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateProject_bindUserParams[1].buffer = (char *)DBOP_VAR_ExecuteCreateProject_noConstUserId;
+    DBOP_VAR_ExecuteCreateProject_bindUserParams[1].buffer_length = strlen(DBOP_VAR_ExecuteCreateProject_noConstUserId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteCreateProject_connect->stmt_update_user_project_info, DBOP_VAR_ExecuteCreateProject_bindUserParams)) {
+        dzlog_error("[req: %s] Failed to bind user update param: %s", DBOP_VAR_ExecuteCreateProject_requestId, mysql_stmt_error(DBOP_VAR_ExecuteCreateProject_connect->stmt_update_user_project_info));
+        mysql_rollback(DBOP_VAR_ExecuteCreateProject_connect->mysql);
+        mysql_autocommit(DBOP_VAR_ExecuteCreateProject_connect->mysql, 1);
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteCreateProject_connect->stmt_update_user_project_info)) {
+        dzlog_error("[req: %s] Failed to execute user update statement: %s", DBOP_VAR_ExecuteCreateProject_requestId, mysql_stmt_error(DBOP_VAR_ExecuteCreateProject_connect->stmt_update_user_project_info));
+        mysql_rollback(DBOP_VAR_ExecuteCreateProject_connect->mysql);
+        mysql_autocommit(DBOP_VAR_ExecuteCreateProject_connect->mysql, 1);
+        return -1;
+    }
+
+    // 检查用户是否存在
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteCreateProject_connect->stmt_update_user_project_info);
+    if (affected_rows == 0) {
+        dzlog_warn("[req: %s] No user found with user_id: %s", DBOP_VAR_ExecuteCreateProject_requestId, DBOP_VAR_ExecuteCreateProject_userID);
+        mysql_rollback(DBOP_VAR_ExecuteCreateProject_connect->mysql);
+        mysql_autocommit(DBOP_VAR_ExecuteCreateProject_connect->mysql, 1);
+        return 1; // 表示用户不存在
+    }
+
+    // 提交事务
+    if (mysql_commit(DBOP_VAR_ExecuteCreateProject_connect->mysql)) {
+        dzlog_error("[req: %s] Failed to commit transaction: %s", DBOP_VAR_ExecuteCreateProject_requestId, mysql_error(DBOP_VAR_ExecuteCreateProject_connect->mysql));
+        mysql_rollback(DBOP_VAR_ExecuteCreateProject_connect->mysql);
+        mysql_autocommit(DBOP_VAR_ExecuteCreateProject_connect->mysql, 1);
+        return -1;
+    }
+
+    // 恢复自动提交
+    mysql_autocommit(DBOP_VAR_ExecuteCreateProject_connect->mysql, 1);
+
+    dzlog_info("[req: %s] Successfully created project and updated user info", DBOP_VAR_ExecuteCreateProject_requestId);
     return 0; // 表示成功
 }
 
@@ -880,11 +1162,13 @@ void DBOP_FUN_ApiCreateProject(struct evhttp_request *DBOP_VAR_ApiCreateProject_
 
     json_t *DBOP_VAR_ApiCreateProject_dataJsonProjectId = json_object_get(DBOP_VAR_ApiCreateProject_dataJsonAll, "project_id");
     json_t *DBOP_VAR_ApiCreateProject_dataJsonUserId = json_object_get(DBOP_VAR_ApiCreateProject_dataJsonAll, "user_id");
+    json_t *DBOP_VAR_ApiCreateProject_dataJsonUserName = json_object_get(DBOP_VAR_ApiCreateProject_dataJsonAll, "user_name");
     json_t *DBOP_VAR_ApiCreateProject_dataJsonUserAge = json_object_get(DBOP_VAR_ApiCreateProject_dataJsonAll, "user_age");
     json_t *DBOP_VAR_ApiCreateProject_dataJsonRealName = json_object_get(DBOP_VAR_ApiCreateProject_dataJsonAll, "real_name");
 
     if (!json_is_string(DBOP_VAR_ApiCreateProject_dataJsonProjectId) || 
         !json_is_string(DBOP_VAR_ApiCreateProject_dataJsonUserId) ||
+        !json_is_string(DBOP_VAR_ApiCreateProject_dataJsonUserName) ||
         !json_is_integer(DBOP_VAR_ApiCreateProject_dataJsonUserAge) || 
         !json_is_string(DBOP_VAR_ApiCreateProject_dataJsonRealName)) {
         dzlog_error("[req: %s] Invalid JSON data received.", DBOP_VAR_ApiCreateProject_requestId);
@@ -894,16 +1178,28 @@ void DBOP_FUN_ApiCreateProject(struct evhttp_request *DBOP_VAR_ApiCreateProject_
     }
 
     const char *DBOP_VAR_ApiCreateProject_projectId = json_string_value(DBOP_VAR_ApiCreateProject_dataJsonProjectId);
-    const char *DBOP_VAR_ApiCreateProject_userName = json_string_value(DBOP_VAR_ApiCreateProject_dataJsonUserId);
+    const char *DBOP_VAR_ApiCreateProject_userId = json_string_value(DBOP_VAR_ApiCreateProject_dataJsonUserId);
+    const char *DBOP_VAR_ApiCreateProject_userName = json_string_value(DBOP_VAR_ApiCreateProject_dataJsonUserName);
     int DBOP_VAR_ApiCreateProject_userAge = json_integer_value(DBOP_VAR_ApiCreateProject_dataJsonUserAge);
     const char *DBOP_VAR_ApiCreateProject_realName = json_string_value(DBOP_VAR_ApiCreateProject_dataJsonRealName);
 
+    dzlog_info("[req: %s] Executing database operation for ApiCreateProject: projectId=%s, userId=%s, userName=%s, userAge=%d, realName=%s", DBOP_VAR_ApiCreateProject_requestId, DBOP_VAR_ApiCreateProject_projectId, DBOP_VAR_ApiCreateProject_userId, DBOP_VAR_ApiCreateProject_userName, DBOP_VAR_ApiCreateProject_userAge, DBOP_VAR_ApiCreateProject_realName);
+
     // 获取数据库连接并执行操作
     DB_CONNECTION *DBOP_VAR_ApiCreateProject_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiCreateProject_cfg);
-    int result = DBOP_FUN_ExecuteCreateProject(DBOP_VAR_ApiCreateProject_mysqlConnect, DBOP_VAR_ApiCreateProject_projectId, DBOP_VAR_ApiCreateProject_userName, DBOP_VAR_ApiCreateProject_userAge, DBOP_VAR_ApiCreateProject_realName, DBOP_VAR_ApiCreateProject_requestId);
+    int result = DBOP_FUN_ExecuteCreateProject(DBOP_VAR_ApiCreateProject_mysqlConnect, DBOP_VAR_ApiCreateProject_projectId, DBOP_VAR_ApiCreateProject_userId, DBOP_VAR_ApiCreateProject_userName, DBOP_VAR_ApiCreateProject_userAge, DBOP_VAR_ApiCreateProject_realName, DBOP_VAR_ApiCreateProject_requestId);
 
     // 发送响应
-    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiCreateProject_request, result, DBOP_VAR_ApiCreateProject_requestId, "create project");
+    if (result == 0) {
+        evhttp_send_reply(DBOP_VAR_ApiCreateProject_request, HTTP_OK, "OK", NULL);
+        dzlog_info("[req: %s] Successfully created project, returning 200", DBOP_VAR_ApiCreateProject_requestId);
+    } else if (result == 1) {
+        evhttp_send_reply(DBOP_VAR_ApiCreateProject_request, 404, "User not found", NULL);
+        dzlog_warn("[req: %s] User not found, returning 404", DBOP_VAR_ApiCreateProject_requestId);
+    } else {
+        evhttp_send_reply(DBOP_VAR_ApiCreateProject_request, HTTP_INTERNAL, "Internal Server Error", NULL);
+        dzlog_error("[req: %s] Failed to create project, returning 500", DBOP_VAR_ApiCreateProject_requestId);
+    }
 
     json_decref(DBOP_VAR_ApiCreateProject_dataJsonAll);
 }
@@ -1002,6 +1298,508 @@ void DBOP_FUN_ApiUpdateLoginTime(struct evhttp_request *DBOP_VAR_ApiUpdateLoginT
 }
 
 // ------------------------mysql更新最后一次登录时间api逻辑结束----------------------------
+
+
+// ------------------------mysql更新用户个性化信息api逻辑开始----------------------------
+
+// 更新用户个性化信息的sql数据化输出
+int DBOP_FUN_ExecuteUpdateUserInfo(DB_CONNECTION *DBOP_VAR_ExecuteUpdateUserInfo_connect, const char *DBOP_VAR_ExecuteUpdateUserInfo_userId, const char *DBOP_VAR_ExecuteUpdateUserInfo_userName, const char *DBOP_VAR_ExecuteUpdateUserInfo_avatar, const char *DBOP_VAR_ExecuteUpdateUserInfo_personalNote, const char *DBOP_VAR_ExecuteUpdateUserInfo_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteUpdateUserInfo is starting", DBOP_VAR_ExecuteUpdateUserInfo_requestId);
+
+    // 保护原始参数不被修改，复制参数
+    char DBOP_VAR_ExecuteUpdateUserInfo_noConstUserId[256];
+    char DBOP_VAR_ExecuteUpdateUserInfo_noConstUserName[256];
+    char DBOP_VAR_ExecuteUpdateUserInfo_noConstAvatar[256];
+    char DBOP_VAR_ExecuteUpdateUserInfo_noConstPersonalNote[512];
+
+    strncpy(DBOP_VAR_ExecuteUpdateUserInfo_noConstUserId, DBOP_VAR_ExecuteUpdateUserInfo_userId, sizeof(DBOP_VAR_ExecuteUpdateUserInfo_noConstUserId) - 1);
+    DBOP_VAR_ExecuteUpdateUserInfo_noConstUserId[sizeof(DBOP_VAR_ExecuteUpdateUserInfo_noConstUserId) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteUpdateUserInfo_noConstUserName, DBOP_VAR_ExecuteUpdateUserInfo_userName, sizeof(DBOP_VAR_ExecuteUpdateUserInfo_noConstUserName) - 1);
+    DBOP_VAR_ExecuteUpdateUserInfo_noConstUserName[sizeof(DBOP_VAR_ExecuteUpdateUserInfo_noConstUserName) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteUpdateUserInfo_noConstAvatar, DBOP_VAR_ExecuteUpdateUserInfo_avatar, sizeof(DBOP_VAR_ExecuteUpdateUserInfo_noConstAvatar) - 1);
+    DBOP_VAR_ExecuteUpdateUserInfo_noConstAvatar[sizeof(DBOP_VAR_ExecuteUpdateUserInfo_noConstAvatar) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteUpdateUserInfo_noConstPersonalNote, DBOP_VAR_ExecuteUpdateUserInfo_personalNote, sizeof(DBOP_VAR_ExecuteUpdateUserInfo_noConstPersonalNote) - 1);
+    DBOP_VAR_ExecuteUpdateUserInfo_noConstPersonalNote[sizeof(DBOP_VAR_ExecuteUpdateUserInfo_noConstPersonalNote) - 1] = '\0';
+
+    MYSQL_BIND DBOP_VAR_ExecuteUpdateUserInfo_bindParams[4];
+    memset(DBOP_VAR_ExecuteUpdateUserInfo_bindParams, 0, sizeof(DBOP_VAR_ExecuteUpdateUserInfo_bindParams));
+
+    // 绑定参数：user_name, avatar, personal_note, user_id
+    DBOP_VAR_ExecuteUpdateUserInfo_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateUserInfo_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteUpdateUserInfo_noConstUserName;
+    DBOP_VAR_ExecuteUpdateUserInfo_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteUpdateUserInfo_noConstUserName);
+
+    DBOP_VAR_ExecuteUpdateUserInfo_bindParams[1].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateUserInfo_bindParams[1].buffer = (char *)DBOP_VAR_ExecuteUpdateUserInfo_noConstAvatar;
+    DBOP_VAR_ExecuteUpdateUserInfo_bindParams[1].buffer_length = strlen(DBOP_VAR_ExecuteUpdateUserInfo_noConstAvatar);
+
+    DBOP_VAR_ExecuteUpdateUserInfo_bindParams[2].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateUserInfo_bindParams[2].buffer = (char *)DBOP_VAR_ExecuteUpdateUserInfo_noConstPersonalNote;
+    DBOP_VAR_ExecuteUpdateUserInfo_bindParams[2].buffer_length = strlen(DBOP_VAR_ExecuteUpdateUserInfo_noConstPersonalNote);
+
+    DBOP_VAR_ExecuteUpdateUserInfo_bindParams[3].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateUserInfo_bindParams[3].buffer = (char *)DBOP_VAR_ExecuteUpdateUserInfo_noConstUserId;
+    DBOP_VAR_ExecuteUpdateUserInfo_bindParams[3].buffer_length = strlen(DBOP_VAR_ExecuteUpdateUserInfo_noConstUserId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteUpdateUserInfo_connect->stmt_update_user_info, DBOP_VAR_ExecuteUpdateUserInfo_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind update param: %s", DBOP_VAR_ExecuteUpdateUserInfo_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateUserInfo_connect->stmt_update_user_info));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteUpdateUserInfo_connect->stmt_update_user_info)) {
+        dzlog_error("[req: %s] Failed to execute update statement: %s", DBOP_VAR_ExecuteUpdateUserInfo_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateUserInfo_connect->stmt_update_user_info));
+        return -1;
+    }
+
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteUpdateUserInfo_connect->stmt_update_user_info);
+    if (affected_rows == 0) {
+        dzlog_warn("[req: %s] No user found with user_id: %s", DBOP_VAR_ExecuteUpdateUserInfo_requestId, DBOP_VAR_ExecuteUpdateUserInfo_userId);
+        return 1;
+    }
+
+    dzlog_info("[req: %s] Successfully updated user info for user: %s", DBOP_VAR_ExecuteUpdateUserInfo_requestId, DBOP_VAR_ExecuteUpdateUserInfo_userId);
+    return 0;
+}
+
+// 更新用户个性化信息的API接口
+void DBOP_FUN_ApiUpdateUserInfo(struct evhttp_request *DBOP_VAR_ApiUpdateUserInfo_request, void *DBOP_VAR_ApiUpdateUserInfo_voidCfg) {
+    AppConfig *DBOP_VAR_ApiUpdateUserInfo_cfg = (AppConfig *)DBOP_VAR_ApiUpdateUserInfo_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiUpdateUserInfo_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiUpdateUserInfo_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiUpdateUserInfo.", DBOP_VAR_ApiUpdateUserInfo_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiUpdateUserInfo_request, DBOP_VAR_ApiUpdateUserInfo_cfg, DBOP_VAR_ApiUpdateUserInfo_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiUpdateUserInfo_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiUpdateUserInfo_request, DBOP_VAR_ApiUpdateUserInfo_requestId);
+    if (!DBOP_VAR_ApiUpdateUserInfo_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiUpdateUserInfo_dataJsonUserId = json_object_get(DBOP_VAR_ApiUpdateUserInfo_dataJsonAll, "user_id");
+    json_t *DBOP_VAR_ApiUpdateUserInfo_dataJsonUserName = json_object_get(DBOP_VAR_ApiUpdateUserInfo_dataJsonAll, "user_name");
+    json_t *DBOP_VAR_ApiUpdateUserInfo_dataJsonAvatar = json_object_get(DBOP_VAR_ApiUpdateUserInfo_dataJsonAll, "avatar");
+    json_t *DBOP_VAR_ApiUpdateUserInfo_dataJsonPersonalNote = json_object_get(DBOP_VAR_ApiUpdateUserInfo_dataJsonAll, "personal_note");
+
+    if (!json_is_string(DBOP_VAR_ApiUpdateUserInfo_dataJsonUserId) ||
+        !json_is_string(DBOP_VAR_ApiUpdateUserInfo_dataJsonUserName) ||
+        !json_is_string(DBOP_VAR_ApiUpdateUserInfo_dataJsonAvatar) ||
+        !json_is_string(DBOP_VAR_ApiUpdateUserInfo_dataJsonPersonalNote)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string types for all fields", DBOP_VAR_ApiUpdateUserInfo_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiUpdateUserInfo_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiUpdateUserInfo_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiUpdateUserInfo_userId = json_string_value(DBOP_VAR_ApiUpdateUserInfo_dataJsonUserId);
+    const char *DBOP_VAR_ApiUpdateUserInfo_userName = json_string_value(DBOP_VAR_ApiUpdateUserInfo_dataJsonUserName);
+    const char *DBOP_VAR_ApiUpdateUserInfo_avatar = json_string_value(DBOP_VAR_ApiUpdateUserInfo_dataJsonAvatar);
+    const char *DBOP_VAR_ApiUpdateUserInfo_personalNote = json_string_value(DBOP_VAR_ApiUpdateUserInfo_dataJsonPersonalNote);
+
+    dzlog_info("[req: %s] Executing database operation for ApiUpdateUserInfo: userId=%s, userName=%s", DBOP_VAR_ApiUpdateUserInfo_requestId, DBOP_VAR_ApiUpdateUserInfo_userId, DBOP_VAR_ApiUpdateUserInfo_userName);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiUpdateUserInfo_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiUpdateUserInfo_cfg);
+    int result = DBOP_FUN_ExecuteUpdateUserInfo(DBOP_VAR_ApiUpdateUserInfo_mysqlConnect, DBOP_VAR_ApiUpdateUserInfo_userId, DBOP_VAR_ApiUpdateUserInfo_userName, DBOP_VAR_ApiUpdateUserInfo_avatar, DBOP_VAR_ApiUpdateUserInfo_personalNote, DBOP_VAR_ApiUpdateUserInfo_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiUpdateUserInfo_request, result, DBOP_VAR_ApiUpdateUserInfo_requestId, "update user info");
+
+    json_decref(DBOP_VAR_ApiUpdateUserInfo_dataJsonAll);
+}
+
+// ------------------------mysql更新用户个性化信息api逻辑结束----------------------------
+
+
+// ------------------------mysql更新用户手机号api逻辑开始----------------------------
+
+// 更新用户手机号的sql数据化输出
+int DBOP_FUN_ExecuteUpdateUserPhone(DB_CONNECTION *DBOP_VAR_ExecuteUpdateUserPhone_connect, const char *DBOP_VAR_ExecuteUpdateUserPhone_userId, const char *DBOP_VAR_ExecuteUpdateUserPhone_phoneNumber, const char *DBOP_VAR_ExecuteUpdateUserPhone_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteUpdateUserPhone is starting", DBOP_VAR_ExecuteUpdateUserPhone_requestId);
+
+    // 保护原始参数不被修改，复制参数
+    char DBOP_VAR_ExecuteUpdateUserPhone_noConstUserId[256];
+    char DBOP_VAR_ExecuteUpdateUserPhone_noConstPhoneNumber[256];
+
+    strncpy(DBOP_VAR_ExecuteUpdateUserPhone_noConstUserId, DBOP_VAR_ExecuteUpdateUserPhone_userId, sizeof(DBOP_VAR_ExecuteUpdateUserPhone_noConstUserId) - 1);
+    DBOP_VAR_ExecuteUpdateUserPhone_noConstUserId[sizeof(DBOP_VAR_ExecuteUpdateUserPhone_noConstUserId) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteUpdateUserPhone_noConstPhoneNumber, DBOP_VAR_ExecuteUpdateUserPhone_phoneNumber, sizeof(DBOP_VAR_ExecuteUpdateUserPhone_noConstPhoneNumber) - 1);
+    DBOP_VAR_ExecuteUpdateUserPhone_noConstPhoneNumber[sizeof(DBOP_VAR_ExecuteUpdateUserPhone_noConstPhoneNumber) - 1] = '\0';
+
+    MYSQL_BIND DBOP_VAR_ExecuteUpdateUserPhone_bindParams[2];
+    memset(DBOP_VAR_ExecuteUpdateUserPhone_bindParams, 0, sizeof(DBOP_VAR_ExecuteUpdateUserPhone_bindParams));
+
+    // 绑定参数：phone_number, user_id
+    DBOP_VAR_ExecuteUpdateUserPhone_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateUserPhone_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteUpdateUserPhone_noConstPhoneNumber;
+    DBOP_VAR_ExecuteUpdateUserPhone_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteUpdateUserPhone_noConstPhoneNumber);
+
+    DBOP_VAR_ExecuteUpdateUserPhone_bindParams[1].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateUserPhone_bindParams[1].buffer = (char *)DBOP_VAR_ExecuteUpdateUserPhone_noConstUserId;
+    DBOP_VAR_ExecuteUpdateUserPhone_bindParams[1].buffer_length = strlen(DBOP_VAR_ExecuteUpdateUserPhone_noConstUserId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteUpdateUserPhone_connect->stmt_update_user_phone, DBOP_VAR_ExecuteUpdateUserPhone_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind update param: %s", DBOP_VAR_ExecuteUpdateUserPhone_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateUserPhone_connect->stmt_update_user_phone));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteUpdateUserPhone_connect->stmt_update_user_phone)) {
+        dzlog_error("[req: %s] Failed to execute update statement: %s", DBOP_VAR_ExecuteUpdateUserPhone_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateUserPhone_connect->stmt_update_user_phone));
+        return -1;
+    }
+
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteUpdateUserPhone_connect->stmt_update_user_phone);
+    if (affected_rows == 0) {
+        dzlog_warn("[req: %s] No user found with user_id: %s", DBOP_VAR_ExecuteUpdateUserPhone_requestId, DBOP_VAR_ExecuteUpdateUserPhone_userId);
+        return 1;
+    }
+
+    dzlog_info("[req: %s] Successfully updated phone number for user: %s", DBOP_VAR_ExecuteUpdateUserPhone_requestId, DBOP_VAR_ExecuteUpdateUserPhone_userId);
+    return 0;
+}
+
+// 更新用户手机号的API接口
+void DBOP_FUN_ApiUpdateUserPhone(struct evhttp_request *DBOP_VAR_ApiUpdateUserPhone_request, void *DBOP_VAR_ApiUpdateUserPhone_voidCfg) {
+    AppConfig *DBOP_VAR_ApiUpdateUserPhone_cfg = (AppConfig *)DBOP_VAR_ApiUpdateUserPhone_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiUpdateUserPhone_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiUpdateUserPhone_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiUpdateUserPhone.", DBOP_VAR_ApiUpdateUserPhone_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiUpdateUserPhone_request, DBOP_VAR_ApiUpdateUserPhone_cfg, DBOP_VAR_ApiUpdateUserPhone_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiUpdateUserPhone_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiUpdateUserPhone_request, DBOP_VAR_ApiUpdateUserPhone_requestId);
+    if (!DBOP_VAR_ApiUpdateUserPhone_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiUpdateUserPhone_dataJsonUserId = json_object_get(DBOP_VAR_ApiUpdateUserPhone_dataJsonAll, "user_id");
+    json_t *DBOP_VAR_ApiUpdateUserPhone_dataJsonPhoneNumber = json_object_get(DBOP_VAR_ApiUpdateUserPhone_dataJsonAll, "phone_number");
+
+    if (!json_is_string(DBOP_VAR_ApiUpdateUserPhone_dataJsonUserId) ||
+        !json_is_string(DBOP_VAR_ApiUpdateUserPhone_dataJsonPhoneNumber)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string types for 'user_id' and 'phone_number'", DBOP_VAR_ApiUpdateUserPhone_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiUpdateUserPhone_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiUpdateUserPhone_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiUpdateUserPhone_userId = json_string_value(DBOP_VAR_ApiUpdateUserPhone_dataJsonUserId);
+    const char *DBOP_VAR_ApiUpdateUserPhone_phoneNumber = json_string_value(DBOP_VAR_ApiUpdateUserPhone_dataJsonPhoneNumber);
+
+    dzlog_info("[req: %s] Executing database operation for ApiUpdateUserPhone: userId=%s, phoneNumber=%s", DBOP_VAR_ApiUpdateUserPhone_requestId, DBOP_VAR_ApiUpdateUserPhone_userId, DBOP_VAR_ApiUpdateUserPhone_phoneNumber);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiUpdateUserPhone_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiUpdateUserPhone_cfg);
+    int result = DBOP_FUN_ExecuteUpdateUserPhone(DBOP_VAR_ApiUpdateUserPhone_mysqlConnect, DBOP_VAR_ApiUpdateUserPhone_userId, DBOP_VAR_ApiUpdateUserPhone_phoneNumber, DBOP_VAR_ApiUpdateUserPhone_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiUpdateUserPhone_request, result, DBOP_VAR_ApiUpdateUserPhone_requestId, "update user phone");
+
+    json_decref(DBOP_VAR_ApiUpdateUserPhone_dataJsonAll);
+}
+
+// ------------------------mysql更新用户手机号api逻辑结束----------------------------
+
+
+// ------------------------mysql更新用户微信ID api逻辑开始----------------------------
+
+// 更新用户微信ID的sql数据化输出
+int DBOP_FUN_ExecuteUpdateUserWeixinId(DB_CONNECTION *DBOP_VAR_ExecuteUpdateUserWeixinId_connect, const char *DBOP_VAR_ExecuteUpdateUserWeixinId_userId, const char *DBOP_VAR_ExecuteUpdateUserWeixinId_weixinOpenid, const char *DBOP_VAR_ExecuteUpdateUserWeixinId_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteUpdateUserWeixinId is starting", DBOP_VAR_ExecuteUpdateUserWeixinId_requestId);
+
+    // 保护原始参数不被修改，复制参数
+    char DBOP_VAR_ExecuteUpdateUserWeixinId_noConstUserId[256];
+    char DBOP_VAR_ExecuteUpdateUserWeixinId_noConstWeixinOpenid[256];
+
+    strncpy(DBOP_VAR_ExecuteUpdateUserWeixinId_noConstUserId, DBOP_VAR_ExecuteUpdateUserWeixinId_userId, sizeof(DBOP_VAR_ExecuteUpdateUserWeixinId_noConstUserId) - 1);
+    DBOP_VAR_ExecuteUpdateUserWeixinId_noConstUserId[sizeof(DBOP_VAR_ExecuteUpdateUserWeixinId_noConstUserId) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteUpdateUserWeixinId_noConstWeixinOpenid, DBOP_VAR_ExecuteUpdateUserWeixinId_weixinOpenid, sizeof(DBOP_VAR_ExecuteUpdateUserWeixinId_noConstWeixinOpenid) - 1);
+    DBOP_VAR_ExecuteUpdateUserWeixinId_noConstWeixinOpenid[sizeof(DBOP_VAR_ExecuteUpdateUserWeixinId_noConstWeixinOpenid) - 1] = '\0';
+
+    MYSQL_BIND DBOP_VAR_ExecuteUpdateUserWeixinId_bindParams[2];
+    memset(DBOP_VAR_ExecuteUpdateUserWeixinId_bindParams, 0, sizeof(DBOP_VAR_ExecuteUpdateUserWeixinId_bindParams));
+
+    // 绑定参数：weixin_openid, user_id
+    DBOP_VAR_ExecuteUpdateUserWeixinId_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateUserWeixinId_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteUpdateUserWeixinId_noConstWeixinOpenid;
+    DBOP_VAR_ExecuteUpdateUserWeixinId_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteUpdateUserWeixinId_noConstWeixinOpenid);
+
+    DBOP_VAR_ExecuteUpdateUserWeixinId_bindParams[1].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateUserWeixinId_bindParams[1].buffer = (char *)DBOP_VAR_ExecuteUpdateUserWeixinId_noConstUserId;
+    DBOP_VAR_ExecuteUpdateUserWeixinId_bindParams[1].buffer_length = strlen(DBOP_VAR_ExecuteUpdateUserWeixinId_noConstUserId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteUpdateUserWeixinId_connect->stmt_update_user_weixinid, DBOP_VAR_ExecuteUpdateUserWeixinId_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind update param: %s", DBOP_VAR_ExecuteUpdateUserWeixinId_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateUserWeixinId_connect->stmt_update_user_weixinid));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteUpdateUserWeixinId_connect->stmt_update_user_weixinid)) {
+        dzlog_error("[req: %s] Failed to execute update statement: %s", DBOP_VAR_ExecuteUpdateUserWeixinId_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateUserWeixinId_connect->stmt_update_user_weixinid));
+        return -1;
+    }
+
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteUpdateUserWeixinId_connect->stmt_update_user_weixinid);
+    if (affected_rows == 0) {
+        dzlog_warn("[req: %s] No user found with user_id: %s", DBOP_VAR_ExecuteUpdateUserWeixinId_requestId, DBOP_VAR_ExecuteUpdateUserWeixinId_userId);
+        return 1;
+    }
+
+    dzlog_info("[req: %s] Successfully updated weixin openid for user: %s", DBOP_VAR_ExecuteUpdateUserWeixinId_requestId, DBOP_VAR_ExecuteUpdateUserWeixinId_userId);
+    return 0;
+}
+
+// 更新用户微信ID的API接口
+void DBOP_FUN_ApiUpdateUserWeixinId(struct evhttp_request *DBOP_VAR_ApiUpdateUserWeixinId_request, void *DBOP_VAR_ApiUpdateUserWeixinId_voidCfg) {
+    AppConfig *DBOP_VAR_ApiUpdateUserWeixinId_cfg = (AppConfig *)DBOP_VAR_ApiUpdateUserWeixinId_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiUpdateUserWeixinId_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiUpdateUserWeixinId_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiUpdateUserWeixinId.", DBOP_VAR_ApiUpdateUserWeixinId_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiUpdateUserWeixinId_request, DBOP_VAR_ApiUpdateUserWeixinId_cfg, DBOP_VAR_ApiUpdateUserWeixinId_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiUpdateUserWeixinId_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiUpdateUserWeixinId_request, DBOP_VAR_ApiUpdateUserWeixinId_requestId);
+    if (!DBOP_VAR_ApiUpdateUserWeixinId_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiUpdateUserWeixinId_dataJsonUserId = json_object_get(DBOP_VAR_ApiUpdateUserWeixinId_dataJsonAll, "user_id");
+    json_t *DBOP_VAR_ApiUpdateUserWeixinId_dataJsonWeixinOpenid = json_object_get(DBOP_VAR_ApiUpdateUserWeixinId_dataJsonAll, "weixin_openid");
+
+    if (!json_is_string(DBOP_VAR_ApiUpdateUserWeixinId_dataJsonUserId) ||
+        !json_is_string(DBOP_VAR_ApiUpdateUserWeixinId_dataJsonWeixinOpenid)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string types for 'user_id' and 'weixin_openid'", DBOP_VAR_ApiUpdateUserWeixinId_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiUpdateUserWeixinId_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiUpdateUserWeixinId_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiUpdateUserWeixinId_userId = json_string_value(DBOP_VAR_ApiUpdateUserWeixinId_dataJsonUserId);
+    const char *DBOP_VAR_ApiUpdateUserWeixinId_weixinOpenid = json_string_value(DBOP_VAR_ApiUpdateUserWeixinId_dataJsonWeixinOpenid);
+
+    dzlog_info("[req: %s] Executing database operation for ApiUpdateUserWeixinId: userId=%s, weixinOpenid=%s", DBOP_VAR_ApiUpdateUserWeixinId_requestId, DBOP_VAR_ApiUpdateUserWeixinId_userId, DBOP_VAR_ApiUpdateUserWeixinId_weixinOpenid);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiUpdateUserWeixinId_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiUpdateUserWeixinId_cfg);
+    int result = DBOP_FUN_ExecuteUpdateUserWeixinId(DBOP_VAR_ApiUpdateUserWeixinId_mysqlConnect, DBOP_VAR_ApiUpdateUserWeixinId_userId, DBOP_VAR_ApiUpdateUserWeixinId_weixinOpenid, DBOP_VAR_ApiUpdateUserWeixinId_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiUpdateUserWeixinId_request, result, DBOP_VAR_ApiUpdateUserWeixinId_requestId, "update user weixin id");
+
+    json_decref(DBOP_VAR_ApiUpdateUserWeixinId_dataJsonAll);
+}
+
+// ------------------------mysql更新用户微信ID api逻辑结束----------------------------
+
+
+// ------------------------mysql更新用户权限组api逻辑开始----------------------------
+
+// 更新用户权限组的sql数据化输出
+int DBOP_FUN_ExecuteUpdateUserPermission(DB_CONNECTION *DBOP_VAR_ExecuteUpdateUserPermission_connect, const char *DBOP_VAR_ExecuteUpdateUserPermission_userId, int DBOP_VAR_ExecuteUpdateUserPermission_userPermission, const char *DBOP_VAR_ExecuteUpdateUserPermission_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteUpdateUserPermission is starting", DBOP_VAR_ExecuteUpdateUserPermission_requestId);
+
+    // 保护原始参数不被修改，复制用户ID
+    char DBOP_VAR_ExecuteUpdateUserPermission_noConstUserId[256];
+    strncpy(DBOP_VAR_ExecuteUpdateUserPermission_noConstUserId, DBOP_VAR_ExecuteUpdateUserPermission_userId, sizeof(DBOP_VAR_ExecuteUpdateUserPermission_noConstUserId) - 1);
+    DBOP_VAR_ExecuteUpdateUserPermission_noConstUserId[sizeof(DBOP_VAR_ExecuteUpdateUserPermission_noConstUserId) - 1] = '\0';
+
+    MYSQL_BIND DBOP_VAR_ExecuteUpdateUserPermission_bindParams[2];
+    memset(DBOP_VAR_ExecuteUpdateUserPermission_bindParams, 0, sizeof(DBOP_VAR_ExecuteUpdateUserPermission_bindParams));
+
+    // 绑定参数：user_permission, user_id
+    DBOP_VAR_ExecuteUpdateUserPermission_bindParams[0].buffer_type = MYSQL_TYPE_LONG;
+    DBOP_VAR_ExecuteUpdateUserPermission_bindParams[0].buffer = &DBOP_VAR_ExecuteUpdateUserPermission_userPermission;
+    DBOP_VAR_ExecuteUpdateUserPermission_bindParams[0].buffer_length = sizeof(DBOP_VAR_ExecuteUpdateUserPermission_userPermission);
+
+    DBOP_VAR_ExecuteUpdateUserPermission_bindParams[1].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateUserPermission_bindParams[1].buffer = (char *)DBOP_VAR_ExecuteUpdateUserPermission_noConstUserId;
+    DBOP_VAR_ExecuteUpdateUserPermission_bindParams[1].buffer_length = strlen(DBOP_VAR_ExecuteUpdateUserPermission_noConstUserId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteUpdateUserPermission_connect->stmt_update_user_permission, DBOP_VAR_ExecuteUpdateUserPermission_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind update param: %s", DBOP_VAR_ExecuteUpdateUserPermission_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateUserPermission_connect->stmt_update_user_permission));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteUpdateUserPermission_connect->stmt_update_user_permission)) {
+        dzlog_error("[req: %s] Failed to execute update statement: %s", DBOP_VAR_ExecuteUpdateUserPermission_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateUserPermission_connect->stmt_update_user_permission));
+        return -1;
+    }
+
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteUpdateUserPermission_connect->stmt_update_user_permission);
+    if (affected_rows == 0) {
+        dzlog_warn("[req: %s] No user found with user_id: %s", DBOP_VAR_ExecuteUpdateUserPermission_requestId, DBOP_VAR_ExecuteUpdateUserPermission_userId);
+        return 1;
+    }
+
+    dzlog_info("[req: %s] Successfully updated permission for user: %s to permission: %d", DBOP_VAR_ExecuteUpdateUserPermission_requestId, DBOP_VAR_ExecuteUpdateUserPermission_userId, DBOP_VAR_ExecuteUpdateUserPermission_userPermission);
+    return 0;
+}
+
+// 更新用户权限组的API接口
+void DBOP_FUN_ApiUpdateUserPermission(struct evhttp_request *DBOP_VAR_ApiUpdateUserPermission_request, void *DBOP_VAR_ApiUpdateUserPermission_voidCfg) {
+    AppConfig *DBOP_VAR_ApiUpdateUserPermission_cfg = (AppConfig *)DBOP_VAR_ApiUpdateUserPermission_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiUpdateUserPermission_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiUpdateUserPermission_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiUpdateUserPermission.", DBOP_VAR_ApiUpdateUserPermission_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiUpdateUserPermission_request, DBOP_VAR_ApiUpdateUserPermission_cfg, DBOP_VAR_ApiUpdateUserPermission_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiUpdateUserPermission_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiUpdateUserPermission_request, DBOP_VAR_ApiUpdateUserPermission_requestId);
+    if (!DBOP_VAR_ApiUpdateUserPermission_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiUpdateUserPermission_dataJsonUserId = json_object_get(DBOP_VAR_ApiUpdateUserPermission_dataJsonAll, "user_id");
+    json_t *DBOP_VAR_ApiUpdateUserPermission_dataJsonUserPermission = json_object_get(DBOP_VAR_ApiUpdateUserPermission_dataJsonAll, "user_permission");
+
+    if (!json_is_string(DBOP_VAR_ApiUpdateUserPermission_dataJsonUserId) ||
+        !json_is_integer(DBOP_VAR_ApiUpdateUserPermission_dataJsonUserPermission)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string type for 'user_id' and integer type for 'user_permission'", DBOP_VAR_ApiUpdateUserPermission_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiUpdateUserPermission_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiUpdateUserPermission_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiUpdateUserPermission_userId = json_string_value(DBOP_VAR_ApiUpdateUserPermission_dataJsonUserId);
+    int DBOP_VAR_ApiUpdateUserPermission_userPermission = json_integer_value(DBOP_VAR_ApiUpdateUserPermission_dataJsonUserPermission);
+
+    dzlog_info("[req: %s] Executing database operation for ApiUpdateUserPermission: userId=%s, userPermission=%d", DBOP_VAR_ApiUpdateUserPermission_requestId, DBOP_VAR_ApiUpdateUserPermission_userId, DBOP_VAR_ApiUpdateUserPermission_userPermission);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiUpdateUserPermission_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiUpdateUserPermission_cfg);
+    int result = DBOP_FUN_ExecuteUpdateUserPermission(DBOP_VAR_ApiUpdateUserPermission_mysqlConnect, DBOP_VAR_ApiUpdateUserPermission_userId, DBOP_VAR_ApiUpdateUserPermission_userPermission, DBOP_VAR_ApiUpdateUserPermission_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiUpdateUserPermission_request, result, DBOP_VAR_ApiUpdateUserPermission_requestId, "update user permission");
+
+    json_decref(DBOP_VAR_ApiUpdateUserPermission_dataJsonAll);
+}
+
+// ------------------------mysql更新用户权限组api逻辑结束----------------------------
+
+
+// ------------------------mysql修改用户密码api逻辑开始----------------------------
+
+// 修改用户密码的sql数据化输出
+int DBOP_FUN_ExecuteUpdateUserPasswd(DB_CONNECTION *DBOP_VAR_ExecuteUpdateUserPasswd_connect, const char *DBOP_VAR_ExecuteUpdateUserPasswd_userId, const char *DBOP_VAR_ExecuteUpdateUserPasswd_passwd, const char *DBOP_VAR_ExecuteUpdateUserPasswd_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteUpdateUserPasswd is starting", DBOP_VAR_ExecuteUpdateUserPasswd_requestId);
+
+    // 保护原始参数不被修改，复制参数
+    char DBOP_VAR_ExecuteUpdateUserPasswd_noConstUserId[256];
+    char DBOP_VAR_ExecuteUpdateUserPasswd_noConstPasswd[256];
+
+    strncpy(DBOP_VAR_ExecuteUpdateUserPasswd_noConstUserId, DBOP_VAR_ExecuteUpdateUserPasswd_userId, sizeof(DBOP_VAR_ExecuteUpdateUserPasswd_noConstUserId) - 1);
+    DBOP_VAR_ExecuteUpdateUserPasswd_noConstUserId[sizeof(DBOP_VAR_ExecuteUpdateUserPasswd_noConstUserId) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteUpdateUserPasswd_noConstPasswd, DBOP_VAR_ExecuteUpdateUserPasswd_passwd, sizeof(DBOP_VAR_ExecuteUpdateUserPasswd_noConstPasswd) - 1);
+    DBOP_VAR_ExecuteUpdateUserPasswd_noConstPasswd[sizeof(DBOP_VAR_ExecuteUpdateUserPasswd_noConstPasswd) - 1] = '\0';
+
+    MYSQL_BIND DBOP_VAR_ExecuteUpdateUserPasswd_bindParams[2];
+    memset(DBOP_VAR_ExecuteUpdateUserPasswd_bindParams, 0, sizeof(DBOP_VAR_ExecuteUpdateUserPasswd_bindParams));
+
+    // 绑定参数：user_password, user_id
+    DBOP_VAR_ExecuteUpdateUserPasswd_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateUserPasswd_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteUpdateUserPasswd_noConstPasswd;
+    DBOP_VAR_ExecuteUpdateUserPasswd_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteUpdateUserPasswd_noConstPasswd);
+
+    DBOP_VAR_ExecuteUpdateUserPasswd_bindParams[1].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateUserPasswd_bindParams[1].buffer = (char *)DBOP_VAR_ExecuteUpdateUserPasswd_noConstUserId;
+    DBOP_VAR_ExecuteUpdateUserPasswd_bindParams[1].buffer_length = strlen(DBOP_VAR_ExecuteUpdateUserPasswd_noConstUserId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteUpdateUserPasswd_connect->stmt_update_user_passwd, DBOP_VAR_ExecuteUpdateUserPasswd_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind update param: %s", DBOP_VAR_ExecuteUpdateUserPasswd_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateUserPasswd_connect->stmt_update_user_passwd));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteUpdateUserPasswd_connect->stmt_update_user_passwd)) {
+        dzlog_error("[req: %s] Failed to execute update statement: %s", DBOP_VAR_ExecuteUpdateUserPasswd_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateUserPasswd_connect->stmt_update_user_passwd));
+        return -1;
+    }
+
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteUpdateUserPasswd_connect->stmt_update_user_passwd);
+    if (affected_rows == 0) {
+        dzlog_warn("[req: %s] No user found with user_id: %s", DBOP_VAR_ExecuteUpdateUserPasswd_requestId, DBOP_VAR_ExecuteUpdateUserPasswd_userId);
+        return 1;
+    }
+
+    dzlog_info("[req: %s] Successfully updated password for user: %s", DBOP_VAR_ExecuteUpdateUserPasswd_requestId, DBOP_VAR_ExecuteUpdateUserPasswd_userId);
+    return 0;
+}
+
+// 修改用户密码的API接口
+void DBOP_FUN_ApiUpdateUserPasswd(struct evhttp_request *DBOP_VAR_ApiUpdateUserPasswd_request, void *DBOP_VAR_ApiUpdateUserPasswd_voidCfg) {
+    AppConfig *DBOP_VAR_ApiUpdateUserPasswd_cfg = (AppConfig *)DBOP_VAR_ApiUpdateUserPasswd_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiUpdateUserPasswd_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiUpdateUserPasswd_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiUpdateUserPasswd.", DBOP_VAR_ApiUpdateUserPasswd_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiUpdateUserPasswd_request, DBOP_VAR_ApiUpdateUserPasswd_cfg, DBOP_VAR_ApiUpdateUserPasswd_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiUpdateUserPasswd_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiUpdateUserPasswd_request, DBOP_VAR_ApiUpdateUserPasswd_requestId);
+    if (!DBOP_VAR_ApiUpdateUserPasswd_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiUpdateUserPasswd_dataJsonUserId = json_object_get(DBOP_VAR_ApiUpdateUserPasswd_dataJsonAll, "user_id");
+    json_t *DBOP_VAR_ApiUpdateUserPasswd_dataJsonPasswd = json_object_get(DBOP_VAR_ApiUpdateUserPasswd_dataJsonAll, "passwd");
+
+    if (!json_is_string(DBOP_VAR_ApiUpdateUserPasswd_dataJsonUserId) ||
+        !json_is_string(DBOP_VAR_ApiUpdateUserPasswd_dataJsonPasswd)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string types for 'user_id' and 'passwd'", DBOP_VAR_ApiUpdateUserPasswd_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiUpdateUserPasswd_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiUpdateUserPasswd_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiUpdateUserPasswd_userId = json_string_value(DBOP_VAR_ApiUpdateUserPasswd_dataJsonUserId);
+    const char *DBOP_VAR_ApiUpdateUserPasswd_passwd = json_string_value(DBOP_VAR_ApiUpdateUserPasswd_dataJsonPasswd);
+
+    dzlog_info("[req: %s] Executing database operation for ApiUpdateUserPasswd: userId=%s", DBOP_VAR_ApiUpdateUserPasswd_requestId, DBOP_VAR_ApiUpdateUserPasswd_userId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiUpdateUserPasswd_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiUpdateUserPasswd_cfg);
+    int result = DBOP_FUN_ExecuteUpdateUserPasswd(DBOP_VAR_ApiUpdateUserPasswd_mysqlConnect, DBOP_VAR_ApiUpdateUserPasswd_userId, DBOP_VAR_ApiUpdateUserPasswd_passwd, DBOP_VAR_ApiUpdateUserPasswd_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiUpdateUserPasswd_request, result, DBOP_VAR_ApiUpdateUserPasswd_requestId, "update user password");
+
+    json_decref(DBOP_VAR_ApiUpdateUserPasswd_dataJsonAll);
+}
+
+// ------------------------mysql修改用户密码api逻辑结束----------------------------
 
 
 // ------------------------mysql根据servicename查询对应servicepassword逻辑开始----------------------------
@@ -1172,6 +1970,562 @@ void DBOP_FUN_ApiGetServicePasswd(struct evhttp_request *DBOP_VAR_ApiGetServiceP
 // ------------------------mysql根据servicename查询对应servicepassword逻辑结束----------------------------
 
 
+// ------------------------mysql更新验证记录api逻辑开始----------------------------
+
+// 更新验证记录的sql数据化输出
+int DBOP_FUN_ExecuteUpdateVerificationRecord(DB_CONNECTION *DBOP_VAR_ExecuteUpdateVerificationRecord_connect, const char *DBOP_VAR_ExecuteUpdateVerificationRecord_projectId, const char *DBOP_VAR_ExecuteUpdateVerificationRecord_verificationRecord, const char *DBOP_VAR_ExecuteUpdateVerificationRecord_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteUpdateVerificationRecord is starting", DBOP_VAR_ExecuteUpdateVerificationRecord_requestId);
+
+    // 保护原始参数不被修改，复制参数
+    char DBOP_VAR_ExecuteUpdateVerificationRecord_noConstProjectId[256];
+    char *DBOP_VAR_ExecuteUpdateVerificationRecord_noConstVerificationRecord = malloc(strlen(DBOP_VAR_ExecuteUpdateVerificationRecord_verificationRecord) + 1);
+    
+    if (DBOP_VAR_ExecuteUpdateVerificationRecord_noConstVerificationRecord == NULL) {
+        dzlog_error("[req: %s] Memory allocation failed for verification record", DBOP_VAR_ExecuteUpdateVerificationRecord_requestId);
+        return -1;
+    }
+
+    strncpy(DBOP_VAR_ExecuteUpdateVerificationRecord_noConstProjectId, DBOP_VAR_ExecuteUpdateVerificationRecord_projectId, sizeof(DBOP_VAR_ExecuteUpdateVerificationRecord_noConstProjectId) - 1);
+    DBOP_VAR_ExecuteUpdateVerificationRecord_noConstProjectId[sizeof(DBOP_VAR_ExecuteUpdateVerificationRecord_noConstProjectId) - 1] = '\0';
+
+    strcpy(DBOP_VAR_ExecuteUpdateVerificationRecord_noConstVerificationRecord, DBOP_VAR_ExecuteUpdateVerificationRecord_verificationRecord);
+
+    MYSQL_BIND DBOP_VAR_ExecuteUpdateVerificationRecord_bindParams[2];
+    memset(DBOP_VAR_ExecuteUpdateVerificationRecord_bindParams, 0, sizeof(DBOP_VAR_ExecuteUpdateVerificationRecord_bindParams));
+
+    // 绑定参数：verification_record, project_id
+    DBOP_VAR_ExecuteUpdateVerificationRecord_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateVerificationRecord_bindParams[0].buffer = DBOP_VAR_ExecuteUpdateVerificationRecord_noConstVerificationRecord;
+    DBOP_VAR_ExecuteUpdateVerificationRecord_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteUpdateVerificationRecord_noConstVerificationRecord);
+
+    DBOP_VAR_ExecuteUpdateVerificationRecord_bindParams[1].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateVerificationRecord_bindParams[1].buffer = (char *)DBOP_VAR_ExecuteUpdateVerificationRecord_noConstProjectId;
+    DBOP_VAR_ExecuteUpdateVerificationRecord_bindParams[1].buffer_length = strlen(DBOP_VAR_ExecuteUpdateVerificationRecord_noConstProjectId);
+
+    int result = 0;
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteUpdateVerificationRecord_connect->stmt_update_verification_record, DBOP_VAR_ExecuteUpdateVerificationRecord_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind update param: %s", DBOP_VAR_ExecuteUpdateVerificationRecord_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateVerificationRecord_connect->stmt_update_verification_record));
+        result = -1;
+        goto cleanup;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteUpdateVerificationRecord_connect->stmt_update_verification_record)) {
+        dzlog_error("[req: %s] Failed to execute update statement: %s", DBOP_VAR_ExecuteUpdateVerificationRecord_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateVerificationRecord_connect->stmt_update_verification_record));
+        result = -1;
+        goto cleanup;
+    }
+
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteUpdateVerificationRecord_connect->stmt_update_verification_record);
+    if (affected_rows == 0) {
+        dzlog_warn("[req: %s] No project found with project_id: %s", DBOP_VAR_ExecuteUpdateVerificationRecord_requestId, DBOP_VAR_ExecuteUpdateVerificationRecord_projectId);
+        result = 1;
+        goto cleanup;
+    }
+
+    dzlog_info("[req: %s] Successfully updated verification record for project: %s", DBOP_VAR_ExecuteUpdateVerificationRecord_requestId, DBOP_VAR_ExecuteUpdateVerificationRecord_projectId);
+
+cleanup:
+    free(DBOP_VAR_ExecuteUpdateVerificationRecord_noConstVerificationRecord);
+    return result;
+}
+
+// 更新验证记录的API接口
+void DBOP_FUN_ApiUpdateVerificationRecord(struct evhttp_request *DBOP_VAR_ApiUpdateVerificationRecord_request, void *DBOP_VAR_ApiUpdateVerificationRecord_voidCfg) {
+    AppConfig *DBOP_VAR_ApiUpdateVerificationRecord_cfg = (AppConfig *)DBOP_VAR_ApiUpdateVerificationRecord_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiUpdateVerificationRecord_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiUpdateVerificationRecord_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiUpdateVerificationRecord.", DBOP_VAR_ApiUpdateVerificationRecord_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiUpdateVerificationRecord_request, DBOP_VAR_ApiUpdateVerificationRecord_cfg, DBOP_VAR_ApiUpdateVerificationRecord_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiUpdateVerificationRecord_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiUpdateVerificationRecord_request, DBOP_VAR_ApiUpdateVerificationRecord_requestId);
+    if (!DBOP_VAR_ApiUpdateVerificationRecord_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiUpdateVerificationRecord_dataJsonProjectId = json_object_get(DBOP_VAR_ApiUpdateVerificationRecord_dataJsonAll, "project_id");
+    json_t *DBOP_VAR_ApiUpdateVerificationRecord_dataJsonVerificationRecord = json_object_get(DBOP_VAR_ApiUpdateVerificationRecord_dataJsonAll, "update_verification_record");
+
+    if (!json_is_string(DBOP_VAR_ApiUpdateVerificationRecord_dataJsonProjectId) ||
+        !json_is_string(DBOP_VAR_ApiUpdateVerificationRecord_dataJsonVerificationRecord)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string types for 'project_id' and 'update_verification_record'", DBOP_VAR_ApiUpdateVerificationRecord_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiUpdateVerificationRecord_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiUpdateVerificationRecord_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiUpdateVerificationRecord_projectId = json_string_value(DBOP_VAR_ApiUpdateVerificationRecord_dataJsonProjectId);
+    const char *DBOP_VAR_ApiUpdateVerificationRecord_verificationRecord = json_string_value(DBOP_VAR_ApiUpdateVerificationRecord_dataJsonVerificationRecord);
+
+    dzlog_info("[req: %s] Executing database operation for ApiUpdateVerificationRecord: projectId=%s", DBOP_VAR_ApiUpdateVerificationRecord_requestId, DBOP_VAR_ApiUpdateVerificationRecord_projectId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiUpdateVerificationRecord_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiUpdateVerificationRecord_cfg);
+    int result = DBOP_FUN_ExecuteUpdateVerificationRecord(DBOP_VAR_ApiUpdateVerificationRecord_mysqlConnect, DBOP_VAR_ApiUpdateVerificationRecord_projectId, DBOP_VAR_ApiUpdateVerificationRecord_verificationRecord, DBOP_VAR_ApiUpdateVerificationRecord_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiUpdateVerificationRecord_request, result, DBOP_VAR_ApiUpdateVerificationRecord_requestId, "update verification record");
+
+    json_decref(DBOP_VAR_ApiUpdateVerificationRecord_dataJsonAll);
+}
+
+// ------------------------mysql更新验证记录api逻辑结束----------------------------
+
+
+// ------------------------mysql更新项目状态api逻辑开始----------------------------
+
+// 更新项目状态的sql数据化输出
+int DBOP_FUN_ExecuteUpdateProjectStatus(DB_CONNECTION *DBOP_VAR_ExecuteUpdateProjectStatus_connect, const char *DBOP_VAR_ExecuteUpdateProjectStatus_projectId, int DBOP_VAR_ExecuteUpdateProjectStatus_projectStatus, const char *DBOP_VAR_ExecuteUpdateProjectStatus_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteUpdateProjectStatus is starting", DBOP_VAR_ExecuteUpdateProjectStatus_requestId);
+
+    // 保护原始参数不被修改，复制项目ID
+    char DBOP_VAR_ExecuteUpdateProjectStatus_noConstProjectId[256];
+    strncpy(DBOP_VAR_ExecuteUpdateProjectStatus_noConstProjectId, DBOP_VAR_ExecuteUpdateProjectStatus_projectId, sizeof(DBOP_VAR_ExecuteUpdateProjectStatus_noConstProjectId) - 1);
+    DBOP_VAR_ExecuteUpdateProjectStatus_noConstProjectId[sizeof(DBOP_VAR_ExecuteUpdateProjectStatus_noConstProjectId) - 1] = '\0';
+
+    MYSQL_BIND DBOP_VAR_ExecuteUpdateProjectStatus_bindParams[2];
+    memset(DBOP_VAR_ExecuteUpdateProjectStatus_bindParams, 0, sizeof(DBOP_VAR_ExecuteUpdateProjectStatus_bindParams));
+
+    // 绑定参数：project_status, project_id
+    DBOP_VAR_ExecuteUpdateProjectStatus_bindParams[0].buffer_type = MYSQL_TYPE_LONG;
+    DBOP_VAR_ExecuteUpdateProjectStatus_bindParams[0].buffer = &DBOP_VAR_ExecuteUpdateProjectStatus_projectStatus;
+    DBOP_VAR_ExecuteUpdateProjectStatus_bindParams[0].buffer_length = sizeof(DBOP_VAR_ExecuteUpdateProjectStatus_projectStatus);
+
+    DBOP_VAR_ExecuteUpdateProjectStatus_bindParams[1].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateProjectStatus_bindParams[1].buffer = (char *)DBOP_VAR_ExecuteUpdateProjectStatus_noConstProjectId;
+    DBOP_VAR_ExecuteUpdateProjectStatus_bindParams[1].buffer_length = strlen(DBOP_VAR_ExecuteUpdateProjectStatus_noConstProjectId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteUpdateProjectStatus_connect->stmt_update_project_status, DBOP_VAR_ExecuteUpdateProjectStatus_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind update param: %s", DBOP_VAR_ExecuteUpdateProjectStatus_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateProjectStatus_connect->stmt_update_project_status));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteUpdateProjectStatus_connect->stmt_update_project_status)) {
+        dzlog_error("[req: %s] Failed to execute update statement: %s", DBOP_VAR_ExecuteUpdateProjectStatus_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateProjectStatus_connect->stmt_update_project_status));
+        return -1;
+    }
+
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteUpdateProjectStatus_connect->stmt_update_project_status);
+    if (affected_rows == 0) {
+        dzlog_warn("[req: %s] No project found with project_id: %s", DBOP_VAR_ExecuteUpdateProjectStatus_requestId, DBOP_VAR_ExecuteUpdateProjectStatus_projectId);
+        return 1;
+    }
+
+    dzlog_info("[req: %s] Successfully updated project status for project: %s to status: %d", DBOP_VAR_ExecuteUpdateProjectStatus_requestId, DBOP_VAR_ExecuteUpdateProjectStatus_projectId, DBOP_VAR_ExecuteUpdateProjectStatus_projectStatus);
+    return 0;
+}
+
+// 更新项目状态的API接口
+void DBOP_FUN_ApiUpdateProjectStatus(struct evhttp_request *DBOP_VAR_ApiUpdateProjectStatus_request, void *DBOP_VAR_ApiUpdateProjectStatus_voidCfg) {
+    AppConfig *DBOP_VAR_ApiUpdateProjectStatus_cfg = (AppConfig *)DBOP_VAR_ApiUpdateProjectStatus_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiUpdateProjectStatus_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiUpdateProjectStatus_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiUpdateProjectStatus.", DBOP_VAR_ApiUpdateProjectStatus_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiUpdateProjectStatus_request, DBOP_VAR_ApiUpdateProjectStatus_cfg, DBOP_VAR_ApiUpdateProjectStatus_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiUpdateProjectStatus_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiUpdateProjectStatus_request, DBOP_VAR_ApiUpdateProjectStatus_requestId);
+    if (!DBOP_VAR_ApiUpdateProjectStatus_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiUpdateProjectStatus_dataJsonProjectId = json_object_get(DBOP_VAR_ApiUpdateProjectStatus_dataJsonAll, "project_id");
+    json_t *DBOP_VAR_ApiUpdateProjectStatus_dataJsonProjectStatus = json_object_get(DBOP_VAR_ApiUpdateProjectStatus_dataJsonAll, "projest_status");
+
+    if (!json_is_string(DBOP_VAR_ApiUpdateProjectStatus_dataJsonProjectId) ||
+        !json_is_integer(DBOP_VAR_ApiUpdateProjectStatus_dataJsonProjectStatus)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string type for 'project_id' and integer type for 'projest_status'", DBOP_VAR_ApiUpdateProjectStatus_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiUpdateProjectStatus_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiUpdateProjectStatus_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiUpdateProjectStatus_projectId = json_string_value(DBOP_VAR_ApiUpdateProjectStatus_dataJsonProjectId);
+    int DBOP_VAR_ApiUpdateProjectStatus_projectStatus = json_integer_value(DBOP_VAR_ApiUpdateProjectStatus_dataJsonProjectStatus);
+
+    dzlog_info("[req: %s] Executing database operation for ApiUpdateProjectStatus: projectId=%s, projectStatus=%d", DBOP_VAR_ApiUpdateProjectStatus_requestId, DBOP_VAR_ApiUpdateProjectStatus_projectId, DBOP_VAR_ApiUpdateProjectStatus_projectStatus);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiUpdateProjectStatus_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiUpdateProjectStatus_cfg);
+    int result = DBOP_FUN_ExecuteUpdateProjectStatus(DBOP_VAR_ApiUpdateProjectStatus_mysqlConnect, DBOP_VAR_ApiUpdateProjectStatus_projectId, DBOP_VAR_ApiUpdateProjectStatus_projectStatus, DBOP_VAR_ApiUpdateProjectStatus_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiUpdateProjectStatus_request, result, DBOP_VAR_ApiUpdateProjectStatus_requestId, "update project status");
+
+    json_decref(DBOP_VAR_ApiUpdateProjectStatus_dataJsonAll);
+}
+
+// ------------------------mysql更新项目状态api逻辑结束----------------------------
+
+
+// ------------------------mysql更新病情记录api逻辑开始----------------------------
+
+// 更新病情记录的sql数据化输出
+int DBOP_FUN_ExecuteUpdateProjectPathography(DB_CONNECTION *DBOP_VAR_ExecuteUpdateProjectPathography_connect, const char *DBOP_VAR_ExecuteUpdateProjectPathography_projectId, const char *DBOP_VAR_ExecuteUpdateProjectPathography_pathography, const char *DBOP_VAR_ExecuteUpdateProjectPathography_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteUpdateProjectPathography is starting", DBOP_VAR_ExecuteUpdateProjectPathography_requestId);
+
+    // 保护原始参数不被修改，复制参数
+    char DBOP_VAR_ExecuteUpdateProjectPathography_noConstProjectId[256];
+    char *DBOP_VAR_ExecuteUpdateProjectPathography_noConstPathography = malloc(strlen(DBOP_VAR_ExecuteUpdateProjectPathography_pathography) + 1);
+    
+    if (DBOP_VAR_ExecuteUpdateProjectPathography_noConstPathography == NULL) {
+        dzlog_error("[req: %s] Memory allocation failed for pathography", DBOP_VAR_ExecuteUpdateProjectPathography_requestId);
+        return -1;
+    }
+
+    strncpy(DBOP_VAR_ExecuteUpdateProjectPathography_noConstProjectId, DBOP_VAR_ExecuteUpdateProjectPathography_projectId, sizeof(DBOP_VAR_ExecuteUpdateProjectPathography_noConstProjectId) - 1);
+    DBOP_VAR_ExecuteUpdateProjectPathography_noConstProjectId[sizeof(DBOP_VAR_ExecuteUpdateProjectPathography_noConstProjectId) - 1] = '\0';
+
+    strcpy(DBOP_VAR_ExecuteUpdateProjectPathography_noConstPathography, DBOP_VAR_ExecuteUpdateProjectPathography_pathography);
+
+    MYSQL_BIND DBOP_VAR_ExecuteUpdateProjectPathography_bindParams[2];
+    memset(DBOP_VAR_ExecuteUpdateProjectPathography_bindParams, 0, sizeof(DBOP_VAR_ExecuteUpdateProjectPathography_bindParams));
+
+    // 绑定参数：pathography, project_id
+    DBOP_VAR_ExecuteUpdateProjectPathography_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateProjectPathography_bindParams[0].buffer = DBOP_VAR_ExecuteUpdateProjectPathography_noConstPathography;
+    DBOP_VAR_ExecuteUpdateProjectPathography_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteUpdateProjectPathography_noConstPathography);
+
+    DBOP_VAR_ExecuteUpdateProjectPathography_bindParams[1].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateProjectPathography_bindParams[1].buffer = (char *)DBOP_VAR_ExecuteUpdateProjectPathography_noConstProjectId;
+    DBOP_VAR_ExecuteUpdateProjectPathography_bindParams[1].buffer_length = strlen(DBOP_VAR_ExecuteUpdateProjectPathography_noConstProjectId);
+
+    int result = 0;
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteUpdateProjectPathography_connect->stmt_update_project_pathography, DBOP_VAR_ExecuteUpdateProjectPathography_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind update param: %s", DBOP_VAR_ExecuteUpdateProjectPathography_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateProjectPathography_connect->stmt_update_project_pathography));
+        result = -1;
+        goto cleanup;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteUpdateProjectPathography_connect->stmt_update_project_pathography)) {
+        dzlog_error("[req: %s] Failed to execute update statement: %s", DBOP_VAR_ExecuteUpdateProjectPathography_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateProjectPathography_connect->stmt_update_project_pathography));
+        result = -1;
+        goto cleanup;
+    }
+
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteUpdateProjectPathography_connect->stmt_update_project_pathography);
+    if (affected_rows == 0) {
+        dzlog_warn("[req: %s] No project found with project_id: %s", DBOP_VAR_ExecuteUpdateProjectPathography_requestId, DBOP_VAR_ExecuteUpdateProjectPathography_projectId);
+        result = 1;
+        goto cleanup;
+    }
+
+    dzlog_info("[req: %s] Successfully updated pathography for project: %s", DBOP_VAR_ExecuteUpdateProjectPathography_requestId, DBOP_VAR_ExecuteUpdateProjectPathography_projectId);
+
+cleanup:
+    free(DBOP_VAR_ExecuteUpdateProjectPathography_noConstPathography);
+    return result;
+}
+
+// 更新病情记录的API接口
+void DBOP_FUN_ApiUpdateProjectPathography(struct evhttp_request *DBOP_VAR_ApiUpdateProjectPathography_request, void *DBOP_VAR_ApiUpdateProjectPathography_voidCfg) {
+    AppConfig *DBOP_VAR_ApiUpdateProjectPathography_cfg = (AppConfig *)DBOP_VAR_ApiUpdateProjectPathography_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiUpdateProjectPathography_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiUpdateProjectPathography_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiUpdateProjectPathography.", DBOP_VAR_ApiUpdateProjectPathography_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiUpdateProjectPathography_request, DBOP_VAR_ApiUpdateProjectPathography_cfg, DBOP_VAR_ApiUpdateProjectPathography_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiUpdateProjectPathography_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiUpdateProjectPathography_request, DBOP_VAR_ApiUpdateProjectPathography_requestId);
+    if (!DBOP_VAR_ApiUpdateProjectPathography_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiUpdateProjectPathography_dataJsonProjectId = json_object_get(DBOP_VAR_ApiUpdateProjectPathography_dataJsonAll, "project_id");
+    json_t *DBOP_VAR_ApiUpdateProjectPathography_dataJsonPathography = json_object_get(DBOP_VAR_ApiUpdateProjectPathography_dataJsonAll, "pathography");
+
+    if (!json_is_string(DBOP_VAR_ApiUpdateProjectPathography_dataJsonProjectId) ||
+        !json_is_string(DBOP_VAR_ApiUpdateProjectPathography_dataJsonPathography)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string types for 'project_id' and 'pathography'", DBOP_VAR_ApiUpdateProjectPathography_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiUpdateProjectPathography_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiUpdateProjectPathography_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiUpdateProjectPathography_projectId = json_string_value(DBOP_VAR_ApiUpdateProjectPathography_dataJsonProjectId);
+    const char *DBOP_VAR_ApiUpdateProjectPathography_pathography = json_string_value(DBOP_VAR_ApiUpdateProjectPathography_dataJsonPathography);
+
+    dzlog_info("[req: %s] Executing database operation for ApiUpdateProjectPathography: projectId=%s", DBOP_VAR_ApiUpdateProjectPathography_requestId, DBOP_VAR_ApiUpdateProjectPathography_projectId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiUpdateProjectPathography_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiUpdateProjectPathography_cfg);
+    int result = DBOP_FUN_ExecuteUpdateProjectPathography(DBOP_VAR_ApiUpdateProjectPathography_mysqlConnect, DBOP_VAR_ApiUpdateProjectPathography_projectId, DBOP_VAR_ApiUpdateProjectPathography_pathography, DBOP_VAR_ApiUpdateProjectPathography_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiUpdateProjectPathography_request, result, DBOP_VAR_ApiUpdateProjectPathography_requestId, "update project pathography");
+
+    json_decref(DBOP_VAR_ApiUpdateProjectPathography_dataJsonAll);
+}
+
+// ------------------------mysql更新病情记录api逻辑结束----------------------------
+
+
+// ------------------------mysql更新项目负责志愿者ID api逻辑开始----------------------------
+
+// 更新项目负责志愿者ID的sql数据化输出
+int DBOP_FUN_ExecuteUpdateProjectVolunteer(DB_CONNECTION *DBOP_VAR_ExecuteUpdateProjectVolunteer_connect, const char *DBOP_VAR_ExecuteUpdateProjectVolunteer_projectId, const char *DBOP_VAR_ExecuteUpdateProjectVolunteer_volunteerId, const char *DBOP_VAR_ExecuteUpdateProjectVolunteer_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteUpdateProjectVolunteer is starting", DBOP_VAR_ExecuteUpdateProjectVolunteer_requestId);
+
+    // 保护原始参数不被修改，复制参数
+    char DBOP_VAR_ExecuteUpdateProjectVolunteer_noConstProjectId[256];
+    char DBOP_VAR_ExecuteUpdateProjectVolunteer_noConstVolunteerId[256];
+
+    strncpy(DBOP_VAR_ExecuteUpdateProjectVolunteer_noConstProjectId, DBOP_VAR_ExecuteUpdateProjectVolunteer_projectId, sizeof(DBOP_VAR_ExecuteUpdateProjectVolunteer_noConstProjectId) - 1);
+    DBOP_VAR_ExecuteUpdateProjectVolunteer_noConstProjectId[sizeof(DBOP_VAR_ExecuteUpdateProjectVolunteer_noConstProjectId) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteUpdateProjectVolunteer_noConstVolunteerId, DBOP_VAR_ExecuteUpdateProjectVolunteer_volunteerId, sizeof(DBOP_VAR_ExecuteUpdateProjectVolunteer_noConstVolunteerId) - 1);
+    DBOP_VAR_ExecuteUpdateProjectVolunteer_noConstVolunteerId[sizeof(DBOP_VAR_ExecuteUpdateProjectVolunteer_noConstVolunteerId) - 1] = '\0';
+
+    // 开始事务
+    if (mysql_autocommit(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->mysql, 0)) {
+        dzlog_error("[req: %s] Failed to start transaction: %s", DBOP_VAR_ExecuteUpdateProjectVolunteer_requestId, mysql_error(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->mysql));
+        return -1;
+    }
+
+    // 第一步：查询当前志愿者信息
+    MYSQL_BIND DBOP_VAR_ExecuteUpdateProjectVolunteer_queryBind[1];
+    memset(DBOP_VAR_ExecuteUpdateProjectVolunteer_queryBind, 0, sizeof(DBOP_VAR_ExecuteUpdateProjectVolunteer_queryBind));
+
+    DBOP_VAR_ExecuteUpdateProjectVolunteer_queryBind[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateProjectVolunteer_queryBind[0].buffer = (char *)DBOP_VAR_ExecuteUpdateProjectVolunteer_noConstProjectId;
+    DBOP_VAR_ExecuteUpdateProjectVolunteer_queryBind[0].buffer_length = strlen(DBOP_VAR_ExecuteUpdateProjectVolunteer_noConstProjectId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->stmt_get_project_volunteer_info, DBOP_VAR_ExecuteUpdateProjectVolunteer_queryBind)) {
+        dzlog_error("[req: %s] Failed to bind query param: %s", DBOP_VAR_ExecuteUpdateProjectVolunteer_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->stmt_get_project_volunteer_info));
+        mysql_rollback(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->mysql);
+        mysql_autocommit(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->mysql, 1);
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->stmt_get_project_volunteer_info)) {
+        dzlog_error("[req: %s] Failed to execute query statement: %s", DBOP_VAR_ExecuteUpdateProjectVolunteer_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->stmt_get_project_volunteer_info));
+        mysql_rollback(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->mysql);
+        mysql_autocommit(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->mysql, 1);
+        return -1;
+    }
+
+    // 绑定查询结果
+    MYSQL_BIND DBOP_VAR_ExecuteUpdateProjectVolunteer_queryResult[2];
+    memset(DBOP_VAR_ExecuteUpdateProjectVolunteer_queryResult, 0, sizeof(DBOP_VAR_ExecuteUpdateProjectVolunteer_queryResult));
+    
+    char DBOP_VAR_ExecuteUpdateProjectVolunteer_currentVolunteer[256];
+    char DBOP_VAR_ExecuteUpdateProjectVolunteer_previousVolunteers[4096];
+    unsigned long DBOP_VAR_ExecuteUpdateProjectVolunteer_currentVolunteerLength;
+    unsigned long DBOP_VAR_ExecuteUpdateProjectVolunteer_previousVolunteersLength;
+    my_bool DBOP_VAR_ExecuteUpdateProjectVolunteer_currentVolunteerIsNull;
+    my_bool DBOP_VAR_ExecuteUpdateProjectVolunteer_previousVolunteersIsNull;
+
+    DBOP_VAR_ExecuteUpdateProjectVolunteer_queryResult[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateProjectVolunteer_queryResult[0].buffer = DBOP_VAR_ExecuteUpdateProjectVolunteer_currentVolunteer;
+    DBOP_VAR_ExecuteUpdateProjectVolunteer_queryResult[0].buffer_length = sizeof(DBOP_VAR_ExecuteUpdateProjectVolunteer_currentVolunteer);
+    DBOP_VAR_ExecuteUpdateProjectVolunteer_queryResult[0].length = &DBOP_VAR_ExecuteUpdateProjectVolunteer_currentVolunteerLength;
+    DBOP_VAR_ExecuteUpdateProjectVolunteer_queryResult[0].is_null = &DBOP_VAR_ExecuteUpdateProjectVolunteer_currentVolunteerIsNull;
+
+    DBOP_VAR_ExecuteUpdateProjectVolunteer_queryResult[1].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateProjectVolunteer_queryResult[1].buffer = DBOP_VAR_ExecuteUpdateProjectVolunteer_previousVolunteers;
+    DBOP_VAR_ExecuteUpdateProjectVolunteer_queryResult[1].buffer_length = sizeof(DBOP_VAR_ExecuteUpdateProjectVolunteer_previousVolunteers);
+    DBOP_VAR_ExecuteUpdateProjectVolunteer_queryResult[1].length = &DBOP_VAR_ExecuteUpdateProjectVolunteer_previousVolunteersLength;
+    DBOP_VAR_ExecuteUpdateProjectVolunteer_queryResult[1].is_null = &DBOP_VAR_ExecuteUpdateProjectVolunteer_previousVolunteersIsNull;
+
+    if (mysql_stmt_bind_result(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->stmt_get_project_volunteer_info, DBOP_VAR_ExecuteUpdateProjectVolunteer_queryResult)) {
+        dzlog_error("[req: %s] Failed to bind query result: %s", DBOP_VAR_ExecuteUpdateProjectVolunteer_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->stmt_get_project_volunteer_info));
+        mysql_rollback(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->mysql);
+        mysql_autocommit(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->mysql, 1);
+        return -1;
+    }
+
+    // 获取查询结果
+    int fetchResult = mysql_stmt_fetch(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->stmt_get_project_volunteer_info);
+    if (fetchResult == MYSQL_NO_DATA) {
+        dzlog_warn("[req: %s] No project found with project_id: %s", DBOP_VAR_ExecuteUpdateProjectVolunteer_requestId, DBOP_VAR_ExecuteUpdateProjectVolunteer_projectId);
+        mysql_stmt_free_result(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->stmt_get_project_volunteer_info);
+        mysql_rollback(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->mysql);
+        mysql_autocommit(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->mysql, 1);
+        return 1;
+    } else if (fetchResult != 0) {
+        dzlog_error("[req: %s] Failed to fetch query result: %s", DBOP_VAR_ExecuteUpdateProjectVolunteer_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->stmt_get_project_volunteer_info));
+        mysql_stmt_free_result(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->stmt_get_project_volunteer_info);
+        mysql_rollback(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->mysql);
+        mysql_autocommit(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->mysql, 1);
+        return -1;
+    }
+
+    mysql_stmt_free_result(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->stmt_get_project_volunteer_info);
+
+    // 确保字符串正确终止
+    if (!DBOP_VAR_ExecuteUpdateProjectVolunteer_currentVolunteerIsNull) {
+        DBOP_VAR_ExecuteUpdateProjectVolunteer_currentVolunteer[DBOP_VAR_ExecuteUpdateProjectVolunteer_currentVolunteerLength] = '\0';
+    }
+    if (!DBOP_VAR_ExecuteUpdateProjectVolunteer_previousVolunteersIsNull) {
+        DBOP_VAR_ExecuteUpdateProjectVolunteer_previousVolunteers[DBOP_VAR_ExecuteUpdateProjectVolunteer_previousVolunteersLength] = '\0';
+    }
+
+    // 第二步：构建新的previous_volunteers列表
+    char *DBOP_VAR_ExecuteUpdateProjectVolunteer_newPreviousVolunteers = NULL;
+    
+    if (DBOP_VAR_ExecuteUpdateProjectVolunteer_currentVolunteerIsNull || DBOP_VAR_ExecuteUpdateProjectVolunteer_currentVolunteerLength == 0) {
+        // 当前没有志愿者，保持previous_volunteers不变
+        if (DBOP_VAR_ExecuteUpdateProjectVolunteer_previousVolunteersIsNull) {
+            DBOP_VAR_ExecuteUpdateProjectVolunteer_newPreviousVolunteers = strdup("[]");
+        } else {
+            DBOP_VAR_ExecuteUpdateProjectVolunteer_newPreviousVolunteers = strdup(DBOP_VAR_ExecuteUpdateProjectVolunteer_previousVolunteers);
+        }
+    } else {
+        // 有当前志愿者，需要添加到previous_volunteers列表末尾
+        json_error_t error;
+        json_t *previousArray;
+        
+        if (DBOP_VAR_ExecuteUpdateProjectVolunteer_previousVolunteersIsNull || DBOP_VAR_ExecuteUpdateProjectVolunteer_previousVolunteersLength == 0) {
+            // 创建新的数组
+            previousArray = json_array();
+        } else {
+            // 解析现有的JSON数组
+            previousArray = json_loads(DBOP_VAR_ExecuteUpdateProjectVolunteer_previousVolunteers, 0, &error);
+            if (!previousArray || !json_is_array(previousArray)) {
+                dzlog_warn("[req: %s] Invalid previous_volunteers JSON, creating new array", DBOP_VAR_ExecuteUpdateProjectVolunteer_requestId);
+                if (previousArray) json_decref(previousArray);
+                previousArray = json_array();
+            }
+        }
+        
+        // 添加当前志愿者到数组末尾
+        json_t *currentVolunteerJson = json_string(DBOP_VAR_ExecuteUpdateProjectVolunteer_currentVolunteer);
+        json_array_append_new(previousArray, currentVolunteerJson);
+        
+        // 将数组转换为字符串
+        DBOP_VAR_ExecuteUpdateProjectVolunteer_newPreviousVolunteers = json_dumps(previousArray, JSON_COMPACT);
+        json_decref(previousArray);
+    }
+
+    if (!DBOP_VAR_ExecuteUpdateProjectVolunteer_newPreviousVolunteers) {
+        dzlog_error("[req: %s] Failed to create new previous_volunteers string", DBOP_VAR_ExecuteUpdateProjectVolunteer_requestId);
+        mysql_rollback(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->mysql);
+        mysql_autocommit(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->mysql, 1);
+        return -1;
+    }
+
+    // 第三步：更新project表
+    MYSQL_BIND DBOP_VAR_ExecuteUpdateProjectVolunteer_updateBind[3];
+    memset(DBOP_VAR_ExecuteUpdateProjectVolunteer_updateBind, 0, sizeof(DBOP_VAR_ExecuteUpdateProjectVolunteer_updateBind));
+
+    // 绑定参数：current_volunteer, previous_volunteers, project_id
+    DBOP_VAR_ExecuteUpdateProjectVolunteer_updateBind[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateProjectVolunteer_updateBind[0].buffer = (char *)DBOP_VAR_ExecuteUpdateProjectVolunteer_noConstVolunteerId;
+    DBOP_VAR_ExecuteUpdateProjectVolunteer_updateBind[0].buffer_length = strlen(DBOP_VAR_ExecuteUpdateProjectVolunteer_noConstVolunteerId);
+
+    DBOP_VAR_ExecuteUpdateProjectVolunteer_updateBind[1].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateProjectVolunteer_updateBind[1].buffer = DBOP_VAR_ExecuteUpdateProjectVolunteer_newPreviousVolunteers;
+    DBOP_VAR_ExecuteUpdateProjectVolunteer_updateBind[1].buffer_length = strlen(DBOP_VAR_ExecuteUpdateProjectVolunteer_newPreviousVolunteers);
+
+    DBOP_VAR_ExecuteUpdateProjectVolunteer_updateBind[2].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateProjectVolunteer_updateBind[2].buffer = (char *)DBOP_VAR_ExecuteUpdateProjectVolunteer_noConstProjectId;
+    DBOP_VAR_ExecuteUpdateProjectVolunteer_updateBind[2].buffer_length = strlen(DBOP_VAR_ExecuteUpdateProjectVolunteer_noConstProjectId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->stmt_update_project_volunteer, DBOP_VAR_ExecuteUpdateProjectVolunteer_updateBind)) {
+        dzlog_error("[req: %s] Failed to bind update param: %s", DBOP_VAR_ExecuteUpdateProjectVolunteer_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->stmt_update_project_volunteer));
+        free(DBOP_VAR_ExecuteUpdateProjectVolunteer_newPreviousVolunteers);
+        mysql_rollback(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->mysql);
+        mysql_autocommit(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->mysql, 1);
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->stmt_update_project_volunteer)) {
+        dzlog_error("[req: %s] Failed to execute update statement: %s", DBOP_VAR_ExecuteUpdateProjectVolunteer_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->stmt_update_project_volunteer));
+        free(DBOP_VAR_ExecuteUpdateProjectVolunteer_newPreviousVolunteers);
+        mysql_rollback(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->mysql);
+        mysql_autocommit(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->mysql, 1);
+        return -1;
+    }
+
+    // 提交事务
+    if (mysql_commit(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->mysql)) {
+        dzlog_error("[req: %s] Failed to commit transaction: %s", DBOP_VAR_ExecuteUpdateProjectVolunteer_requestId, mysql_error(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->mysql));
+        free(DBOP_VAR_ExecuteUpdateProjectVolunteer_newPreviousVolunteers);
+        mysql_rollback(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->mysql);
+        mysql_autocommit(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->mysql, 1);
+        return -1;
+    }
+
+    // 恢复自动提交
+    mysql_autocommit(DBOP_VAR_ExecuteUpdateProjectVolunteer_connect->mysql, 1);
+
+    dzlog_info("[req: %s] Successfully updated volunteer for project: %s from %s to %s", 
+               DBOP_VAR_ExecuteUpdateProjectVolunteer_requestId, 
+               DBOP_VAR_ExecuteUpdateProjectVolunteer_projectId, 
+               DBOP_VAR_ExecuteUpdateProjectVolunteer_currentVolunteerIsNull ? "NULL" : DBOP_VAR_ExecuteUpdateProjectVolunteer_currentVolunteer, 
+               DBOP_VAR_ExecuteUpdateProjectVolunteer_volunteerId);
+
+    free(DBOP_VAR_ExecuteUpdateProjectVolunteer_newPreviousVolunteers);
+    return 0;
+}
+
+// 更新项目负责志愿者ID的API接口
+void DBOP_FUN_ApiUpdateProjectVolunteer(struct evhttp_request *DBOP_VAR_ApiUpdateProjectVolunteer_request, void *DBOP_VAR_ApiUpdateProjectVolunteer_voidCfg) {
+    AppConfig *DBOP_VAR_ApiUpdateProjectVolunteer_cfg = (AppConfig *)DBOP_VAR_ApiUpdateProjectVolunteer_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiUpdateProjectVolunteer_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiUpdateProjectVolunteer_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiUpdateProjectVolunteer.", DBOP_VAR_ApiUpdateProjectVolunteer_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiUpdateProjectVolunteer_request, DBOP_VAR_ApiUpdateProjectVolunteer_cfg, DBOP_VAR_ApiUpdateProjectVolunteer_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiUpdateProjectVolunteer_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiUpdateProjectVolunteer_request, DBOP_VAR_ApiUpdateProjectVolunteer_requestId);
+    if (!DBOP_VAR_ApiUpdateProjectVolunteer_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiUpdateProjectVolunteer_dataJsonProjectId = json_object_get(DBOP_VAR_ApiUpdateProjectVolunteer_dataJsonAll, "project_id");
+    json_t *DBOP_VAR_ApiUpdateProjectVolunteer_dataJsonVolunteerId = json_object_get(DBOP_VAR_ApiUpdateProjectVolunteer_dataJsonAll, "volunteer_id");
+
+    if (!json_is_string(DBOP_VAR_ApiUpdateProjectVolunteer_dataJsonProjectId) ||
+        !json_is_string(DBOP_VAR_ApiUpdateProjectVolunteer_dataJsonVolunteerId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string types for 'project_id' and 'volunteer_id'", DBOP_VAR_ApiUpdateProjectVolunteer_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiUpdateProjectVolunteer_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiUpdateProjectVolunteer_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiUpdateProjectVolunteer_projectId = json_string_value(DBOP_VAR_ApiUpdateProjectVolunteer_dataJsonProjectId);
+    const char *DBOP_VAR_ApiUpdateProjectVolunteer_volunteerId = json_string_value(DBOP_VAR_ApiUpdateProjectVolunteer_dataJsonVolunteerId);
+
+    dzlog_info("[req: %s] Executing database operation for ApiUpdateProjectVolunteer: projectId=%s, volunteerId=%s", DBOP_VAR_ApiUpdateProjectVolunteer_requestId, DBOP_VAR_ApiUpdateProjectVolunteer_projectId, DBOP_VAR_ApiUpdateProjectVolunteer_volunteerId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiUpdateProjectVolunteer_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiUpdateProjectVolunteer_cfg);
+    int result = DBOP_FUN_ExecuteUpdateProjectVolunteer(DBOP_VAR_ApiUpdateProjectVolunteer_mysqlConnect, DBOP_VAR_ApiUpdateProjectVolunteer_projectId, DBOP_VAR_ApiUpdateProjectVolunteer_volunteerId, DBOP_VAR_ApiUpdateProjectVolunteer_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiUpdateProjectVolunteer_request, result, DBOP_VAR_ApiUpdateProjectVolunteer_requestId, "update project volunteer");
+
+    json_decref(DBOP_VAR_ApiUpdateProjectVolunteer_dataJsonAll);
+}
+
+// ------------------------mysql更新项目负责志愿者ID api逻辑结束----------------------------
+
+
 int main() { 
     AppConfig DBOP_VAR_Main_cfg = DBOP_FUN_MainConfigParse("config/config.yaml"); //初始化结构体
     struct event_base *DBOP_VAR_Main_eventBase = event_base_new();
@@ -1210,6 +2564,15 @@ int main() {
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/get_service_passwd", DBOP_FUN_ApiGetServicePasswd, &DBOP_VAR_Main_cfg);
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/create_project", DBOP_FUN_ApiCreateProject, &DBOP_VAR_Main_cfg);
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/update_login_time", DBOP_FUN_ApiUpdateLoginTime, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/update_user_info", DBOP_FUN_ApiUpdateUserInfo, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/update_user_phone", DBOP_FUN_ApiUpdateUserPhone, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/update_user_weixinid", DBOP_FUN_ApiUpdateUserWeixinId, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/update_user_permission", DBOP_FUN_ApiUpdateUserPermission, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/update_user_passwd", DBOP_FUN_ApiUpdateUserPasswd, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/update_verification_record", DBOP_FUN_ApiUpdateVerificationRecord, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/update_projest_status", DBOP_FUN_ApiUpdateProjectStatus, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/update_projest_pathography", DBOP_FUN_ApiUpdateProjectPathography, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/update_project_volunteer", DBOP_FUN_ApiUpdateProjectVolunteer, &DBOP_VAR_Main_cfg);
 
     // 绑定到 0.0.0.0:DBOP_GLV_serverPort
     if (evhttp_bind_socket(DBOP_VAR_Main_httpServer, "0.0.0.0", atoi(DBOP_VAR_Main_cfg.DBOP_GLV_serverPort)) != 0) {

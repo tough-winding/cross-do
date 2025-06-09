@@ -91,7 +91,7 @@ CREATE TABLE `project` (
   `user_name` varchar(24) DEFAULT NULL,
   `user_age` tinyint DEFAULT NULL,
   `real_name` varchar(20) DEFAULT NULL,
-  `project_status` tinyint DEFAULT NULL,
+  `project_status` tinyint DEFAULT 1,
   `verification_record` text,
   `current_volunteer` char(36) DEFAULT NULL,
   `previous_volunteers` text,
