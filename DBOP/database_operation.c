@@ -55,7 +55,10 @@
                 curl -X POST "http://服务ip:服务端口/update_project_volunteer" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"project_id":"项目ID", "volunteer_id":"志愿者ID"}'
                 curl -X POST "http://192.168.1.10:1900/update_project_volunteer" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"project_id":"f47ac10b-58cc-4372-a567-0e02b2c3d479", "volunteer_id":"8f76fa9c-18d2-41a9-bdd6-6c8e4c489872"}'
     200RETURN： 什么都不返回
-
+    REQUEST:    新增捐款记录
+                curl -X POST "http://服务ip:服务端口/make_donation" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID", "project_id":"项目ID", "user_id":"捐赠者ID", "sufferer_user_id":"项目受助者ID", "donor_user_name":"捐赠者用户名", "sufferer_real_name":"患者真实姓名", "sufferer_user_name":"患者用户名", "amount":"捐赠金额", "note":"备注", "payment_method":"捐款渠道", "method_id":"渠道账单ID"}'
+                curl -X POST "http://192.168.1.10:1900/make_donation" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df", "project_id":"a7c16b7d-bc2e-4e2e-8617-527cfb23d29f", "user_id":"4a93cd46-f109-4a89-9256-2dc2b3cc4dc4", "sufferer_user_id":"d17d43db-121a-4b9e-97d6-80a3b00ae062", "donor_user_name":"张三心", "sufferer_real_name":"李四", "sufferer_user_name":"木子四", "amount":"100", "note":"望康复", "payment_method":0, "method_id":"2024060122001400221404567890"}'
+    200RETURN： 什么都不返回
 */
 /*
 变量命名要求如下：
@@ -132,6 +135,7 @@ typedef struct {
     MYSQL_STMT *stmt_update_project_pathography;
     MYSQL_STMT *stmt_update_project_volunteer;
     MYSQL_STMT *stmt_get_project_volunteer_info;
+    MYSQL_STMT *stmt_make_donation;
 } DB_CONNECTION;
 
 // 初始化dzlog
@@ -589,6 +593,13 @@ void DBOP_FUN_InitializeMySQLConnection(DB_CONNECTION *DBOP_VAR_InitializeMySQLC
         dzlog_error("Failed to prepare get project volunteer info statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_get_project_volunteer_info));
         exit(EXIT_FAILURE);
     }
+    // 初始化新增捐款记录预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_make_donation = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *make_donation_sql = "INSERT INTO donation_ledger (ledger_id, project_id, user_id, sufferer_user_id, donor_user_name, sufferer_real_name, sufferer_user_name, amount, transaction_time, note, payment_method, method_id, transaction_type, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, 0, 1);";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_make_donation, make_donation_sql, strlen(make_donation_sql))) {
+        dzlog_error("Failed to prepare make donation statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_make_donation));
+        exit(EXIT_FAILURE);
+    }
 }
 
 // 初始化mysql连接池
@@ -681,6 +692,9 @@ void DBOP_FUN_DestroyConnPool() {
         if (DBOP_GLV_mysqlConnectPool[i]->stmt_get_project_volunteer_info != NULL) {
             mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_get_project_volunteer_info);
         }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_make_donation != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_make_donation);
+        }
         if (DBOP_GLV_mysqlConnectPool[i]->mysql != NULL) {
             mysql_close(DBOP_GLV_mysqlConnectPool[i]->mysql);
         }
@@ -744,6 +758,9 @@ void DBOP_FUN_ReinitializeConnPool(AppConfig *DBOP_VAR_ReinitializeConnPool_cfg,
     }
     if (DBOP_VAR_ReinitializeConnPool_connect->stmt_get_project_volunteer_info != NULL) {
         mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_get_project_volunteer_info);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_make_donation != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_make_donation);
     }
     if (DBOP_VAR_ReinitializeConnPool_connect->mysql != NULL) {
         mysql_close(DBOP_VAR_ReinitializeConnPool_connect->mysql);
@@ -2526,6 +2543,197 @@ void DBOP_FUN_ApiUpdateProjectVolunteer(struct evhttp_request *DBOP_VAR_ApiUpdat
 // ------------------------mysql更新项目负责志愿者ID api逻辑结束----------------------------
 
 
+// ------------------------mysql新增捐款记录 api逻辑开始----------------------------
+
+// 新增捐款记录的sql数据化输出
+int DBOP_FUN_ExecuteMakeDonation(DB_CONNECTION *DBOP_VAR_ExecuteMakeDonation_connect, const char *DBOP_VAR_ExecuteMakeDonation_ledgerId, const char *DBOP_VAR_ExecuteMakeDonation_projectId, const char *DBOP_VAR_ExecuteMakeDonation_userId, const char *DBOP_VAR_ExecuteMakeDonation_suffererUserId, const char *DBOP_VAR_ExecuteMakeDonation_donorUserName, const char *DBOP_VAR_ExecuteMakeDonation_suffererRealName, const char *DBOP_VAR_ExecuteMakeDonation_suffererUserName, int DBOP_VAR_ExecuteMakeDonation_amount, const char *DBOP_VAR_ExecuteMakeDonation_note, int DBOP_VAR_ExecuteMakeDonation_paymentMethod, const char *DBOP_VAR_ExecuteMakeDonation_methodId, const char *DBOP_VAR_ExecuteMakeDonation_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteMakeDonation is starting", DBOP_VAR_ExecuteMakeDonation_requestId);
+
+    // 保护原始参数不被修改，复制参数
+    char DBOP_VAR_ExecuteMakeDonation_noConstLedgerId[256];
+    char DBOP_VAR_ExecuteMakeDonation_noConstProjectId[256];
+    char DBOP_VAR_ExecuteMakeDonation_noConstUserId[256];
+    char DBOP_VAR_ExecuteMakeDonation_noConstSuffererUserId[256];
+    char DBOP_VAR_ExecuteMakeDonation_noConstDonorUserName[256];
+    char DBOP_VAR_ExecuteMakeDonation_noConstSuffererRealName[256];
+    char DBOP_VAR_ExecuteMakeDonation_noConstSuffererUserName[256];
+    char DBOP_VAR_ExecuteMakeDonation_noConstNote[512];
+    char DBOP_VAR_ExecuteMakeDonation_noConstMethodId[256];
+
+    strncpy(DBOP_VAR_ExecuteMakeDonation_noConstLedgerId, DBOP_VAR_ExecuteMakeDonation_ledgerId, sizeof(DBOP_VAR_ExecuteMakeDonation_noConstLedgerId) - 1);
+    DBOP_VAR_ExecuteMakeDonation_noConstLedgerId[sizeof(DBOP_VAR_ExecuteMakeDonation_noConstLedgerId) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteMakeDonation_noConstProjectId, DBOP_VAR_ExecuteMakeDonation_projectId, sizeof(DBOP_VAR_ExecuteMakeDonation_noConstProjectId) - 1);
+    DBOP_VAR_ExecuteMakeDonation_noConstProjectId[sizeof(DBOP_VAR_ExecuteMakeDonation_noConstProjectId) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteMakeDonation_noConstUserId, DBOP_VAR_ExecuteMakeDonation_userId, sizeof(DBOP_VAR_ExecuteMakeDonation_noConstUserId) - 1);
+    DBOP_VAR_ExecuteMakeDonation_noConstUserId[sizeof(DBOP_VAR_ExecuteMakeDonation_noConstUserId) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteMakeDonation_noConstSuffererUserId, DBOP_VAR_ExecuteMakeDonation_suffererUserId, sizeof(DBOP_VAR_ExecuteMakeDonation_noConstSuffererUserId) - 1);
+    DBOP_VAR_ExecuteMakeDonation_noConstSuffererUserId[sizeof(DBOP_VAR_ExecuteMakeDonation_noConstSuffererUserId) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteMakeDonation_noConstDonorUserName, DBOP_VAR_ExecuteMakeDonation_donorUserName, sizeof(DBOP_VAR_ExecuteMakeDonation_noConstDonorUserName) - 1);
+    DBOP_VAR_ExecuteMakeDonation_noConstDonorUserName[sizeof(DBOP_VAR_ExecuteMakeDonation_noConstDonorUserName) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteMakeDonation_noConstSuffererRealName, DBOP_VAR_ExecuteMakeDonation_suffererRealName, sizeof(DBOP_VAR_ExecuteMakeDonation_noConstSuffererRealName) - 1);
+    DBOP_VAR_ExecuteMakeDonation_noConstSuffererRealName[sizeof(DBOP_VAR_ExecuteMakeDonation_noConstSuffererRealName) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteMakeDonation_noConstSuffererUserName, DBOP_VAR_ExecuteMakeDonation_suffererUserName, sizeof(DBOP_VAR_ExecuteMakeDonation_noConstSuffererUserName) - 1);
+    DBOP_VAR_ExecuteMakeDonation_noConstSuffererUserName[sizeof(DBOP_VAR_ExecuteMakeDonation_noConstSuffererUserName) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteMakeDonation_noConstNote, DBOP_VAR_ExecuteMakeDonation_note, sizeof(DBOP_VAR_ExecuteMakeDonation_noConstNote) - 1);
+    DBOP_VAR_ExecuteMakeDonation_noConstNote[sizeof(DBOP_VAR_ExecuteMakeDonation_noConstNote) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteMakeDonation_noConstMethodId, DBOP_VAR_ExecuteMakeDonation_methodId, sizeof(DBOP_VAR_ExecuteMakeDonation_noConstMethodId) - 1);
+    DBOP_VAR_ExecuteMakeDonation_noConstMethodId[sizeof(DBOP_VAR_ExecuteMakeDonation_noConstMethodId) - 1] = '\0';
+
+    MYSQL_BIND DBOP_VAR_ExecuteMakeDonation_bindParams[11];
+    memset(DBOP_VAR_ExecuteMakeDonation_bindParams, 0, sizeof(DBOP_VAR_ExecuteMakeDonation_bindParams));
+
+    // 绑定参数: ledger_id, project_id, user_id, sufferer_user_id, donor_user_name, sufferer_real_name, sufferer_user_name, amount, note, payment_method, method_id
+    DBOP_VAR_ExecuteMakeDonation_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteMakeDonation_bindParams[0].buffer = DBOP_VAR_ExecuteMakeDonation_noConstLedgerId;
+    DBOP_VAR_ExecuteMakeDonation_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteMakeDonation_noConstLedgerId);
+
+    DBOP_VAR_ExecuteMakeDonation_bindParams[1].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteMakeDonation_bindParams[1].buffer = DBOP_VAR_ExecuteMakeDonation_noConstProjectId;
+    DBOP_VAR_ExecuteMakeDonation_bindParams[1].buffer_length = strlen(DBOP_VAR_ExecuteMakeDonation_noConstProjectId);
+
+    DBOP_VAR_ExecuteMakeDonation_bindParams[2].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteMakeDonation_bindParams[2].buffer = DBOP_VAR_ExecuteMakeDonation_noConstUserId;
+    DBOP_VAR_ExecuteMakeDonation_bindParams[2].buffer_length = strlen(DBOP_VAR_ExecuteMakeDonation_noConstUserId);
+
+    DBOP_VAR_ExecuteMakeDonation_bindParams[3].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteMakeDonation_bindParams[3].buffer = DBOP_VAR_ExecuteMakeDonation_noConstSuffererUserId;
+    DBOP_VAR_ExecuteMakeDonation_bindParams[3].buffer_length = strlen(DBOP_VAR_ExecuteMakeDonation_noConstSuffererUserId);
+
+    DBOP_VAR_ExecuteMakeDonation_bindParams[4].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteMakeDonation_bindParams[4].buffer = DBOP_VAR_ExecuteMakeDonation_noConstDonorUserName;
+    DBOP_VAR_ExecuteMakeDonation_bindParams[4].buffer_length = strlen(DBOP_VAR_ExecuteMakeDonation_noConstDonorUserName);
+
+    DBOP_VAR_ExecuteMakeDonation_bindParams[5].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteMakeDonation_bindParams[5].buffer = DBOP_VAR_ExecuteMakeDonation_noConstSuffererRealName;
+    DBOP_VAR_ExecuteMakeDonation_bindParams[5].buffer_length = strlen(DBOP_VAR_ExecuteMakeDonation_noConstSuffererRealName);
+
+    DBOP_VAR_ExecuteMakeDonation_bindParams[6].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteMakeDonation_bindParams[6].buffer = DBOP_VAR_ExecuteMakeDonation_noConstSuffererUserName;
+    DBOP_VAR_ExecuteMakeDonation_bindParams[6].buffer_length = strlen(DBOP_VAR_ExecuteMakeDonation_noConstSuffererUserName);
+
+    DBOP_VAR_ExecuteMakeDonation_bindParams[7].buffer_type = MYSQL_TYPE_LONG;
+    DBOP_VAR_ExecuteMakeDonation_bindParams[7].buffer = &DBOP_VAR_ExecuteMakeDonation_amount;
+    DBOP_VAR_ExecuteMakeDonation_bindParams[7].buffer_length = sizeof(DBOP_VAR_ExecuteMakeDonation_amount);
+
+    DBOP_VAR_ExecuteMakeDonation_bindParams[8].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteMakeDonation_bindParams[8].buffer = DBOP_VAR_ExecuteMakeDonation_noConstNote;
+    DBOP_VAR_ExecuteMakeDonation_bindParams[8].buffer_length = strlen(DBOP_VAR_ExecuteMakeDonation_noConstNote);
+
+    DBOP_VAR_ExecuteMakeDonation_bindParams[9].buffer_type = MYSQL_TYPE_TINY;
+    DBOP_VAR_ExecuteMakeDonation_bindParams[9].buffer = &DBOP_VAR_ExecuteMakeDonation_paymentMethod;
+    DBOP_VAR_ExecuteMakeDonation_bindParams[9].buffer_length = sizeof(DBOP_VAR_ExecuteMakeDonation_paymentMethod);
+
+    DBOP_VAR_ExecuteMakeDonation_bindParams[10].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteMakeDonation_bindParams[10].buffer = DBOP_VAR_ExecuteMakeDonation_noConstMethodId;
+    DBOP_VAR_ExecuteMakeDonation_bindParams[10].buffer_length = strlen(DBOP_VAR_ExecuteMakeDonation_noConstMethodId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMakeDonation_connect->stmt_make_donation, DBOP_VAR_ExecuteMakeDonation_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind donation param: %s", DBOP_VAR_ExecuteMakeDonation_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMakeDonation_connect->stmt_make_donation));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteMakeDonation_connect->stmt_make_donation)) {
+        dzlog_error("[req: %s] Failed to execute donation statement: %s", DBOP_VAR_ExecuteMakeDonation_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMakeDonation_connect->stmt_make_donation));
+        return -1;
+    }
+
+    dzlog_info("[req: %s] Successfully executed donation insert for ledger: %s, project: %s, amount: %d", DBOP_VAR_ExecuteMakeDonation_requestId, DBOP_VAR_ExecuteMakeDonation_ledgerId, DBOP_VAR_ExecuteMakeDonation_projectId, DBOP_VAR_ExecuteMakeDonation_amount);
+    return 0;
+}
+
+// 新增捐款记录的API接口
+void DBOP_FUN_ApiMakeDonation(struct evhttp_request *DBOP_VAR_ApiMakeDonation_request, void *DBOP_VAR_ApiMakeDonation_voidCfg) {
+    AppConfig *DBOP_VAR_ApiMakeDonation_cfg = (AppConfig *)DBOP_VAR_ApiMakeDonation_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiMakeDonation_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiMakeDonation_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiMakeDonation.", DBOP_VAR_ApiMakeDonation_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiMakeDonation_request, DBOP_VAR_ApiMakeDonation_cfg, DBOP_VAR_ApiMakeDonation_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiMakeDonation_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiMakeDonation_request, DBOP_VAR_ApiMakeDonation_requestId);
+    if (!DBOP_VAR_ApiMakeDonation_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiMakeDonation_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiMakeDonation_dataJsonAll, "ledger_id");
+    json_t *DBOP_VAR_ApiMakeDonation_dataJsonProjectId = json_object_get(DBOP_VAR_ApiMakeDonation_dataJsonAll, "project_id");
+    json_t *DBOP_VAR_ApiMakeDonation_dataJsonUserId = json_object_get(DBOP_VAR_ApiMakeDonation_dataJsonAll, "user_id");
+    json_t *DBOP_VAR_ApiMakeDonation_dataJsonSuffererUserId = json_object_get(DBOP_VAR_ApiMakeDonation_dataJsonAll, "sufferer_user_id");
+    json_t *DBOP_VAR_ApiMakeDonation_dataJsonDonorUserName = json_object_get(DBOP_VAR_ApiMakeDonation_dataJsonAll, "donor_user_name");
+    json_t *DBOP_VAR_ApiMakeDonation_dataJsonSuffererRealName = json_object_get(DBOP_VAR_ApiMakeDonation_dataJsonAll, "sufferer_real_name");
+    json_t *DBOP_VAR_ApiMakeDonation_dataJsonSuffererUserName = json_object_get(DBOP_VAR_ApiMakeDonation_dataJsonAll, "sufferer_user_name");
+    json_t *DBOP_VAR_ApiMakeDonation_dataJsonAmount = json_object_get(DBOP_VAR_ApiMakeDonation_dataJsonAll, "amount");
+    json_t *DBOP_VAR_ApiMakeDonation_dataJsonNote = json_object_get(DBOP_VAR_ApiMakeDonation_dataJsonAll, "note");
+    json_t *DBOP_VAR_ApiMakeDonation_dataJsonPaymentMethod = json_object_get(DBOP_VAR_ApiMakeDonation_dataJsonAll, "payment_method");
+    json_t *DBOP_VAR_ApiMakeDonation_dataJsonMethodId = json_object_get(DBOP_VAR_ApiMakeDonation_dataJsonAll, "method_id");
+
+    if (!json_is_string(DBOP_VAR_ApiMakeDonation_dataJsonLedgerId) ||
+        !json_is_string(DBOP_VAR_ApiMakeDonation_dataJsonProjectId) ||
+        !json_is_string(DBOP_VAR_ApiMakeDonation_dataJsonUserId) ||
+        !json_is_string(DBOP_VAR_ApiMakeDonation_dataJsonSuffererUserId) ||
+        !json_is_string(DBOP_VAR_ApiMakeDonation_dataJsonDonorUserName) ||
+        !json_is_string(DBOP_VAR_ApiMakeDonation_dataJsonSuffererRealName) ||
+        !json_is_string(DBOP_VAR_ApiMakeDonation_dataJsonSuffererUserName) ||
+        !json_is_string(DBOP_VAR_ApiMakeDonation_dataJsonAmount) ||
+        !json_is_string(DBOP_VAR_ApiMakeDonation_dataJsonNote) ||
+        !json_is_integer(DBOP_VAR_ApiMakeDonation_dataJsonPaymentMethod) ||
+        !json_is_string(DBOP_VAR_ApiMakeDonation_dataJsonMethodId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. All required fields must be present and of correct types", DBOP_VAR_ApiMakeDonation_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiMakeDonation_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiMakeDonation_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiMakeDonation_ledgerId = json_string_value(DBOP_VAR_ApiMakeDonation_dataJsonLedgerId);
+    const char *DBOP_VAR_ApiMakeDonation_projectId = json_string_value(DBOP_VAR_ApiMakeDonation_dataJsonProjectId);
+    const char *DBOP_VAR_ApiMakeDonation_userId = json_string_value(DBOP_VAR_ApiMakeDonation_dataJsonUserId);
+    const char *DBOP_VAR_ApiMakeDonation_suffererUserId = json_string_value(DBOP_VAR_ApiMakeDonation_dataJsonSuffererUserId);
+    const char *DBOP_VAR_ApiMakeDonation_donorUserName = json_string_value(DBOP_VAR_ApiMakeDonation_dataJsonDonorUserName);
+    const char *DBOP_VAR_ApiMakeDonation_suffererRealName = json_string_value(DBOP_VAR_ApiMakeDonation_dataJsonSuffererRealName);
+    const char *DBOP_VAR_ApiMakeDonation_suffererUserName = json_string_value(DBOP_VAR_ApiMakeDonation_dataJsonSuffererUserName);
+    const char *DBOP_VAR_ApiMakeDonation_amountStr = json_string_value(DBOP_VAR_ApiMakeDonation_dataJsonAmount);
+    const char *DBOP_VAR_ApiMakeDonation_note = json_string_value(DBOP_VAR_ApiMakeDonation_dataJsonNote);
+    int DBOP_VAR_ApiMakeDonation_paymentMethod = json_integer_value(DBOP_VAR_ApiMakeDonation_dataJsonPaymentMethod);
+    const char *DBOP_VAR_ApiMakeDonation_methodId = json_string_value(DBOP_VAR_ApiMakeDonation_dataJsonMethodId);
+
+    // 将金额字符串转换为整数
+    int DBOP_VAR_ApiMakeDonation_amount = atoi(DBOP_VAR_ApiMakeDonation_amountStr);
+    if (DBOP_VAR_ApiMakeDonation_amount <= 0) {
+        dzlog_error("[req: %s] Invalid amount value: %s", DBOP_VAR_ApiMakeDonation_requestId, DBOP_VAR_ApiMakeDonation_amountStr);
+        evhttp_send_reply(DBOP_VAR_ApiMakeDonation_request, 400, "Bad Request - Invalid amount", NULL);
+        json_decref(DBOP_VAR_ApiMakeDonation_dataJsonAll);
+        return;
+    }
+
+    dzlog_info("[req: %s] Executing database operation for ApiMakeDonation: ledgerId=%s, projectId=%s, userId=%s, amount=%d", DBOP_VAR_ApiMakeDonation_requestId, DBOP_VAR_ApiMakeDonation_ledgerId, DBOP_VAR_ApiMakeDonation_projectId, DBOP_VAR_ApiMakeDonation_userId, DBOP_VAR_ApiMakeDonation_amount);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiMakeDonation_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiMakeDonation_cfg);
+    int result = DBOP_FUN_ExecuteMakeDonation(DBOP_VAR_ApiMakeDonation_mysqlConnect, DBOP_VAR_ApiMakeDonation_ledgerId, DBOP_VAR_ApiMakeDonation_projectId, DBOP_VAR_ApiMakeDonation_userId, DBOP_VAR_ApiMakeDonation_suffererUserId, DBOP_VAR_ApiMakeDonation_donorUserName, DBOP_VAR_ApiMakeDonation_suffererRealName, DBOP_VAR_ApiMakeDonation_suffererUserName, DBOP_VAR_ApiMakeDonation_amount, DBOP_VAR_ApiMakeDonation_note, DBOP_VAR_ApiMakeDonation_paymentMethod, DBOP_VAR_ApiMakeDonation_methodId, DBOP_VAR_ApiMakeDonation_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiMakeDonation_request, result, DBOP_VAR_ApiMakeDonation_requestId, "make donation");
+
+    json_decref(DBOP_VAR_ApiMakeDonation_dataJsonAll);
+}
+
+// ------------------------mysql新增捐款记录 api逻辑结束----------------------------
+
+
 int main() { 
     AppConfig DBOP_VAR_Main_cfg = DBOP_FUN_MainConfigParse("config/config.yaml"); //初始化结构体
     struct event_base *DBOP_VAR_Main_eventBase = event_base_new();
@@ -2573,6 +2781,7 @@ int main() {
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/update_projest_status", DBOP_FUN_ApiUpdateProjectStatus, &DBOP_VAR_Main_cfg);
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/update_projest_pathography", DBOP_FUN_ApiUpdateProjectPathography, &DBOP_VAR_Main_cfg);
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/update_project_volunteer", DBOP_FUN_ApiUpdateProjectVolunteer, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/make_donation", DBOP_FUN_ApiMakeDonation, &DBOP_VAR_Main_cfg);
 
     // 绑定到 0.0.0.0:DBOP_GLV_serverPort
     if (evhttp_bind_socket(DBOP_VAR_Main_httpServer, "0.0.0.0", atoi(DBOP_VAR_Main_cfg.DBOP_GLV_serverPort)) != 0) {

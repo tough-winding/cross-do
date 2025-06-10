@@ -74,7 +74,7 @@ CREATE TABLE `permission_group` (
 
 LOCK TABLES `permission_group` WRITE;
 /*!40000 ALTER TABLE `permission_group` DISABLE KEYS */;
-INSERT INTO `permission_group` VALUES (1,'admin','保留，暂不规划。'),(2,'benefactor','捐助者；可审查已捐助项目。举报项目/志愿者。'),(3,'sufferer','患者；可发起项目，修改自身项目部分信息，投诉志愿者。'),(5,'volunteer','志愿者：可被分配/主动接取任务。可参与投诉/举报审计。可举报项目/患者。发起平台提议。'),(6,'long term donors','长期捐助者；可审查已捐助项目。举报项目/志愿者。可发起平台提议。可参与扩大投诉/举报审计。'),(7,'senior volunteer','资深志愿者；可被分配/主动接取任务。可参与投诉/举报审计。可举报项目/患者。发起平台提议。参与专项调查。');
+INSERT INTO `permission_group` VALUES (1,'admin','保留，暂不规划。'),(2,'donor','捐助者；可审查已捐助项目。举报项目/志愿者。'),(3,'sufferer','患者；可发起项目，修改自身项目部分信息，投诉志愿者。'),(5,'volunteer','志愿者：可被分配/主动接取任务。可参与投诉/举报审计。可举报项目/患者。发起平台提议。'),(6,'long term donor','长期捐助者；可审查已捐助项目。举报项目/志愿者。可发起平台提议。可参与扩大投诉/举报审计。'),(7,'senior volunteer','资深志愿者；可被分配/主动接取任务。可参与投诉/举报审计。可举报项目/患者。发起平台提议。参与专项调查。');
 /*!40000 ALTER TABLE `permission_group` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -143,6 +143,7 @@ CREATE TABLE `user` (
   `registration_date` datetime DEFAULT NULL,
   `login_time` datetime DEFAULT NULL,
   `current_dispute_id` char(36) DEFAULT NULL,
+  `total_donation_amount` mediumint DEFAULT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -158,6 +159,38 @@ INSERT INTO `user` VALUES ('1a2b3c4d-5e6f-7a8b-9c0d-ef11g2h3i4j5',2,'zhangsan','
 UNLOCK TABLES;
 SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+
+--
+-- Table structure for table `donation_ledger`
+--
+
+DROP TABLE IF EXISTS `donation_ledger`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `donation_ledger` (
+  `ledger_id` CHAR(36)  NOT NULL,                   -- 主键：资金流水唯一ID
+  `user_id` CHAR(36)  DEFAULT NULL,                 -- 发起人（捐赠者/患者/操作者）
+  `sufferer_user_id` CHAR(36)  DEFAULT NULL,        -- 项目受助者ID
+  `project_id` CHAR(36)  DEFAULT NULL,              -- 所属项目（含特殊池）
+  `donor_user_name` VARCHAR(24) DEFAULT NULL,       -- 捐赠者用户名
+  `sufferer_real_name` VARCHAR(20) DEFAULT NULL,    -- 患者实名（仅用于存档）
+  `sufferer_user_name` VARCHAR(24) DEFAULT NULL,    -- 患者用户名（辅助显示）
+  `amount` MEDIUMINT NOT NULL,                      -- 金额，正负表示入账/出账
+  `transaction_time` DATETIME  NOT NULL,            -- 发生时间（统一命名）
+  `note` VARCHAR(200) DEFAULT NULL,                 -- 备注
+  `payment_method` TINYINT   DEFAULT NULL,          -- 支付方式（0：支付宝 1：微信 2：银行卡）
+  `method_id` CHAR(36)  DEFAULT NULL,               -- 支付平台返回的ID，如微信单号
+  `transaction_type` TINYINT   NOT NULL,            -- 类型（0：捐赠 1：退款待选择 2：退款 3：转应急池 4：患者使用 5：应急使用 6：平台使用）
+  `status` TINYINT   DEFAULT 1,                     -- 状态（0：成功 1：等待支付 2：支付失败 3：处理中 4：处理失败 5：退款中 6：退款失败 7：退款完成 8：人工介入 9：人工介入完成）
+  PRIMARY KEY (`ledger_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `donation_ledger`
+--
+
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
