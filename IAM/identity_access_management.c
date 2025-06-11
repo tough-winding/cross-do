@@ -449,7 +449,7 @@ char* IAM_FUN_InterfaceCore(const AppConfig* app_config, const char* IAM_VAR_Int
     }
     // 获DBOP证服务配置
     char IAM_VAR_InterfaceCore_dbUrl[256];
-    sprintf(IAM_VAR_InterfaceCore_dbUrl, "http://%s:%s/get_service_passwd", app_config->IAM_GLV_dbopServiceHost, app_config->IAM_GLV_dbopServicePort);
+    sprintf(IAM_VAR_InterfaceCore_dbUrl, "http://%s:%s/auth/get_service_passwd", app_config->IAM_GLV_dbopServiceHost, app_config->IAM_GLV_dbopServicePort);
 
     // 与DBOP通信获取服务密码
     char* IAM_VAR_InterfaceCore_servicePasswd = IAM_FUN_GetServicePassword(IAM_VAR_InterfaceCore_dbUrl, IAM_GLV_selfUseToken, IAM_VAR_InterfaceCore_reqAuthServiceName, IAM_VAR_InterfaceCore_requestId);

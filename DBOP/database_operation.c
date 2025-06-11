@@ -4,61 +4,89 @@
 /*
     访问接口样例及返回体样例
     REQUEST：   查询service对应的service密码
-                curl -X POST "http://服务ip:服务端口/get_service_passwd" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"service_name":"分配的服务名"}'
-                curl -X POST "http://192.168.1.10:1900/get_service_passwd" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"service_username":"ftp"}'
+                curl -X POST "http://服务ip:服务端口/auth/get_service_passwd" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"service_name":"分配的服务名"}'
+                curl -X POST "http://192.168.1.10:1900/auth/get_service_passwd" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"service_username":"ftp"}'
     200RETURN： {"ServiceName":"ftp", "ServicePassword":"anotherlongpassword987654"}  
     REQUEST：   在user表中添加用户
-                curl -X POST "http://服务ip:服务端口/add_user" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"user_id":"用户ID", "user_name":"用户名", "user_passwd":"用户密码字符串", "user_permission":账号分类数字, "phone_number":"用户手机号"}'
-                curl -X POST "http://192.168.1.10:1900/add_user" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d {"user_id":"d7aa0e59-9be5-4c76-9bf1-ee937791b8a8", "user_name":"两茫茫", "user_passwd":"qwe1j31l23nubadbuiy13", "user_permission":3, "phone_number":"18212312310"}'
+                curl -X POST "http://服务ip:服务端口/user/add" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"user_id":"用户ID", "user_name":"用户名", "user_passwd":"用户密码字符串", "user_permission":账号分类数字, "phone_number":"用户手机号"}'
+                curl -X POST "http://192.168.1.10:1900/user/add" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d {"user_id":"d7aa0e59-9be5-4c76-9bf1-ee937791b8a8", "user_name":"两茫茫", "user_passwd":"qwe1j31l23nubadbuiy13", "user_permission":3, "phone_number":"18212312310"}'
     200RETURN： 什么都不返回
     REQUEST:    更新最后一次登录时间
-                curl -X POST "http://服务ip:服务端口/update_login_time" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"user_id":"用户ID"}'
-                curl -X POST "http://192.168.1.10:1900/update_login_time" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"user_id":"b8a1a6f9-739d-4a5d-9183-1d7ad9e1f6db"}'
+                curl -X POST "http://服务ip:服务端口/user/update_login_time" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"user_id":"用户ID"}'
+                curl -X POST "http://192.168.1.10:1900/user/update_login_time" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"user_id":"b8a1a6f9-739d-4a5d-9183-1d7ad9e1f6db"}'
     200RETURN： 什么都不返回
     REQUEST:    更新用户个性化信息
-                curl -X POST "http://服务ip:服务端口/update_user_info" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"user_id":"用户ID", "user_name":"用户名", "avatar":"用户头像路径", "personal_note": "个人说明"}'
-                curl -X POST "http://192.168.1.10:1900/update_user_info" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"user_id":"b8a1a6f9-739d-4a5d-9183-1d7ad9e1f6db", "user_name":"李通", "avatar":"https://www.test.com/img/flexible/logo/pc/result.png", "personal_note": "生死两茫茫"}'
+                curl -X POST "http://服务ip:服务端口/user/update_info" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"user_id":"用户ID", "user_name":"用户名", "avatar":"用户头像路径", "personal_note": "个人说明"}'
+                curl -X POST "http://192.168.1.10:1900/user/update_info" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"user_id":"b8a1a6f9-739d-4a5d-9183-1d7ad9e1f6db", "user_name":"李通", "avatar":"https://www.test.com/img/flexible/logo/pc/result.png", "personal_note": "生死两茫茫"}'
     200RETURN： 什么都不返回
     REQUEST:    更新用户手机号
-                curl -X POST "http://服务ip:服务端口/update_user_phone" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"user_id":"用户ID", "phone_number":"用户手机号"}'
-                curl -X POST "http://192.168.1.10:1900/update_user_phone" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"user_id":"b8a1a6f9-739d-4a5d-9183-1d7ad9e1f6db", "phone_number": "19212345678"}'
+                curl -X POST "http://服务ip:服务端口/user/update_phone" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"user_id":"用户ID", "phone_number":"用户手机号"}'
+                curl -X POST "http://192.168.1.10:1900/user/update_phone" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"user_id":"b8a1a6f9-739d-4a5d-9183-1d7ad9e1f6db", "phone_number": "19212345678"}'
     200RETURN： 什么都不返回
     REQUEST:    更新用户微信ID
-                curl -X POST "http://服务ip:服务端口/update_user_phone" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"user_id":"用户ID", "weixin_openid":"用户微信OpenID"}'
-                curl -X POST "http://192.168.1.10:1900/update_user_phone" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"user_id":"b8a1a6f9-739d-4a5d-9183-1d7ad9e1f6db", "weixin_openid": "4fcb6538-9b7e-4f25-8a01-47016843b7a6"}'
+                curl -X POST "http://服务ip:服务端口/user/update_weixin" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"user_id":"用户ID", "weixin_openid":"用户微信OpenID"}'
+                curl -X POST "http://192.168.1.10:1900/user/update_weixin" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"user_id":"b8a1a6f9-739d-4a5d-9183-1d7ad9e1f6db", "weixin_openid": "4fcb6538-9b7e-4f25-8a01-47016843b7a6"}'
     200RETURN： 什么都不返回
     REQUEST:    更新用户权限组
-                curl -X POST "http://服务ip:服务端口/update_user_permission" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"user_id":"用户ID", "user_permission":账号分类数字}'
-                curl -X POST "http://192.168.1.10:1900/update_user_permission" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"user_id":"b8a1a6f9-739d-4a5d-9183-1d7ad9e1f6db", "user_permission": 1}'
+                curl -X POST "http://服务ip:服务端口/user/update_permission" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"user_id":"用户ID", "user_permission":账号分类数字}'
+                curl -X POST "http://192.168.1.10:1900/user/update_permission" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"user_id":"b8a1a6f9-739d-4a5d-9183-1d7ad9e1f6db", "user_permission": 1}'
     200RETURN： 什么都不返回
     REQUEST:    修改用户密码
-                curl -X POST "http://服务ip:服务端口/update_user_passwd" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"user_id":"用户ID", "passwd":"用户密码字符串"}'
-                curl -X POST "http://192.168.1.10:1900/update_user_passwd" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"user_id":"b8a1a6f9-739d-4a5d-9183-1d7ad9e1f6db", "passwd": "kojiqjwe1312uj2"}'
+                curl -X POST "http://服务ip:服务端口/user/update_password" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"user_id":"用户ID", "passwd":"用户密码字符串"}'
+                curl -X POST "http://192.168.1.10:1900/user/update_password" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"user_id":"b8a1a6f9-739d-4a5d-9183-1d7ad9e1f6db", "passwd": "kojiqjwe1312uj2"}'
     200RETURN： 什么都不返回
     REQUEST:    创建项目
-                curl -X POST "http://服务ip:服务端口/create_project" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"project_id":"项目ID", "user_id":"用户ID", "user_name":"用户名", "user_age":"用户年龄", "real_name":"用户姓名"}'
-                curl -X POST "http://192.168.1.10:1900/create_project" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"project_id":"f47ac10b-58cc-4372-a567-0e02b2c3d479", "user_id":"b8a1a6f9-739d-4a5d-9183-1d7ad9e1f6db", "user_name":"李通", "user_age":67, "real_name":"李通达"}'
+                curl -X POST "http://服务ip:服务端口/project/create" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"project_id":"项目ID", "user_id":"用户ID", "user_name":"用户名", "user_age":"用户年龄", "real_name":"用户姓名"}'
+                curl -X POST "http://192.168.1.10:1900/project/create" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"project_id":"f47ac10b-58cc-4372-a567-0e02b2c3d479", "user_id":"b8a1a6f9-739d-4a5d-9183-1d7ad9e1f6db", "user_name":"李通", "user_age":67, "real_name":"李通达"}'
     200RETURN： 什么都不返回
     REQUEST:    更新验证记录
-                curl -X POST "http://服务ip:服务端口/update_verification_record" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"project_id":"项目ID", "update_verification_record":"消息json"}'
-                curl -X POST "http://192.168.1.10:1900/update_verification_record" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"project_id":"f47ac10b-58cc-4372-a567-0e02b2c3d479", "update_verification_record":"[{"patient":{"我在遥望":"请志愿者看下这次的资料合格了吗？","attachment":["https://minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/病历初稿.pdf","https://minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/检查报告.jpg"],"time":"2025-05-27T14:00:00+08:00"},"volunteer":{"bceac":"您的资料还存在以下问题：病历不完整，没有医生签字证明。请补充好之后再提交一下。","attachment":[],"time":"2025-05-27T14:15:00+08:00"}},{"patient":{"我在遥望":"我又调整了一下，您再看下呢？","attachment":["https://minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/补充病历.pdf","https://minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/医生签字页.png"],"time":"2025-05-27T15:00:00+08:00"},"volunteer":{"bceac":"这次可以了，给您通过了。","attachment":[],"time":"2025-05-27T15:10:00+08:00"}}]"}'
+                curl -X POST "http://服务ip:服务端口/project/update_verification_record" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"project_id":"项目ID", "update_verification_record":"消息json"}'
+                curl -X POST "http://192.168.1.10:1900/project/update_verification_record" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"project_id":"f47ac10b-58cc-4372-a567-0e02b2c3d479", "update_verification_record":"[{"patient":{"我在遥望":"请志愿者看下这次的资料合格了吗？","attachment":["https://minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/病历初稿.pdf","https://minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/检查报告.jpg"],"time":"2025-05-27T14:00:00+08:00"},"volunteer":{"bceac":"您的资料还存在以下问题：病历不完整，没有医生签字证明。请补充好之后再提交一下。","attachment":[],"time":"2025-05-27T14:15:00+08:00"}},{"patient":{"我在遥望":"我又调整了一下，您再看下呢？","attachment":["https://minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/补充病历.pdf","https://minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/医生签字页.png"],"time":"2025-05-27T15:00:00+08:00"},"volunteer":{"bceac":"这次可以了，给您通过了。","attachment":[],"time":"2025-05-27T15:10:00+08:00"}}]"}'
     200RETURN： 什么都不返回
     REQUEST:    更新项目状态
-                curl -X POST "http://服务ip:服务端口/update_projest_status" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"project_id":"项目ID", "projest_status":项目状态码}'
-                curl -X POST "http://192.168.1.10:1900/update_projest_status" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"project_id":"f47ac10b-58cc-4372-a567-0e02b2c3d479", "projest_status":1}'
+                curl -X POST "http://服务ip:服务端口/project/update_status" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"project_id":"项目ID", "projest_status":项目状态码}'
+                curl -X POST "http://192.168.1.10:1900/project/update_status" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"project_id":"f47ac10b-58cc-4372-a567-0e02b2c3d479", "projest_status":1}'
     200RETURN： 什么都不返回
     REQUEST:    更新病情记录
-                curl -X POST "http://服务ip:服务端口/update_projest_pathography" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"project_id":"项目ID", "pathography":"记录JSON"}'
-                curl -X POST "http://192.168.1.10:1900/update_projest_pathography" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"project_id":"f47ac10b-58cc-4372-a567-0e02b2c3d479", "pathography":"[{"time":"2020-01-05 14:03:01","content":"刚刚确诊为***，心情很是沉重，医生说需要******来治疗","attachment":["minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/20200105140301-1.jpg","minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/20200105140301-2.jpg"]},{"time":"2020-01-15 12:25:31","content":"这一周多的治疗效果好多了，现在又有点希望了","attachment":["minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/20200115122531-1.jpg","minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/20200115122531-2.jpg"]}]"}'
+                curl -X POST "http://服务ip:服务端口/project/update_pathography" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"project_id":"项目ID", "pathography":"记录JSON"}'
+                curl -X POST "http://192.168.1.10:1900/project/update_pathography" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"project_id":"f47ac10b-58cc-4372-a567-0e02b2c3d479", "pathography":"[{"time":"2020-01-05 14:03:01","content":"刚刚确诊为***，心情很是沉重，医生说需要******来治疗","attachment":["minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/20200105140301-1.jpg","minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/20200105140301-2.jpg"]},{"time":"2020-01-15 12:25:31","content":"这一周多的治疗效果好多了，现在又有点希望了","attachment":["minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/20200115122531-1.jpg","minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/20200115122531-2.jpg"]}]"}'
     200RETURN： 什么都不返回
     REQUEST:    更新项目负责志愿者ID
-                curl -X POST "http://服务ip:服务端口/update_project_volunteer" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"project_id":"项目ID", "volunteer_id":"志愿者ID"}'
-                curl -X POST "http://192.168.1.10:1900/update_project_volunteer" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"project_id":"f47ac10b-58cc-4372-a567-0e02b2c3d479", "volunteer_id":"8f76fa9c-18d2-41a9-bdd6-6c8e4c489872"}'
+                curl -X POST "http://服务ip:服务端口/project/update_volunteer" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"project_id":"项目ID", "volunteer_id":"志愿者ID"}'
+                curl -X POST "http://192.168.1.10:1900/project/update_volunteer" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"project_id":"f47ac10b-58cc-4372-a567-0e02b2c3d479", "volunteer_id":"8f76fa9c-18d2-41a9-bdd6-6c8e4c489872"}'
     200RETURN： 什么都不返回
     REQUEST:    新增捐款记录
-                curl -X POST "http://服务ip:服务端口/make_donation" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID", "project_id":"项目ID", "user_id":"捐赠者ID", "sufferer_user_id":"项目受助者ID", "donor_user_name":"捐赠者用户名", "sufferer_real_name":"患者真实姓名", "sufferer_user_name":"患者用户名", "amount":"捐赠金额", "note":"备注", "payment_method":"捐款渠道", "method_id":"渠道账单ID"}'
-                curl -X POST "http://192.168.1.10:1900/make_donation" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df", "project_id":"a7c16b7d-bc2e-4e2e-8617-527cfb23d29f", "user_id":"4a93cd46-f109-4a89-9256-2dc2b3cc4dc4", "sufferer_user_id":"d17d43db-121a-4b9e-97d6-80a3b00ae062", "donor_user_name":"张三心", "sufferer_real_name":"李四", "sufferer_user_name":"木子四", "amount":"100", "note":"望康复", "payment_method":0, "method_id":"2024060122001400221404567890"}'
+                curl -X POST "http://服务ip:服务端口/ledger/create_donation" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID", "project_id":"项目ID", "user_id":"捐赠者ID", "sufferer_user_id":"项目受助者ID", "donor_user_name":"捐赠者用户名", "sufferer_real_name":"患者真实姓名", "sufferer_user_name":"患者用户名", "amount":"捐赠金额", "note":"备注", "payment_method":"捐款渠道", "method_id":"渠道账单ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/create_donation" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df", "project_id":"a7c16b7d-bc2e-4e2e-8617-527cfb23d29f", "user_id":"4a93cd46-f109-4a89-9256-2dc2b3cc4dc4", "sufferer_user_id":"d17d43db-121a-4b9e-97d6-80a3b00ae062", "donor_user_name":"张三心", "sufferer_real_name":"李四", "sufferer_user_name":"木子四", "amount":"100", "note":"望康复", "payment_method":0, "method_id":"2024060122001400221404567890"}'
     200RETURN： 什么都不返回
+    REQUEST: 将捐赠性质的记录转为支付失败
+                curl -X POST "http://服务ip:服务端口/ledger/mark_payment_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/mark_payment_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df"}'
+    200RETURN：什么都不返回
+    REQUEST: 将捐赠性质的记录转为处理中
+                curl -X POST "http://服务ip:服务端口/ledger/mark_payment_processing" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/mark_payment_processing" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df"}'
+    200RETURN：什么都不返回
+    REQUEST: 将捐赠性质的记录转为处理失败
+                curl -X POST "http://服务ip:服务端口/ledger/mark_payment_process_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/mark_payment_process_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df"}'
+    200RETURN：什么都不返回
+    REQUEST: 将捐赠性质的记录转为退款中
+                curl -X POST "http://服务ip:服务端口/ledger/mark_payment_refunding" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/mark_payment_refunding" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df"}'
+    200RETURN：什么都不返回
+    REQUEST: 将捐赠性质的记录转为退款失败
+                curl -X POST "http://服务ip:服务端口/ledger/mark_payment_refund_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/mark_payment_refund_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df"}'
+    200RETURN：什么都不返回
+    REQUEST: 将捐赠性质的记录转为退款完成
+                curl -X POST "http://服务ip:服务端口/ledger/mark_payment_refund_completed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/mark_payment_refund_completed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df"}'
+    200RETURN：什么都不返回
+    REQUEST: 将捐赠性质的记录转为完成
+                curl -X POST "http://服务ip:服务端口/ledger/mark_payment_completed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/mark_payment_completed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df"}'
+    200RETURN：什么都不返回
 */
 /*
 变量命名要求如下：
@@ -136,6 +164,13 @@ typedef struct {
     MYSQL_STMT *stmt_update_project_volunteer;
     MYSQL_STMT *stmt_get_project_volunteer_info;
     MYSQL_STMT *stmt_make_donation;
+    MYSQL_STMT *stmt_mark_payment_failed;
+    MYSQL_STMT *stmt_mark_payment_processing;
+    MYSQL_STMT *stmt_mark_payment_process_failed;
+    MYSQL_STMT *stmt_mark_payment_refunding;
+    MYSQL_STMT *stmt_mark_payment_refund_failed;
+    MYSQL_STMT *stmt_mark_payment_refund_completed;
+    MYSQL_STMT *stmt_mark_payment_completed;
 } DB_CONNECTION;
 
 // 初始化dzlog
@@ -600,6 +635,60 @@ void DBOP_FUN_InitializeMySQLConnection(DB_CONNECTION *DBOP_VAR_InitializeMySQLC
         dzlog_error("Failed to prepare make donation statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_make_donation));
         exit(EXIT_FAILURE);
     }
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_failed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *mark_payment_failed_sql = "UPDATE donation_ledger SET status = 2 WHERE ledger_id = ? AND transaction_type = 0;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_failed, mark_payment_failed_sql, strlen(mark_payment_failed_sql))) {
+        dzlog_error("Failed to prepare mark payment failed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_failed));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化标记处理中预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_processing = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *mark_payment_processing_sql = "UPDATE donation_ledger SET status = 3 WHERE ledger_id = ? AND transaction_type = 0;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_processing, mark_payment_processing_sql, strlen(mark_payment_processing_sql))) {
+        dzlog_error("Failed to prepare mark payment processing statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_processing));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化标记处理失败预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_process_failed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *mark_payment_process_failed_sql = "UPDATE donation_ledger SET status = 4 WHERE ledger_id = ? AND transaction_type = 0;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_process_failed, mark_payment_process_failed_sql, strlen(mark_payment_process_failed_sql))) {
+        dzlog_error("Failed to prepare mark payment process failed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_process_failed));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化标记退款中预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_refunding = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *mark_payment_refunding_sql = "UPDATE donation_ledger SET status = 5 WHERE ledger_id = ? AND transaction_type = 0;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_refunding, mark_payment_refunding_sql, strlen(mark_payment_refunding_sql))) {
+        dzlog_error("Failed to prepare mark payment refunding statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_refunding));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化标记退款失败预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_refund_failed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *mark_payment_refund_failed_sql = "UPDATE donation_ledger SET status = 6 WHERE ledger_id = ? AND transaction_type = 0;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_refund_failed, mark_payment_refund_failed_sql, strlen(mark_payment_refund_failed_sql))) {
+        dzlog_error("Failed to prepare mark payment refund failed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_refund_failed));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化标记退款完成预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_refund_completed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *mark_payment_refund_completed_sql = "UPDATE donation_ledger SET status = 7 WHERE ledger_id = ? AND transaction_type = 0;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_refund_completed, mark_payment_refund_completed_sql, strlen(mark_payment_refund_completed_sql))) {
+        dzlog_error("Failed to prepare mark payment refund completed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_refund_completed));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化标记完成预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_completed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *mark_payment_completed_sql = "UPDATE donation_ledger SET status = 0 WHERE ledger_id = ? AND transaction_type = 0;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_completed, mark_payment_completed_sql, strlen(mark_payment_completed_sql))) {
+        dzlog_error("Failed to prepare mark payment completed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_completed));
+        exit(EXIT_FAILURE);
+    }
 }
 
 // 初始化mysql连接池
@@ -695,6 +784,27 @@ void DBOP_FUN_DestroyConnPool() {
         if (DBOP_GLV_mysqlConnectPool[i]->stmt_make_donation != NULL) {
             mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_make_donation);
         }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_failed != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_failed);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_processing != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_processing);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_process_failed != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_process_failed);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_refunding != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_refunding);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_refund_failed != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_refund_failed);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_refund_completed != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_refund_completed);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_completed != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_completed);
+        }
         if (DBOP_GLV_mysqlConnectPool[i]->mysql != NULL) {
             mysql_close(DBOP_GLV_mysqlConnectPool[i]->mysql);
         }
@@ -761,6 +871,27 @@ void DBOP_FUN_ReinitializeConnPool(AppConfig *DBOP_VAR_ReinitializeConnPool_cfg,
     }
     if (DBOP_VAR_ReinitializeConnPool_connect->stmt_make_donation != NULL) {
         mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_make_donation);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_failed != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_failed);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_processing != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_processing);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_process_failed != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_process_failed);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_refunding != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_refunding);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_refund_failed != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_refund_failed);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_refund_completed != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_refund_completed);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_completed != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_completed);
     }
     if (DBOP_VAR_ReinitializeConnPool_connect->mysql != NULL) {
         mysql_close(DBOP_VAR_ReinitializeConnPool_connect->mysql);
@@ -2734,6 +2865,601 @@ void DBOP_FUN_ApiMakeDonation(struct evhttp_request *DBOP_VAR_ApiMakeDonation_re
 // ------------------------mysql新增捐款记录 api逻辑结束----------------------------
 
 
+// ------------------------mysql标记支付失败api逻辑开始----------------------------
+
+// 标记支付失败的sql数据化输出
+int DBOP_FUN_ExecuteMarkPaymentFailed(DB_CONNECTION *DBOP_VAR_ExecuteMarkPaymentFailed_connect, const char *DBOP_VAR_ExecuteMarkPaymentFailed_ledgerId, const char *DBOP_VAR_ExecuteMarkPaymentFailed_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteMarkPaymentFailed is starting", DBOP_VAR_ExecuteMarkPaymentFailed_requestId);
+
+    // 保护原始参数不被修改，复制参数
+    char DBOP_VAR_ExecuteMarkPaymentFailed_noConstLedgerId[256];
+    strncpy(DBOP_VAR_ExecuteMarkPaymentFailed_noConstLedgerId, DBOP_VAR_ExecuteMarkPaymentFailed_ledgerId, sizeof(DBOP_VAR_ExecuteMarkPaymentFailed_noConstLedgerId) - 1);
+    DBOP_VAR_ExecuteMarkPaymentFailed_noConstLedgerId[sizeof(DBOP_VAR_ExecuteMarkPaymentFailed_noConstLedgerId) - 1] = '\0';
+
+    MYSQL_BIND DBOP_VAR_ExecuteMarkPaymentFailed_bindParams[1];
+    memset(DBOP_VAR_ExecuteMarkPaymentFailed_bindParams, 0, sizeof(DBOP_VAR_ExecuteMarkPaymentFailed_bindParams));
+
+    // 绑定参数：ledger_id
+    DBOP_VAR_ExecuteMarkPaymentFailed_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteMarkPaymentFailed_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteMarkPaymentFailed_noConstLedgerId;
+    DBOP_VAR_ExecuteMarkPaymentFailed_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteMarkPaymentFailed_noConstLedgerId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkPaymentFailed_connect->stmt_mark_payment_failed, DBOP_VAR_ExecuteMarkPaymentFailed_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind mark payment failed param: %s", DBOP_VAR_ExecuteMarkPaymentFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentFailed_connect->stmt_mark_payment_failed));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkPaymentFailed_connect->stmt_mark_payment_failed)) {
+        dzlog_error("[req: %s] Failed to execute mark payment failed statement: %s", DBOP_VAR_ExecuteMarkPaymentFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentFailed_connect->stmt_mark_payment_failed));
+        return -1;
+    }
+
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkPaymentFailed_connect->stmt_mark_payment_failed);
+    if (affected_rows == 0) {
+        dzlog_warn("[req: %s] No donation record found with ledger_id: %s or transaction_type is not donation", DBOP_VAR_ExecuteMarkPaymentFailed_requestId, DBOP_VAR_ExecuteMarkPaymentFailed_ledgerId);
+        return 1; // 表示记录不存在或不是捐赠类型
+    }
+
+    dzlog_info("[req: %s] Successfully marked payment as failed for ledger: %s", DBOP_VAR_ExecuteMarkPaymentFailed_requestId, DBOP_VAR_ExecuteMarkPaymentFailed_ledgerId);
+    return 0;
+}
+
+// 标记支付失败的API接口
+void DBOP_FUN_ApiMarkPaymentFailed(struct evhttp_request *DBOP_VAR_ApiMarkPaymentFailed_request, void *DBOP_VAR_ApiMarkPaymentFailed_voidCfg) {
+    AppConfig *DBOP_VAR_ApiMarkPaymentFailed_cfg = (AppConfig *)DBOP_VAR_ApiMarkPaymentFailed_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiMarkPaymentFailed_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiMarkPaymentFailed_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiMarkPaymentFailed.", DBOP_VAR_ApiMarkPaymentFailed_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiMarkPaymentFailed_request, DBOP_VAR_ApiMarkPaymentFailed_cfg, DBOP_VAR_ApiMarkPaymentFailed_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiMarkPaymentFailed_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiMarkPaymentFailed_request, DBOP_VAR_ApiMarkPaymentFailed_requestId);
+    if (!DBOP_VAR_ApiMarkPaymentFailed_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiMarkPaymentFailed_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiMarkPaymentFailed_dataJsonAll, "ledger_id");
+
+    if (!json_is_string(DBOP_VAR_ApiMarkPaymentFailed_dataJsonLedgerId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string type for 'ledger_id'", DBOP_VAR_ApiMarkPaymentFailed_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiMarkPaymentFailed_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiMarkPaymentFailed_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiMarkPaymentFailed_ledgerId = json_string_value(DBOP_VAR_ApiMarkPaymentFailed_dataJsonLedgerId);
+
+    dzlog_info("[req: %s] Executing database operation for ApiMarkPaymentFailed: ledgerId=%s", DBOP_VAR_ApiMarkPaymentFailed_requestId, DBOP_VAR_ApiMarkPaymentFailed_ledgerId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiMarkPaymentFailed_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiMarkPaymentFailed_cfg);
+    int result = DBOP_FUN_ExecuteMarkPaymentFailed(DBOP_VAR_ApiMarkPaymentFailed_mysqlConnect, DBOP_VAR_ApiMarkPaymentFailed_ledgerId, DBOP_VAR_ApiMarkPaymentFailed_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiMarkPaymentFailed_request, result, DBOP_VAR_ApiMarkPaymentFailed_requestId, "mark payment failed");
+
+    json_decref(DBOP_VAR_ApiMarkPaymentFailed_dataJsonAll);
+}
+
+// ------------------------mysql标记支付失败api逻辑结束----------------------------
+
+
+// ------------------------mysql标记处理中api逻辑开始----------------------------
+
+// 标记处理中的sql数据化输出
+int DBOP_FUN_ExecuteMarkPaymentProcessing(DB_CONNECTION *DBOP_VAR_ExecuteMarkPaymentProcessing_connect, const char *DBOP_VAR_ExecuteMarkPaymentProcessing_ledgerId, const char *DBOP_VAR_ExecuteMarkPaymentProcessing_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteMarkPaymentProcessing is starting", DBOP_VAR_ExecuteMarkPaymentProcessing_requestId);
+
+    // 保护原始参数不被修改，复制参数
+    char DBOP_VAR_ExecuteMarkPaymentProcessing_noConstLedgerId[256];
+    strncpy(DBOP_VAR_ExecuteMarkPaymentProcessing_noConstLedgerId, DBOP_VAR_ExecuteMarkPaymentProcessing_ledgerId, sizeof(DBOP_VAR_ExecuteMarkPaymentProcessing_noConstLedgerId) - 1);
+    DBOP_VAR_ExecuteMarkPaymentProcessing_noConstLedgerId[sizeof(DBOP_VAR_ExecuteMarkPaymentProcessing_noConstLedgerId) - 1] = '\0';
+
+    MYSQL_BIND DBOP_VAR_ExecuteMarkPaymentProcessing_bindParams[1];
+    memset(DBOP_VAR_ExecuteMarkPaymentProcessing_bindParams, 0, sizeof(DBOP_VAR_ExecuteMarkPaymentProcessing_bindParams));
+
+    // 绑定参数：ledger_id
+    DBOP_VAR_ExecuteMarkPaymentProcessing_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteMarkPaymentProcessing_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteMarkPaymentProcessing_noConstLedgerId;
+    DBOP_VAR_ExecuteMarkPaymentProcessing_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteMarkPaymentProcessing_noConstLedgerId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkPaymentProcessing_connect->stmt_mark_payment_processing, DBOP_VAR_ExecuteMarkPaymentProcessing_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind mark payment processing param: %s", DBOP_VAR_ExecuteMarkPaymentProcessing_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentProcessing_connect->stmt_mark_payment_processing));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkPaymentProcessing_connect->stmt_mark_payment_processing)) {
+        dzlog_error("[req: %s] Failed to execute mark payment processing statement: %s", DBOP_VAR_ExecuteMarkPaymentProcessing_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentProcessing_connect->stmt_mark_payment_processing));
+        return -1;
+    }
+
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkPaymentProcessing_connect->stmt_mark_payment_processing);
+    if (affected_rows == 0) {
+        dzlog_warn("[req: %s] No donation record found with ledger_id: %s or transaction_type is not donation", DBOP_VAR_ExecuteMarkPaymentProcessing_requestId, DBOP_VAR_ExecuteMarkPaymentProcessing_ledgerId);
+        return 1; // 表示记录不存在或不是捐赠类型
+    }
+
+    dzlog_info("[req: %s] Successfully marked payment as processing for ledger: %s", DBOP_VAR_ExecuteMarkPaymentProcessing_requestId, DBOP_VAR_ExecuteMarkPaymentProcessing_ledgerId);
+    return 0;
+}
+
+// 标记处理中的API接口
+void DBOP_FUN_ApiMarkPaymentProcessing(struct evhttp_request *DBOP_VAR_ApiMarkPaymentProcessing_request, void *DBOP_VAR_ApiMarkPaymentProcessing_voidCfg) {
+    AppConfig *DBOP_VAR_ApiMarkPaymentProcessing_cfg = (AppConfig *)DBOP_VAR_ApiMarkPaymentProcessing_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiMarkPaymentProcessing_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiMarkPaymentProcessing_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiMarkPaymentProcessing.", DBOP_VAR_ApiMarkPaymentProcessing_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiMarkPaymentProcessing_request, DBOP_VAR_ApiMarkPaymentProcessing_cfg, DBOP_VAR_ApiMarkPaymentProcessing_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiMarkPaymentProcessing_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiMarkPaymentProcessing_request, DBOP_VAR_ApiMarkPaymentProcessing_requestId);
+    if (!DBOP_VAR_ApiMarkPaymentProcessing_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiMarkPaymentProcessing_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiMarkPaymentProcessing_dataJsonAll, "ledger_id");
+
+    if (!json_is_string(DBOP_VAR_ApiMarkPaymentProcessing_dataJsonLedgerId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string type for 'ledger_id'", DBOP_VAR_ApiMarkPaymentProcessing_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiMarkPaymentProcessing_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiMarkPaymentProcessing_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiMarkPaymentProcessing_ledgerId = json_string_value(DBOP_VAR_ApiMarkPaymentProcessing_dataJsonLedgerId);
+
+    dzlog_info("[req: %s] Executing database operation for ApiMarkPaymentProcessing: ledgerId=%s", DBOP_VAR_ApiMarkPaymentProcessing_requestId, DBOP_VAR_ApiMarkPaymentProcessing_ledgerId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiMarkPaymentProcessing_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiMarkPaymentProcessing_cfg);
+    int result = DBOP_FUN_ExecuteMarkPaymentProcessing(DBOP_VAR_ApiMarkPaymentProcessing_mysqlConnect, DBOP_VAR_ApiMarkPaymentProcessing_ledgerId, DBOP_VAR_ApiMarkPaymentProcessing_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiMarkPaymentProcessing_request, result, DBOP_VAR_ApiMarkPaymentProcessing_requestId, "mark payment processing");
+
+    json_decref(DBOP_VAR_ApiMarkPaymentProcessing_dataJsonAll);
+}
+
+// ------------------------mysql标记处理中api逻辑结束----------------------------
+
+
+// ------------------------mysql标记处理失败api逻辑开始----------------------------
+
+// 标记处理失败的sql数据化输出
+int DBOP_FUN_ExecuteMarkPaymentProcessFailed(DB_CONNECTION *DBOP_VAR_ExecuteMarkPaymentProcessFailed_connect, const char *DBOP_VAR_ExecuteMarkPaymentProcessFailed_ledgerId, const char *DBOP_VAR_ExecuteMarkPaymentProcessFailed_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteMarkPaymentProcessFailed is starting", DBOP_VAR_ExecuteMarkPaymentProcessFailed_requestId);
+
+    // 保护原始参数不被修改，复制参数
+    char DBOP_VAR_ExecuteMarkPaymentProcessFailed_noConstLedgerId[256];
+    strncpy(DBOP_VAR_ExecuteMarkPaymentProcessFailed_noConstLedgerId, DBOP_VAR_ExecuteMarkPaymentProcessFailed_ledgerId, sizeof(DBOP_VAR_ExecuteMarkPaymentProcessFailed_noConstLedgerId) - 1);
+    DBOP_VAR_ExecuteMarkPaymentProcessFailed_noConstLedgerId[sizeof(DBOP_VAR_ExecuteMarkPaymentProcessFailed_noConstLedgerId) - 1] = '\0';
+
+    MYSQL_BIND DBOP_VAR_ExecuteMarkPaymentProcessFailed_bindParams[1];
+    memset(DBOP_VAR_ExecuteMarkPaymentProcessFailed_bindParams, 0, sizeof(DBOP_VAR_ExecuteMarkPaymentProcessFailed_bindParams));
+
+    // 绑定参数：ledger_id
+    DBOP_VAR_ExecuteMarkPaymentProcessFailed_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteMarkPaymentProcessFailed_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteMarkPaymentProcessFailed_noConstLedgerId;
+    DBOP_VAR_ExecuteMarkPaymentProcessFailed_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteMarkPaymentProcessFailed_noConstLedgerId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkPaymentProcessFailed_connect->stmt_mark_payment_process_failed, DBOP_VAR_ExecuteMarkPaymentProcessFailed_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind mark payment process failed param: %s", DBOP_VAR_ExecuteMarkPaymentProcessFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentProcessFailed_connect->stmt_mark_payment_process_failed));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkPaymentProcessFailed_connect->stmt_mark_payment_process_failed)) {
+        dzlog_error("[req: %s] Failed to execute mark payment process failed statement: %s", DBOP_VAR_ExecuteMarkPaymentProcessFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentProcessFailed_connect->stmt_mark_payment_process_failed));
+        return -1;
+    }
+
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkPaymentProcessFailed_connect->stmt_mark_payment_process_failed);
+    if (affected_rows == 0) {
+        dzlog_warn("[req: %s] No donation record found with ledger_id: %s or transaction_type is not donation", DBOP_VAR_ExecuteMarkPaymentProcessFailed_requestId, DBOP_VAR_ExecuteMarkPaymentProcessFailed_ledgerId);
+        return 1; // 表示记录不存在或不是捐赠类型
+    }
+
+    dzlog_info("[req: %s] Successfully marked payment as process failed for ledger: %s", DBOP_VAR_ExecuteMarkPaymentProcessFailed_requestId, DBOP_VAR_ExecuteMarkPaymentProcessFailed_ledgerId);
+    return 0;
+}
+
+// 标记处理失败的API接口
+void DBOP_FUN_ApiMarkPaymentProcessFailed(struct evhttp_request *DBOP_VAR_ApiMarkPaymentProcessFailed_request, void *DBOP_VAR_ApiMarkPaymentProcessFailed_voidCfg) {
+    AppConfig *DBOP_VAR_ApiMarkPaymentProcessFailed_cfg = (AppConfig *)DBOP_VAR_ApiMarkPaymentProcessFailed_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiMarkPaymentProcessFailed_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiMarkPaymentProcessFailed_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiMarkPaymentProcessFailed.", DBOP_VAR_ApiMarkPaymentProcessFailed_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiMarkPaymentProcessFailed_request, DBOP_VAR_ApiMarkPaymentProcessFailed_cfg, DBOP_VAR_ApiMarkPaymentProcessFailed_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiMarkPaymentProcessFailed_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiMarkPaymentProcessFailed_request, DBOP_VAR_ApiMarkPaymentProcessFailed_requestId);
+    if (!DBOP_VAR_ApiMarkPaymentProcessFailed_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiMarkPaymentProcessFailed_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiMarkPaymentProcessFailed_dataJsonAll, "ledger_id");
+
+    if (!json_is_string(DBOP_VAR_ApiMarkPaymentProcessFailed_dataJsonLedgerId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string type for 'ledger_id'", DBOP_VAR_ApiMarkPaymentProcessFailed_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiMarkPaymentProcessFailed_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiMarkPaymentProcessFailed_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiMarkPaymentProcessFailed_ledgerId = json_string_value(DBOP_VAR_ApiMarkPaymentProcessFailed_dataJsonLedgerId);
+
+    dzlog_info("[req: %s] Executing database operation for ApiMarkPaymentProcessFailed: ledgerId=%s", DBOP_VAR_ApiMarkPaymentProcessFailed_requestId, DBOP_VAR_ApiMarkPaymentProcessFailed_ledgerId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiMarkPaymentProcessFailed_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiMarkPaymentProcessFailed_cfg);
+    int result = DBOP_FUN_ExecuteMarkPaymentProcessFailed(DBOP_VAR_ApiMarkPaymentProcessFailed_mysqlConnect, DBOP_VAR_ApiMarkPaymentProcessFailed_ledgerId, DBOP_VAR_ApiMarkPaymentProcessFailed_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiMarkPaymentProcessFailed_request, result, DBOP_VAR_ApiMarkPaymentProcessFailed_requestId, "mark payment process failed");
+
+    json_decref(DBOP_VAR_ApiMarkPaymentProcessFailed_dataJsonAll);
+}
+
+// ------------------------mysql标记处理失败api逻辑结束----------------------------
+
+
+// ------------------------mysql标记退款中api逻辑开始----------------------------
+
+// 标记退款中的sql数据化输出
+int DBOP_FUN_ExecuteMarkPaymentRefunding(DB_CONNECTION *DBOP_VAR_ExecuteMarkPaymentRefunding_connect, const char *DBOP_VAR_ExecuteMarkPaymentRefunding_ledgerId, const char *DBOP_VAR_ExecuteMarkPaymentRefunding_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteMarkPaymentRefunding is starting", DBOP_VAR_ExecuteMarkPaymentRefunding_requestId);
+
+    // 保护原始参数不被修改，复制参数
+    char DBOP_VAR_ExecuteMarkPaymentRefunding_noConstLedgerId[256];
+    strncpy(DBOP_VAR_ExecuteMarkPaymentRefunding_noConstLedgerId, DBOP_VAR_ExecuteMarkPaymentRefunding_ledgerId, sizeof(DBOP_VAR_ExecuteMarkPaymentRefunding_noConstLedgerId) - 1);
+    DBOP_VAR_ExecuteMarkPaymentRefunding_noConstLedgerId[sizeof(DBOP_VAR_ExecuteMarkPaymentRefunding_noConstLedgerId) - 1] = '\0';
+
+    MYSQL_BIND DBOP_VAR_ExecuteMarkPaymentRefunding_bindParams[1];
+    memset(DBOP_VAR_ExecuteMarkPaymentRefunding_bindParams, 0, sizeof(DBOP_VAR_ExecuteMarkPaymentRefunding_bindParams));
+
+    // 绑定参数：ledger_id
+    DBOP_VAR_ExecuteMarkPaymentRefunding_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteMarkPaymentRefunding_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteMarkPaymentRefunding_noConstLedgerId;
+    DBOP_VAR_ExecuteMarkPaymentRefunding_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteMarkPaymentRefunding_noConstLedgerId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkPaymentRefunding_connect->stmt_mark_payment_refunding, DBOP_VAR_ExecuteMarkPaymentRefunding_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind mark payment refunding param: %s", DBOP_VAR_ExecuteMarkPaymentRefunding_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentRefunding_connect->stmt_mark_payment_refunding));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkPaymentRefunding_connect->stmt_mark_payment_refunding)) {
+        dzlog_error("[req: %s] Failed to execute mark payment refunding statement: %s", DBOP_VAR_ExecuteMarkPaymentRefunding_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentRefunding_connect->stmt_mark_payment_refunding));
+        return -1;
+    }
+
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkPaymentRefunding_connect->stmt_mark_payment_refunding);
+    if (affected_rows == 0) {
+        dzlog_warn("[req: %s] No donation record found with ledger_id: %s or transaction_type is not donation", DBOP_VAR_ExecuteMarkPaymentRefunding_requestId, DBOP_VAR_ExecuteMarkPaymentRefunding_ledgerId);
+        return 1; // 表示记录不存在或不是捐赠类型
+    }
+
+    dzlog_info("[req: %s] Successfully marked payment as refunding for ledger: %s", DBOP_VAR_ExecuteMarkPaymentRefunding_requestId, DBOP_VAR_ExecuteMarkPaymentRefunding_ledgerId);
+    return 0;
+}
+
+// 标记退款中的API接口
+void DBOP_FUN_ApiMarkPaymentRefunding(struct evhttp_request *DBOP_VAR_ApiMarkPaymentRefunding_request, void *DBOP_VAR_ApiMarkPaymentRefunding_voidCfg) {
+    AppConfig *DBOP_VAR_ApiMarkPaymentRefunding_cfg = (AppConfig *)DBOP_VAR_ApiMarkPaymentRefunding_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiMarkPaymentRefunding_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiMarkPaymentRefunding_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiMarkPaymentRefunding.", DBOP_VAR_ApiMarkPaymentRefunding_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiMarkPaymentRefunding_request, DBOP_VAR_ApiMarkPaymentRefunding_cfg, DBOP_VAR_ApiMarkPaymentRefunding_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiMarkPaymentRefunding_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiMarkPaymentRefunding_request, DBOP_VAR_ApiMarkPaymentRefunding_requestId);
+    if (!DBOP_VAR_ApiMarkPaymentRefunding_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiMarkPaymentRefunding_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiMarkPaymentRefunding_dataJsonAll, "ledger_id");
+
+    if (!json_is_string(DBOP_VAR_ApiMarkPaymentRefunding_dataJsonLedgerId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string type for 'ledger_id'", DBOP_VAR_ApiMarkPaymentRefunding_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiMarkPaymentRefunding_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiMarkPaymentRefunding_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiMarkPaymentRefunding_ledgerId = json_string_value(DBOP_VAR_ApiMarkPaymentRefunding_dataJsonLedgerId);
+
+    dzlog_info("[req: %s] Executing database operation for ApiMarkPaymentRefunding: ledgerId=%s", DBOP_VAR_ApiMarkPaymentRefunding_requestId, DBOP_VAR_ApiMarkPaymentRefunding_ledgerId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiMarkPaymentRefunding_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiMarkPaymentRefunding_cfg);
+    int result = DBOP_FUN_ExecuteMarkPaymentRefunding(DBOP_VAR_ApiMarkPaymentRefunding_mysqlConnect, DBOP_VAR_ApiMarkPaymentRefunding_ledgerId, DBOP_VAR_ApiMarkPaymentRefunding_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiMarkPaymentRefunding_request, result, DBOP_VAR_ApiMarkPaymentRefunding_requestId, "mark payment refunding");
+
+    json_decref(DBOP_VAR_ApiMarkPaymentRefunding_dataJsonAll);
+}
+
+// ------------------------mysql标记退款中api逻辑结束----------------------------
+
+
+// ------------------------mysql标记退款失败api逻辑开始----------------------------
+
+// 标记退款失败的sql数据化输出
+int DBOP_FUN_ExecuteMarkPaymentRefundFailed(DB_CONNECTION *DBOP_VAR_ExecuteMarkPaymentRefundFailed_connect, const char *DBOP_VAR_ExecuteMarkPaymentRefundFailed_ledgerId, const char *DBOP_VAR_ExecuteMarkPaymentRefundFailed_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteMarkPaymentRefundFailed is starting", DBOP_VAR_ExecuteMarkPaymentRefundFailed_requestId);
+
+    // 保护原始参数不被修改，复制参数
+    char DBOP_VAR_ExecuteMarkPaymentRefundFailed_noConstLedgerId[256];
+    strncpy(DBOP_VAR_ExecuteMarkPaymentRefundFailed_noConstLedgerId, DBOP_VAR_ExecuteMarkPaymentRefundFailed_ledgerId, sizeof(DBOP_VAR_ExecuteMarkPaymentRefundFailed_noConstLedgerId) - 1);
+    DBOP_VAR_ExecuteMarkPaymentRefundFailed_noConstLedgerId[sizeof(DBOP_VAR_ExecuteMarkPaymentRefundFailed_noConstLedgerId) - 1] = '\0';
+
+    MYSQL_BIND DBOP_VAR_ExecuteMarkPaymentRefundFailed_bindParams[1];
+    memset(DBOP_VAR_ExecuteMarkPaymentRefundFailed_bindParams, 0, sizeof(DBOP_VAR_ExecuteMarkPaymentRefundFailed_bindParams));
+
+    // 绑定参数：ledger_id
+    DBOP_VAR_ExecuteMarkPaymentRefundFailed_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteMarkPaymentRefundFailed_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteMarkPaymentRefundFailed_noConstLedgerId;
+    DBOP_VAR_ExecuteMarkPaymentRefundFailed_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteMarkPaymentRefundFailed_noConstLedgerId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkPaymentRefundFailed_connect->stmt_mark_payment_refund_failed, DBOP_VAR_ExecuteMarkPaymentRefundFailed_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind mark payment refund failed param: %s", DBOP_VAR_ExecuteMarkPaymentRefundFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentRefundFailed_connect->stmt_mark_payment_refund_failed));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkPaymentRefundFailed_connect->stmt_mark_payment_refund_failed)) {
+        dzlog_error("[req: %s] Failed to execute mark payment refund failed statement: %s", DBOP_VAR_ExecuteMarkPaymentRefundFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentRefundFailed_connect->stmt_mark_payment_refund_failed));
+        return -1;
+    }
+
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkPaymentRefundFailed_connect->stmt_mark_payment_refund_failed);
+    if (affected_rows == 0) {
+        dzlog_warn("[req: %s] No donation record found with ledger_id: %s or transaction_type is not donation", DBOP_VAR_ExecuteMarkPaymentRefundFailed_requestId, DBOP_VAR_ExecuteMarkPaymentRefundFailed_ledgerId);
+        return 1; // 表示记录不存在或不是捐赠类型
+    }
+
+    dzlog_info("[req: %s] Successfully marked payment as refund failed for ledger: %s", DBOP_VAR_ExecuteMarkPaymentRefundFailed_requestId, DBOP_VAR_ExecuteMarkPaymentRefundFailed_ledgerId);
+    return 0;
+}
+
+// 标记退款失败的API接口
+void DBOP_FUN_ApiMarkPaymentRefundFailed(struct evhttp_request *DBOP_VAR_ApiMarkPaymentRefundFailed_request, void *DBOP_VAR_ApiMarkPaymentRefundFailed_voidCfg) {
+    AppConfig *DBOP_VAR_ApiMarkPaymentRefundFailed_cfg = (AppConfig *)DBOP_VAR_ApiMarkPaymentRefundFailed_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiMarkPaymentRefundFailed_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiMarkPaymentRefundFailed_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiMarkPaymentRefundFailed.", DBOP_VAR_ApiMarkPaymentRefundFailed_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiMarkPaymentRefundFailed_request, DBOP_VAR_ApiMarkPaymentRefundFailed_cfg, DBOP_VAR_ApiMarkPaymentRefundFailed_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiMarkPaymentRefundFailed_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiMarkPaymentRefundFailed_request, DBOP_VAR_ApiMarkPaymentRefundFailed_requestId);
+    if (!DBOP_VAR_ApiMarkPaymentRefundFailed_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiMarkPaymentRefundFailed_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiMarkPaymentRefundFailed_dataJsonAll, "ledger_id");
+
+    if (!json_is_string(DBOP_VAR_ApiMarkPaymentRefundFailed_dataJsonLedgerId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string type for 'ledger_id'", DBOP_VAR_ApiMarkPaymentRefundFailed_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiMarkPaymentRefundFailed_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiMarkPaymentRefundFailed_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiMarkPaymentRefundFailed_ledgerId = json_string_value(DBOP_VAR_ApiMarkPaymentRefundFailed_dataJsonLedgerId);
+
+    dzlog_info("[req: %s] Executing database operation for ApiMarkPaymentRefundFailed: ledgerId=%s", DBOP_VAR_ApiMarkPaymentRefundFailed_requestId, DBOP_VAR_ApiMarkPaymentRefundFailed_ledgerId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiMarkPaymentRefundFailed_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiMarkPaymentRefundFailed_cfg);
+    int result = DBOP_FUN_ExecuteMarkPaymentRefundFailed(DBOP_VAR_ApiMarkPaymentRefundFailed_mysqlConnect, DBOP_VAR_ApiMarkPaymentRefundFailed_ledgerId, DBOP_VAR_ApiMarkPaymentRefundFailed_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiMarkPaymentRefundFailed_request, result, DBOP_VAR_ApiMarkPaymentRefundFailed_requestId, "mark payment refund failed");
+
+    json_decref(DBOP_VAR_ApiMarkPaymentRefundFailed_dataJsonAll);
+}
+
+// ------------------------mysql标记退款失败api逻辑结束----------------------------
+
+
+// ------------------------mysql标记退款完成api逻辑开始----------------------------
+
+// 标记退款完成的sql数据化输出
+int DBOP_FUN_ExecuteMarkPaymentRefundCompleted(DB_CONNECTION *DBOP_VAR_ExecuteMarkPaymentRefundCompleted_connect, const char *DBOP_VAR_ExecuteMarkPaymentRefundCompleted_ledgerId, const char *DBOP_VAR_ExecuteMarkPaymentRefundCompleted_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteMarkPaymentRefundCompleted is starting", DBOP_VAR_ExecuteMarkPaymentRefundCompleted_requestId);
+
+    // 保护原始参数不被修改，复制参数
+    char DBOP_VAR_ExecuteMarkPaymentRefundCompleted_noConstLedgerId[256];
+    strncpy(DBOP_VAR_ExecuteMarkPaymentRefundCompleted_noConstLedgerId, DBOP_VAR_ExecuteMarkPaymentRefundCompleted_ledgerId, sizeof(DBOP_VAR_ExecuteMarkPaymentRefundCompleted_noConstLedgerId) - 1);
+    DBOP_VAR_ExecuteMarkPaymentRefundCompleted_noConstLedgerId[sizeof(DBOP_VAR_ExecuteMarkPaymentRefundCompleted_noConstLedgerId) - 1] = '\0';
+
+    MYSQL_BIND DBOP_VAR_ExecuteMarkPaymentRefundCompleted_bindParams[1];
+    memset(DBOP_VAR_ExecuteMarkPaymentRefundCompleted_bindParams, 0, sizeof(DBOP_VAR_ExecuteMarkPaymentRefundCompleted_bindParams));
+
+    // 绑定参数：ledger_id
+    DBOP_VAR_ExecuteMarkPaymentRefundCompleted_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteMarkPaymentRefundCompleted_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteMarkPaymentRefundCompleted_noConstLedgerId;
+    DBOP_VAR_ExecuteMarkPaymentRefundCompleted_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteMarkPaymentRefundCompleted_noConstLedgerId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkPaymentRefundCompleted_connect->stmt_mark_payment_refund_completed, DBOP_VAR_ExecuteMarkPaymentRefundCompleted_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind mark payment refund completed param: %s", DBOP_VAR_ExecuteMarkPaymentRefundCompleted_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentRefundCompleted_connect->stmt_mark_payment_refund_completed));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkPaymentRefundCompleted_connect->stmt_mark_payment_refund_completed)) {
+        dzlog_error("[req: %s] Failed to execute mark payment refund completed statement: %s", DBOP_VAR_ExecuteMarkPaymentRefundCompleted_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentRefundCompleted_connect->stmt_mark_payment_refund_completed));
+        return -1;
+    }
+
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkPaymentRefundCompleted_connect->stmt_mark_payment_refund_completed);
+    if (affected_rows == 0) {
+        dzlog_warn("[req: %s] No donation record found with ledger_id: %s or transaction_type is not donation", DBOP_VAR_ExecuteMarkPaymentRefundCompleted_requestId, DBOP_VAR_ExecuteMarkPaymentRefundCompleted_ledgerId);
+        return 1; // 表示记录不存在或不是捐赠类型
+    }
+
+    dzlog_info("[req: %s] Successfully marked payment as refund completed for ledger: %s", DBOP_VAR_ExecuteMarkPaymentRefundCompleted_requestId, DBOP_VAR_ExecuteMarkPaymentRefundCompleted_ledgerId);
+    return 0;
+}
+
+// 标记退款完成的API接口
+void DBOP_FUN_ApiMarkPaymentRefundCompleted(struct evhttp_request *DBOP_VAR_ApiMarkPaymentRefundCompleted_request, void *DBOP_VAR_ApiMarkPaymentRefundCompleted_voidCfg) {
+    AppConfig *DBOP_VAR_ApiMarkPaymentRefundCompleted_cfg = (AppConfig *)DBOP_VAR_ApiMarkPaymentRefundCompleted_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiMarkPaymentRefundCompleted_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiMarkPaymentRefundCompleted_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiMarkPaymentRefundCompleted.", DBOP_VAR_ApiMarkPaymentRefundCompleted_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiMarkPaymentRefundCompleted_request, DBOP_VAR_ApiMarkPaymentRefundCompleted_cfg, DBOP_VAR_ApiMarkPaymentRefundCompleted_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiMarkPaymentRefundCompleted_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiMarkPaymentRefundCompleted_request, DBOP_VAR_ApiMarkPaymentRefundCompleted_requestId);
+    if (!DBOP_VAR_ApiMarkPaymentRefundCompleted_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiMarkPaymentRefundCompleted_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiMarkPaymentRefundCompleted_dataJsonAll, "ledger_id");
+
+    if (!json_is_string(DBOP_VAR_ApiMarkPaymentRefundCompleted_dataJsonLedgerId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string type for 'ledger_id'", DBOP_VAR_ApiMarkPaymentRefundCompleted_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiMarkPaymentRefundCompleted_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiMarkPaymentRefundCompleted_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiMarkPaymentRefundCompleted_ledgerId = json_string_value(DBOP_VAR_ApiMarkPaymentRefundCompleted_dataJsonLedgerId);
+
+    dzlog_info("[req: %s] Executing database operation for ApiMarkPaymentRefundCompleted: ledgerId=%s", DBOP_VAR_ApiMarkPaymentRefundCompleted_requestId, DBOP_VAR_ApiMarkPaymentRefundCompleted_ledgerId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiMarkPaymentRefundCompleted_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiMarkPaymentRefundCompleted_cfg);
+    int result = DBOP_FUN_ExecuteMarkPaymentRefundCompleted(DBOP_VAR_ApiMarkPaymentRefundCompleted_mysqlConnect, DBOP_VAR_ApiMarkPaymentRefundCompleted_ledgerId, DBOP_VAR_ApiMarkPaymentRefundCompleted_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiMarkPaymentRefundCompleted_request, result, DBOP_VAR_ApiMarkPaymentRefundCompleted_requestId, "mark payment refund completed");
+
+    json_decref(DBOP_VAR_ApiMarkPaymentRefundCompleted_dataJsonAll);
+}
+
+// ------------------------mysql标记退款完成api逻辑结束----------------------------
+
+
+// ------------------------mysql标记完成api逻辑开始----------------------------
+
+// 标记完成的sql数据化输出
+int DBOP_FUN_ExecuteMarkPaymentCompleted(DB_CONNECTION *DBOP_VAR_ExecuteMarkPaymentCompleted_connect, const char *DBOP_VAR_ExecuteMarkPaymentCompleted_ledgerId, const char *DBOP_VAR_ExecuteMarkPaymentCompleted_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteMarkPaymentCompleted is starting", DBOP_VAR_ExecuteMarkPaymentCompleted_requestId);
+
+    // 保护原始参数不被修改，复制参数
+    char DBOP_VAR_ExecuteMarkPaymentCompleted_noConstLedgerId[256];
+    strncpy(DBOP_VAR_ExecuteMarkPaymentCompleted_noConstLedgerId, DBOP_VAR_ExecuteMarkPaymentCompleted_ledgerId, sizeof(DBOP_VAR_ExecuteMarkPaymentCompleted_noConstLedgerId) - 1);
+    DBOP_VAR_ExecuteMarkPaymentCompleted_noConstLedgerId[sizeof(DBOP_VAR_ExecuteMarkPaymentCompleted_noConstLedgerId) - 1] = '\0';
+
+    MYSQL_BIND DBOP_VAR_ExecuteMarkPaymentCompleted_bindParams[1];
+    memset(DBOP_VAR_ExecuteMarkPaymentCompleted_bindParams, 0, sizeof(DBOP_VAR_ExecuteMarkPaymentCompleted_bindParams));
+
+    // 绑定参数：ledger_id
+    DBOP_VAR_ExecuteMarkPaymentCompleted_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteMarkPaymentCompleted_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteMarkPaymentCompleted_noConstLedgerId;
+    DBOP_VAR_ExecuteMarkPaymentCompleted_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteMarkPaymentCompleted_noConstLedgerId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkPaymentCompleted_connect->stmt_mark_payment_completed, DBOP_VAR_ExecuteMarkPaymentCompleted_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind mark payment completed param: %s", DBOP_VAR_ExecuteMarkPaymentCompleted_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentCompleted_connect->stmt_mark_payment_completed));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkPaymentCompleted_connect->stmt_mark_payment_completed)) {
+        dzlog_error("[req: %s] Failed to execute mark payment completed statement: %s", DBOP_VAR_ExecuteMarkPaymentCompleted_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentCompleted_connect->stmt_mark_payment_completed));
+        return -1;
+    }
+
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkPaymentCompleted_connect->stmt_mark_payment_completed);
+    if (affected_rows == 0) {
+        dzlog_warn("[req: %s] No donation record found with ledger_id: %s or transaction_type is not donation", DBOP_VAR_ExecuteMarkPaymentCompleted_requestId, DBOP_VAR_ExecuteMarkPaymentCompleted_ledgerId);
+        return 1; // 表示记录不存在或不是捐赠类型
+    }
+
+    dzlog_info("[req: %s] Successfully marked payment as completed for ledger: %s", DBOP_VAR_ExecuteMarkPaymentCompleted_requestId, DBOP_VAR_ExecuteMarkPaymentCompleted_ledgerId);
+    return 0;
+}
+
+// 标记完成的API接口
+void DBOP_FUN_ApiMarkPaymentCompleted(struct evhttp_request *DBOP_VAR_ApiMarkPaymentCompleted_request, void *DBOP_VAR_ApiMarkPaymentCompleted_voidCfg) {
+    AppConfig *DBOP_VAR_ApiMarkPaymentCompleted_cfg = (AppConfig *)DBOP_VAR_ApiMarkPaymentCompleted_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiMarkPaymentCompleted_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiMarkPaymentCompleted_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiMarkPaymentCompleted.", DBOP_VAR_ApiMarkPaymentCompleted_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiMarkPaymentCompleted_request, DBOP_VAR_ApiMarkPaymentCompleted_cfg, DBOP_VAR_ApiMarkPaymentCompleted_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiMarkPaymentCompleted_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiMarkPaymentCompleted_request, DBOP_VAR_ApiMarkPaymentCompleted_requestId);
+    if (!DBOP_VAR_ApiMarkPaymentCompleted_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiMarkPaymentCompleted_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiMarkPaymentCompleted_dataJsonAll, "ledger_id");
+
+    if (!json_is_string(DBOP_VAR_ApiMarkPaymentCompleted_dataJsonLedgerId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string type for 'ledger_id'", DBOP_VAR_ApiMarkPaymentCompleted_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiMarkPaymentCompleted_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiMarkPaymentCompleted_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiMarkPaymentCompleted_ledgerId = json_string_value(DBOP_VAR_ApiMarkPaymentCompleted_dataJsonLedgerId);
+
+    dzlog_info("[req: %s] Executing database operation for ApiMarkPaymentCompleted: ledgerId=%s", DBOP_VAR_ApiMarkPaymentCompleted_requestId, DBOP_VAR_ApiMarkPaymentCompleted_ledgerId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiMarkPaymentCompleted_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiMarkPaymentCompleted_cfg);
+    int result = DBOP_FUN_ExecuteMarkPaymentCompleted(DBOP_VAR_ApiMarkPaymentCompleted_mysqlConnect, DBOP_VAR_ApiMarkPaymentCompleted_ledgerId, DBOP_VAR_ApiMarkPaymentCompleted_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiMarkPaymentCompleted_request, result, DBOP_VAR_ApiMarkPaymentCompleted_requestId, "mark payment completed");
+
+    json_decref(DBOP_VAR_ApiMarkPaymentCompleted_dataJsonAll);
+}
+
+// ------------------------mysql标记完成api逻辑结束----------------------------
+
+
 int main() { 
     AppConfig DBOP_VAR_Main_cfg = DBOP_FUN_MainConfigParse("config/config.yaml"); //初始化结构体
     struct event_base *DBOP_VAR_Main_eventBase = event_base_new();
@@ -2768,20 +3494,27 @@ int main() {
     DBOP_FUN_InitializeConnPool(&DBOP_VAR_Main_cfg);
 
     // 路径路由
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/add_user", DBOP_FUN_ApiAddUser, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/get_service_passwd", DBOP_FUN_ApiGetServicePasswd, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/create_project", DBOP_FUN_ApiCreateProject, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/update_login_time", DBOP_FUN_ApiUpdateLoginTime, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/update_user_info", DBOP_FUN_ApiUpdateUserInfo, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/update_user_phone", DBOP_FUN_ApiUpdateUserPhone, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/update_user_weixinid", DBOP_FUN_ApiUpdateUserWeixinId, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/update_user_permission", DBOP_FUN_ApiUpdateUserPermission, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/update_user_passwd", DBOP_FUN_ApiUpdateUserPasswd, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/update_verification_record", DBOP_FUN_ApiUpdateVerificationRecord, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/update_projest_status", DBOP_FUN_ApiUpdateProjectStatus, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/update_projest_pathography", DBOP_FUN_ApiUpdateProjectPathography, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/update_project_volunteer", DBOP_FUN_ApiUpdateProjectVolunteer, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/make_donation", DBOP_FUN_ApiMakeDonation, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/user/add", DBOP_FUN_ApiAddUser, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/auth/get_service_passwd", DBOP_FUN_ApiGetServicePasswd, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/project/create", DBOP_FUN_ApiCreateProject, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/user/update_login_time", DBOP_FUN_ApiUpdateLoginTime, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/user/update_info", DBOP_FUN_ApiUpdateUserInfo, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/user/update_phone", DBOP_FUN_ApiUpdateUserPhone, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/user/update_weixin", DBOP_FUN_ApiUpdateUserWeixinId, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/user/update_permission", DBOP_FUN_ApiUpdateUserPermission, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/user/update_password", DBOP_FUN_ApiUpdateUserPasswd, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/project/update_verification_record", DBOP_FUN_ApiUpdateVerificationRecord, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/project/update_status", DBOP_FUN_ApiUpdateProjectStatus, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/project/update_pathography", DBOP_FUN_ApiUpdateProjectPathography, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/project/update_volunteer", DBOP_FUN_ApiUpdateProjectVolunteer, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/create_donation", DBOP_FUN_ApiMakeDonation, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/mark_payment_failed", DBOP_FUN_ApiMarkPaymentFailed, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/mark_payment_processing", DBOP_FUN_ApiMarkPaymentProcessing, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/mark_payment_process_failed", DBOP_FUN_ApiMarkPaymentProcessFailed, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/mark_payment_refunding", DBOP_FUN_ApiMarkPaymentRefunding, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/mark_payment_refund_failed", DBOP_FUN_ApiMarkPaymentRefundFailed, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/mark_payment_refund_completed", DBOP_FUN_ApiMarkPaymentRefundCompleted, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/mark_payment_completed", DBOP_FUN_ApiMarkPaymentCompleted, &DBOP_VAR_Main_cfg);
 
     // 绑定到 0.0.0.0:DBOP_GLV_serverPort
     if (evhttp_bind_socket(DBOP_VAR_Main_httpServer, "0.0.0.0", atoi(DBOP_VAR_Main_cfg.DBOP_GLV_serverPort)) != 0) {

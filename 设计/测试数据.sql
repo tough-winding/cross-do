@@ -162,6 +162,29 @@ SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 
 
 --
+-- Table structure for table `ledger_investigations`
+--
+
+DROP TABLE IF EXISTS `ledger_investigations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ledger_investigations` (
+  `investigation_id` CHAR(36)  NOT NULL,            -- 主键：流水问题人工介入调查唯一ID
+  `ledger_id` CHAR(36)  DEFAULT NULL,               -- 资金流水唯一ID
+  `user_id` CHAR(36)  DEFAULT NULL,                 -- 介入发起用户UUID
+  `user_note` text  DEFAULT NULL,                   -- 用户反馈问题记录
+  `current_operation` char(36) DEFAULT NULL,        -- 当前负责运维ID
+  `conclusion_note` text DEFAULT NULL,              -- 当前事件结论
+  PRIMARY KEY (`investigation_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ledger_investigations`
+--
+
+
+--
 -- Table structure for table `donation_ledger`
 --
 
@@ -182,7 +205,8 @@ CREATE TABLE `donation_ledger` (
   `payment_method` TINYINT   DEFAULT NULL,          -- 支付方式（0：支付宝 1：微信 2：银行卡）
   `method_id` CHAR(36)  DEFAULT NULL,               -- 支付平台返回的ID，如微信单号
   `transaction_type` TINYINT   NOT NULL,            -- 类型（0：捐赠 1：退款待选择 2：退款 3：转应急池 4：患者使用 5：应急使用 6：平台使用）
-  `status` TINYINT   DEFAULT 1,                     -- 状态（0：成功 1：等待支付 2：支付失败 3：处理中 4：处理失败 5：退款中 6：退款失败 7：退款完成 8：人工介入 9：人工介入完成）
+  `status` TINYINT   DEFAULT 1,                     -- 状态（0：成功 1：等待支付 2：支付失败 3：处理中 4：处理失败 5：退款中 6：退款失败 7：退款完成 8：发款中 9：发款失败 10：发起人工介入 11：人工介入中 12：人工介入完成）
+  `investigation_id` CHAR(36)  DEFAULT NULL,        -- 人工介入调查ID
   PRIMARY KEY (`ledger_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
