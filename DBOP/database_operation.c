@@ -59,33 +59,53 @@
                 curl -X POST "http://服务ip:服务端口/ledger/create_donation" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID", "project_id":"项目ID", "user_id":"捐赠者ID", "sufferer_user_id":"项目受助者ID", "donor_user_name":"捐赠者用户名", "sufferer_real_name":"患者真实姓名", "sufferer_user_name":"患者用户名", "amount":"捐赠金额", "note":"备注", "payment_method":"捐款渠道", "method_id":"渠道账单ID"}'
                 curl -X POST "http://192.168.1.10:1900/ledger/create_donation" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df", "project_id":"a7c16b7d-bc2e-4e2e-8617-527cfb23d29f", "user_id":"4a93cd46-f109-4a89-9256-2dc2b3cc4dc4", "sufferer_user_id":"d17d43db-121a-4b9e-97d6-80a3b00ae062", "donor_user_name":"张三心", "sufferer_real_name":"李四", "sufferer_user_name":"木子四", "amount":"100", "note":"望康复", "payment_method":0, "method_id":"2024060122001400221404567890"}'
     200RETURN： 什么都不返回
-    REQUEST: 将捐赠性质的记录转为支付失败
-                curl -X POST "http://服务ip:服务端口/ledger/mark_payment_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
-                curl -X POST "http://192.168.1.10:1900/ledger/mark_payment_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df"}'
+    REQUEST: 将捐赠类型的账单状态转为支付失败
+                curl -X POST "http://服务ip:服务端口/ledger/set_status_payment_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/set_status_payment_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df"}'
     200RETURN：什么都不返回
-    REQUEST: 将捐赠性质的记录转为处理中
-                curl -X POST "http://服务ip:服务端口/ledger/mark_payment_processing" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
-                curl -X POST "http://192.168.1.10:1900/ledger/mark_payment_processing" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df"}'
+    REQUEST: 将捐赠类型的账单状态转为处理中
+                curl -X POST "http://服务ip:服务端口/ledger/set_status_payment_processing" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/set_status_payment_processing" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df"}'
     200RETURN：什么都不返回
-    REQUEST: 将捐赠性质的记录转为处理失败
-                curl -X POST "http://服务ip:服务端口/ledger/mark_payment_process_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
-                curl -X POST "http://192.168.1.10:1900/ledger/mark_payment_process_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df"}'
+    REQUEST: 将捐赠类型的账单状态转为处理失败
+                curl -X POST "http://服务ip:服务端口/ledger/set_status_payment_process_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/set_status_payment_process_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df"}'
     200RETURN：什么都不返回
-    REQUEST: 将捐赠性质的记录转为退款中
-                curl -X POST "http://服务ip:服务端口/ledger/mark_payment_refunding" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
-                curl -X POST "http://192.168.1.10:1900/ledger/mark_payment_refunding" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df"}'
+    REQUEST: 将捐赠类型的账单状态转为退款中
+                curl -X POST "http://服务ip:服务端口/ledger/set_status_payment_refunding" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/set_status_payment_refunding" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df"}'
     200RETURN：什么都不返回
-    REQUEST: 将捐赠性质的记录转为退款失败
-                curl -X POST "http://服务ip:服务端口/ledger/mark_payment_refund_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
-                curl -X POST "http://192.168.1.10:1900/ledger/mark_payment_refund_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df"}'
+    REQUEST: 将捐赠类型的账单状态转为退款失败
+                curl -X POST "http://服务ip:服务端口/ledger/set_status_payment_refund_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/set_status_payment_refund_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df"}'
     200RETURN：什么都不返回
-    REQUEST: 将捐赠性质的记录转为退款完成
-                curl -X POST "http://服务ip:服务端口/ledger/mark_payment_refund_completed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
-                curl -X POST "http://192.168.1.10:1900/ledger/mark_payment_refund_completed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df"}'
+    REQUEST: 将捐赠类型的账单状态转为退款完成
+                curl -X POST "http://服务ip:服务端口/ledger/set_status_payment_refund_completed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/set_status_payment_refund_completed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df"}'
     200RETURN：什么都不返回
-    REQUEST: 将捐赠性质的记录转为完成
-                curl -X POST "http://服务ip:服务端口/ledger/mark_payment_completed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
-                curl -X POST "http://192.168.1.10:1900/ledger/mark_payment_completed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df"}'
+    REQUEST: 将捐赠类型的账单状态转为完成
+                curl -X POST "http://服务ip:服务端口/ledger/set_status_payment_completed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/set_status_payment_completed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"eaf8ef43-b186-4e68-83bb-cdf0a3c490df"}'
+    200RETURN：什么都不返回
+    REQUEST: 新增退款待选择记录
+                curl -X POST "http://服务ip:服务端口/ledger/create_refund_pending_selection" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID", "project_id":"项目ID", "user_id":"系统用户ID", "sufferer_user_id":"项目受助者ID", "donor_user_name":"捐赠者用户名", "sufferer_real_name":"患者真实姓名", "sufferer_user_name":"患者用户名", "amount":"退款金额", "target_user_id":"退款目标用户ID", "note":"备注"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/create_refund_pending_selection" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"5206f237-f070-48a9-8f4d-9eb15e31c21b", "project_id":"a7c16b7d-bc2e-4e2e-8617-527cfb23d29f", "user_id":"4647baa3-8af6-4dca-90c1-30e5ddbca112", "sufferer_user_id":"d17d43db-121a-4b9e-97d6-80a3b00ae062", "donor_user_name":"张三心", "sufferer_real_name":"李四", "sufferer_user_name":"木子四", "amount":"-100", "target_user_id":"4a93cd46-f109-4a89-9256-2dc2b3cc4dc4", "note":"项目已结束，剩余项目款项300元，按捐款比例退还您100元，请选择退款方式或转入应急资金池。"}'
+    200RETURN：什么都不返回
+    REQUEST: 将退款待选择类型的记录性质转为退款类型
+                curl -X POST "http://服务ip:服务端口/ledger/set_type_refund" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/set_type_refund" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"5206f237-f070-48a9-8f4d-9eb15e31c21b"}'
+    200RETURN：什么都不返回
+    REQUEST: 将退款类型的账单状态转为退款失败
+                curl -X POST "http://服务ip:服务端口/ledger/set_status_refund_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/set_status_refund_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"5206f237-f070-48a9-8f4d-9eb15e31c21b"}'
+    200RETURN：什么都不返回
+    REQUEST: 将退款类型的账单状态转为退款完成
+                curl -X POST "http://服务ip:服务端口/ledger/set_status_refund_completed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/set_status_refund_completed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"5206f237-f070-48a9-8f4d-9eb15e31c21b"}'
+    200RETURN：什么都不返回
+    REQUEST: 将退款待选择类型的记录性质转为转应急池类型
+                curl -X POST "http://服务ip:服务端口/ledger/set_type_emergency_pool" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/set_type_emergency_pool" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"5206f237-f070-48a9-8f4d-9eb15e31c21b"}'
     200RETURN：什么都不返回
 */
 /*
@@ -164,13 +184,18 @@ typedef struct {
     MYSQL_STMT *stmt_update_project_volunteer;
     MYSQL_STMT *stmt_get_project_volunteer_info;
     MYSQL_STMT *stmt_make_donation;
-    MYSQL_STMT *stmt_mark_payment_failed;
-    MYSQL_STMT *stmt_mark_payment_processing;
-    MYSQL_STMT *stmt_mark_payment_process_failed;
-    MYSQL_STMT *stmt_mark_payment_refunding;
-    MYSQL_STMT *stmt_mark_payment_refund_failed;
-    MYSQL_STMT *stmt_mark_payment_refund_completed;
-    MYSQL_STMT *stmt_mark_payment_completed;
+    MYSQL_STMT *stmt_set_status_payment_failed;
+    MYSQL_STMT *stmt_set_status_payment_processing;
+    MYSQL_STMT *stmt_set_status_payment_process_failed;
+    MYSQL_STMT *stmt_set_status_payment_refunding;
+    MYSQL_STMT *stmt_set_status_payment_refund_failed;
+    MYSQL_STMT *stmt_set_status_payment_refund_completed;
+    MYSQL_STMT *stmt_set_status_payment_completed;
+    MYSQL_STMT *stmt_create_refund_pending_selection;
+    MYSQL_STMT *stmt_set_type_refund;
+    MYSQL_STMT *stmt_set_status_refund_failed;
+    MYSQL_STMT *stmt_set_status_refund_completed;
+    MYSQL_STMT *stmt_set_type_emergency_pool;
 } DB_CONNECTION;
 
 // 初始化dzlog
@@ -635,58 +660,98 @@ void DBOP_FUN_InitializeMySQLConnection(DB_CONNECTION *DBOP_VAR_InitializeMySQLC
         dzlog_error("Failed to prepare make donation statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_make_donation));
         exit(EXIT_FAILURE);
     }
-    DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_failed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
-    const char *mark_payment_failed_sql = "UPDATE donation_ledger SET status = 2 WHERE ledger_id = ? AND transaction_type = 0;";
-    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_failed, mark_payment_failed_sql, strlen(mark_payment_failed_sql))) {
-        dzlog_error("Failed to prepare mark payment failed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_failed));
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_failed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *set_status_payment_failed_sql = "UPDATE donation_ledger SET status = 2 WHERE ledger_id = ? AND transaction_type = 0;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_failed, set_status_payment_failed_sql, strlen(set_status_payment_failed_sql))) {
+        dzlog_error("Failed to prepare mark payment failed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_failed));
         exit(EXIT_FAILURE);
     }
 
     // 初始化标记处理中预处理语句
-    DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_processing = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
-    const char *mark_payment_processing_sql = "UPDATE donation_ledger SET status = 3 WHERE ledger_id = ? AND transaction_type = 0;";
-    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_processing, mark_payment_processing_sql, strlen(mark_payment_processing_sql))) {
-        dzlog_error("Failed to prepare mark payment processing statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_processing));
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_processing = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *set_status_payment_processing_sql = "UPDATE donation_ledger SET status = 3 WHERE ledger_id = ? AND transaction_type = 0;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_processing, set_status_payment_processing_sql, strlen(set_status_payment_processing_sql))) {
+        dzlog_error("Failed to prepare mark payment processing statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_processing));
         exit(EXIT_FAILURE);
     }
 
     // 初始化标记处理失败预处理语句
-    DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_process_failed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
-    const char *mark_payment_process_failed_sql = "UPDATE donation_ledger SET status = 4 WHERE ledger_id = ? AND transaction_type = 0;";
-    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_process_failed, mark_payment_process_failed_sql, strlen(mark_payment_process_failed_sql))) {
-        dzlog_error("Failed to prepare mark payment process failed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_process_failed));
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_process_failed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *set_status_payment_process_failed_sql = "UPDATE donation_ledger SET status = 4 WHERE ledger_id = ? AND transaction_type = 0;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_process_failed, set_status_payment_process_failed_sql, strlen(set_status_payment_process_failed_sql))) {
+        dzlog_error("Failed to prepare mark payment process failed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_process_failed));
         exit(EXIT_FAILURE);
     }
 
     // 初始化标记退款中预处理语句
-    DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_refunding = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
-    const char *mark_payment_refunding_sql = "UPDATE donation_ledger SET status = 5 WHERE ledger_id = ? AND transaction_type = 0;";
-    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_refunding, mark_payment_refunding_sql, strlen(mark_payment_refunding_sql))) {
-        dzlog_error("Failed to prepare mark payment refunding statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_refunding));
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_refunding = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *set_status_payment_refunding_sql = "UPDATE donation_ledger SET status = 5 WHERE ledger_id = ? AND transaction_type = 0;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_refunding, set_status_payment_refunding_sql, strlen(set_status_payment_refunding_sql))) {
+        dzlog_error("Failed to prepare mark payment refunding statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_refunding));
         exit(EXIT_FAILURE);
     }
 
     // 初始化标记退款失败预处理语句
-    DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_refund_failed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
-    const char *mark_payment_refund_failed_sql = "UPDATE donation_ledger SET status = 6 WHERE ledger_id = ? AND transaction_type = 0;";
-    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_refund_failed, mark_payment_refund_failed_sql, strlen(mark_payment_refund_failed_sql))) {
-        dzlog_error("Failed to prepare mark payment refund failed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_refund_failed));
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_refund_failed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *set_status_payment_refund_failed_sql = "UPDATE donation_ledger SET status = 6 WHERE ledger_id = ? AND transaction_type = 0;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_refund_failed, set_status_payment_refund_failed_sql, strlen(set_status_payment_refund_failed_sql))) {
+        dzlog_error("Failed to prepare mark payment refund failed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_refund_failed));
         exit(EXIT_FAILURE);
     }
 
     // 初始化标记退款完成预处理语句
-    DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_refund_completed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
-    const char *mark_payment_refund_completed_sql = "UPDATE donation_ledger SET status = 7 WHERE ledger_id = ? AND transaction_type = 0;";
-    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_refund_completed, mark_payment_refund_completed_sql, strlen(mark_payment_refund_completed_sql))) {
-        dzlog_error("Failed to prepare mark payment refund completed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_refund_completed));
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_refund_completed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *set_status_payment_refund_completed_sql = "UPDATE donation_ledger SET status = 7 WHERE ledger_id = ? AND transaction_type = 0;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_refund_completed, set_status_payment_refund_completed_sql, strlen(set_status_payment_refund_completed_sql))) {
+        dzlog_error("Failed to prepare mark payment refund completed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_refund_completed));
         exit(EXIT_FAILURE);
     }
 
     // 初始化标记完成预处理语句
-    DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_completed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
-    const char *mark_payment_completed_sql = "UPDATE donation_ledger SET status = 0 WHERE ledger_id = ? AND transaction_type = 0;";
-    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_completed, mark_payment_completed_sql, strlen(mark_payment_completed_sql))) {
-        dzlog_error("Failed to prepare mark payment completed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_mark_payment_completed));
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_completed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *set_status_payment_completed_sql = "UPDATE donation_ledger SET status = 0 WHERE ledger_id = ? AND transaction_type = 0;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_completed, set_status_payment_completed_sql, strlen(set_status_payment_completed_sql))) {
+        dzlog_error("Failed to prepare mark payment completed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_completed));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化新增退款待选择记录预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_create_refund_pending_selection = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *create_refund_pending_selection_sql = "INSERT INTO donation_ledger (ledger_id, project_id, user_id, sufferer_user_id, donor_user_name, sufferer_real_name, sufferer_user_name, amount, transaction_time, note, target_user_id, transaction_type, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, 1, 1);";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_create_refund_pending_selection, create_refund_pending_selection_sql, strlen(create_refund_pending_selection_sql))) {
+        dzlog_error("Failed to prepare create refund pending selection statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_create_refund_pending_selection));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化标记退款待选择转为退款类型预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_type_refund = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *set_type_refund_sql = "UPDATE donation_ledger SET transaction_type = 2 WHERE ledger_id = ? AND transaction_type = 1;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_type_refund, set_type_refund_sql, strlen(set_type_refund_sql))) {
+        dzlog_error("Failed to prepare mark refund selected statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_type_refund));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化标记退款失败预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_refund_failed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *set_status_refund_failed_sql = "UPDATE donation_ledger SET status = 6 WHERE ledger_id = ? AND transaction_type = 2;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_refund_failed, set_status_refund_failed_sql, strlen(set_status_refund_failed_sql))) {
+        dzlog_error("Failed to prepare mark refund failed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_refund_failed));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化标记退款完成预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_refund_completed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *set_status_refund_completed_sql = "UPDATE donation_ledger SET status = 7 WHERE ledger_id = ? AND transaction_type = 2;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_refund_completed, set_status_refund_completed_sql, strlen(set_status_refund_completed_sql))) {
+        dzlog_error("Failed to prepare mark refund completed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_refund_completed));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化标记退款待选择转为转应急池类型预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_type_emergency_pool = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *set_type_emergency_pool_sql = "UPDATE donation_ledger SET transaction_type = 3 WHERE ledger_id = ? AND transaction_type = 1;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_type_emergency_pool, set_type_emergency_pool_sql, strlen(set_type_emergency_pool_sql))) {
+        dzlog_error("Failed to prepare mark emergency pool statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_type_emergency_pool));
         exit(EXIT_FAILURE);
     }
 }
@@ -784,26 +849,41 @@ void DBOP_FUN_DestroyConnPool() {
         if (DBOP_GLV_mysqlConnectPool[i]->stmt_make_donation != NULL) {
             mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_make_donation);
         }
-        if (DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_failed != NULL) {
-            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_failed);
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_payment_failed != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_payment_failed);
         }
-        if (DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_processing != NULL) {
-            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_processing);
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_payment_processing != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_payment_processing);
         }
-        if (DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_process_failed != NULL) {
-            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_process_failed);
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_payment_process_failed != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_payment_process_failed);
         }
-        if (DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_refunding != NULL) {
-            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_refunding);
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_payment_refunding != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_payment_refunding);
         }
-        if (DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_refund_failed != NULL) {
-            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_refund_failed);
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_payment_refund_failed != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_payment_refund_failed);
         }
-        if (DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_refund_completed != NULL) {
-            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_refund_completed);
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_payment_refund_completed != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_payment_refund_completed);
         }
-        if (DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_completed != NULL) {
-            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_mark_payment_completed);
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_payment_completed != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_payment_completed);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_create_refund_pending_selection != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_create_refund_pending_selection);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_set_type_refund != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_set_type_refund);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_refund_failed != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_refund_failed);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_refund_completed != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_refund_completed);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_set_type_emergency_pool != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_set_type_emergency_pool);
         }
         if (DBOP_GLV_mysqlConnectPool[i]->mysql != NULL) {
             mysql_close(DBOP_GLV_mysqlConnectPool[i]->mysql);
@@ -872,26 +952,41 @@ void DBOP_FUN_ReinitializeConnPool(AppConfig *DBOP_VAR_ReinitializeConnPool_cfg,
     if (DBOP_VAR_ReinitializeConnPool_connect->stmt_make_donation != NULL) {
         mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_make_donation);
     }
-    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_failed != NULL) {
-        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_failed);
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_payment_failed != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_payment_failed);
     }
-    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_processing != NULL) {
-        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_processing);
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_payment_processing != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_payment_processing);
     }
-    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_process_failed != NULL) {
-        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_process_failed);
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_payment_process_failed != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_payment_process_failed);
     }
-    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_refunding != NULL) {
-        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_refunding);
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_payment_refunding != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_payment_refunding);
     }
-    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_refund_failed != NULL) {
-        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_refund_failed);
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_payment_refund_failed != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_payment_refund_failed);
     }
-    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_refund_completed != NULL) {
-        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_refund_completed);
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_payment_refund_completed != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_payment_refund_completed);
     }
-    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_completed != NULL) {
-        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_mark_payment_completed);
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_payment_completed != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_payment_completed);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_create_refund_pending_selection != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_create_refund_pending_selection);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_set_type_refund != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_set_type_refund);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_refund_failed != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_refund_failed);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_refund_completed != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_refund_completed);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_set_type_emergency_pool != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_set_type_emergency_pool);
     }
     if (DBOP_VAR_ReinitializeConnPool_connect->mysql != NULL) {
         mysql_close(DBOP_VAR_ReinitializeConnPool_connect->mysql);
@@ -2884,17 +2979,17 @@ int DBOP_FUN_ExecuteMarkPaymentFailed(DB_CONNECTION *DBOP_VAR_ExecuteMarkPayment
     DBOP_VAR_ExecuteMarkPaymentFailed_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteMarkPaymentFailed_noConstLedgerId;
     DBOP_VAR_ExecuteMarkPaymentFailed_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteMarkPaymentFailed_noConstLedgerId);
 
-    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkPaymentFailed_connect->stmt_mark_payment_failed, DBOP_VAR_ExecuteMarkPaymentFailed_bindParams)) {
-        dzlog_error("[req: %s] Failed to bind mark payment failed param: %s", DBOP_VAR_ExecuteMarkPaymentFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentFailed_connect->stmt_mark_payment_failed));
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkPaymentFailed_connect->stmt_set_status_payment_failed, DBOP_VAR_ExecuteMarkPaymentFailed_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind mark payment failed param: %s", DBOP_VAR_ExecuteMarkPaymentFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentFailed_connect->stmt_set_status_payment_failed));
         return -1;
     }
 
-    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkPaymentFailed_connect->stmt_mark_payment_failed)) {
-        dzlog_error("[req: %s] Failed to execute mark payment failed statement: %s", DBOP_VAR_ExecuteMarkPaymentFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentFailed_connect->stmt_mark_payment_failed));
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkPaymentFailed_connect->stmt_set_status_payment_failed)) {
+        dzlog_error("[req: %s] Failed to execute mark payment failed statement: %s", DBOP_VAR_ExecuteMarkPaymentFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentFailed_connect->stmt_set_status_payment_failed));
         return -1;
     }
 
-    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkPaymentFailed_connect->stmt_mark_payment_failed);
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkPaymentFailed_connect->stmt_set_status_payment_failed);
     if (affected_rows == 0) {
         dzlog_warn("[req: %s] No donation record found with ledger_id: %s or transaction_type is not donation", DBOP_VAR_ExecuteMarkPaymentFailed_requestId, DBOP_VAR_ExecuteMarkPaymentFailed_ledgerId);
         return 1; // 表示记录不存在或不是捐赠类型
@@ -2969,17 +3064,17 @@ int DBOP_FUN_ExecuteMarkPaymentProcessing(DB_CONNECTION *DBOP_VAR_ExecuteMarkPay
     DBOP_VAR_ExecuteMarkPaymentProcessing_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteMarkPaymentProcessing_noConstLedgerId;
     DBOP_VAR_ExecuteMarkPaymentProcessing_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteMarkPaymentProcessing_noConstLedgerId);
 
-    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkPaymentProcessing_connect->stmt_mark_payment_processing, DBOP_VAR_ExecuteMarkPaymentProcessing_bindParams)) {
-        dzlog_error("[req: %s] Failed to bind mark payment processing param: %s", DBOP_VAR_ExecuteMarkPaymentProcessing_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentProcessing_connect->stmt_mark_payment_processing));
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkPaymentProcessing_connect->stmt_set_status_payment_processing, DBOP_VAR_ExecuteMarkPaymentProcessing_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind mark payment processing param: %s", DBOP_VAR_ExecuteMarkPaymentProcessing_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentProcessing_connect->stmt_set_status_payment_processing));
         return -1;
     }
 
-    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkPaymentProcessing_connect->stmt_mark_payment_processing)) {
-        dzlog_error("[req: %s] Failed to execute mark payment processing statement: %s", DBOP_VAR_ExecuteMarkPaymentProcessing_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentProcessing_connect->stmt_mark_payment_processing));
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkPaymentProcessing_connect->stmt_set_status_payment_processing)) {
+        dzlog_error("[req: %s] Failed to execute mark payment processing statement: %s", DBOP_VAR_ExecuteMarkPaymentProcessing_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentProcessing_connect->stmt_set_status_payment_processing));
         return -1;
     }
 
-    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkPaymentProcessing_connect->stmt_mark_payment_processing);
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkPaymentProcessing_connect->stmt_set_status_payment_processing);
     if (affected_rows == 0) {
         dzlog_warn("[req: %s] No donation record found with ledger_id: %s or transaction_type is not donation", DBOP_VAR_ExecuteMarkPaymentProcessing_requestId, DBOP_VAR_ExecuteMarkPaymentProcessing_ledgerId);
         return 1; // 表示记录不存在或不是捐赠类型
@@ -3054,17 +3149,17 @@ int DBOP_FUN_ExecuteMarkPaymentProcessFailed(DB_CONNECTION *DBOP_VAR_ExecuteMark
     DBOP_VAR_ExecuteMarkPaymentProcessFailed_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteMarkPaymentProcessFailed_noConstLedgerId;
     DBOP_VAR_ExecuteMarkPaymentProcessFailed_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteMarkPaymentProcessFailed_noConstLedgerId);
 
-    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkPaymentProcessFailed_connect->stmt_mark_payment_process_failed, DBOP_VAR_ExecuteMarkPaymentProcessFailed_bindParams)) {
-        dzlog_error("[req: %s] Failed to bind mark payment process failed param: %s", DBOP_VAR_ExecuteMarkPaymentProcessFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentProcessFailed_connect->stmt_mark_payment_process_failed));
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkPaymentProcessFailed_connect->stmt_set_status_payment_process_failed, DBOP_VAR_ExecuteMarkPaymentProcessFailed_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind mark payment process failed param: %s", DBOP_VAR_ExecuteMarkPaymentProcessFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentProcessFailed_connect->stmt_set_status_payment_process_failed));
         return -1;
     }
 
-    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkPaymentProcessFailed_connect->stmt_mark_payment_process_failed)) {
-        dzlog_error("[req: %s] Failed to execute mark payment process failed statement: %s", DBOP_VAR_ExecuteMarkPaymentProcessFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentProcessFailed_connect->stmt_mark_payment_process_failed));
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkPaymentProcessFailed_connect->stmt_set_status_payment_process_failed)) {
+        dzlog_error("[req: %s] Failed to execute mark payment process failed statement: %s", DBOP_VAR_ExecuteMarkPaymentProcessFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentProcessFailed_connect->stmt_set_status_payment_process_failed));
         return -1;
     }
 
-    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkPaymentProcessFailed_connect->stmt_mark_payment_process_failed);
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkPaymentProcessFailed_connect->stmt_set_status_payment_process_failed);
     if (affected_rows == 0) {
         dzlog_warn("[req: %s] No donation record found with ledger_id: %s or transaction_type is not donation", DBOP_VAR_ExecuteMarkPaymentProcessFailed_requestId, DBOP_VAR_ExecuteMarkPaymentProcessFailed_ledgerId);
         return 1; // 表示记录不存在或不是捐赠类型
@@ -3139,17 +3234,17 @@ int DBOP_FUN_ExecuteMarkPaymentRefunding(DB_CONNECTION *DBOP_VAR_ExecuteMarkPaym
     DBOP_VAR_ExecuteMarkPaymentRefunding_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteMarkPaymentRefunding_noConstLedgerId;
     DBOP_VAR_ExecuteMarkPaymentRefunding_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteMarkPaymentRefunding_noConstLedgerId);
 
-    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkPaymentRefunding_connect->stmt_mark_payment_refunding, DBOP_VAR_ExecuteMarkPaymentRefunding_bindParams)) {
-        dzlog_error("[req: %s] Failed to bind mark payment refunding param: %s", DBOP_VAR_ExecuteMarkPaymentRefunding_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentRefunding_connect->stmt_mark_payment_refunding));
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkPaymentRefunding_connect->stmt_set_status_payment_refunding, DBOP_VAR_ExecuteMarkPaymentRefunding_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind mark payment refunding param: %s", DBOP_VAR_ExecuteMarkPaymentRefunding_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentRefunding_connect->stmt_set_status_payment_refunding));
         return -1;
     }
 
-    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkPaymentRefunding_connect->stmt_mark_payment_refunding)) {
-        dzlog_error("[req: %s] Failed to execute mark payment refunding statement: %s", DBOP_VAR_ExecuteMarkPaymentRefunding_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentRefunding_connect->stmt_mark_payment_refunding));
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkPaymentRefunding_connect->stmt_set_status_payment_refunding)) {
+        dzlog_error("[req: %s] Failed to execute mark payment refunding statement: %s", DBOP_VAR_ExecuteMarkPaymentRefunding_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentRefunding_connect->stmt_set_status_payment_refunding));
         return -1;
     }
 
-    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkPaymentRefunding_connect->stmt_mark_payment_refunding);
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkPaymentRefunding_connect->stmt_set_status_payment_refunding);
     if (affected_rows == 0) {
         dzlog_warn("[req: %s] No donation record found with ledger_id: %s or transaction_type is not donation", DBOP_VAR_ExecuteMarkPaymentRefunding_requestId, DBOP_VAR_ExecuteMarkPaymentRefunding_ledgerId);
         return 1; // 表示记录不存在或不是捐赠类型
@@ -3224,17 +3319,17 @@ int DBOP_FUN_ExecuteMarkPaymentRefundFailed(DB_CONNECTION *DBOP_VAR_ExecuteMarkP
     DBOP_VAR_ExecuteMarkPaymentRefundFailed_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteMarkPaymentRefundFailed_noConstLedgerId;
     DBOP_VAR_ExecuteMarkPaymentRefundFailed_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteMarkPaymentRefundFailed_noConstLedgerId);
 
-    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkPaymentRefundFailed_connect->stmt_mark_payment_refund_failed, DBOP_VAR_ExecuteMarkPaymentRefundFailed_bindParams)) {
-        dzlog_error("[req: %s] Failed to bind mark payment refund failed param: %s", DBOP_VAR_ExecuteMarkPaymentRefundFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentRefundFailed_connect->stmt_mark_payment_refund_failed));
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkPaymentRefundFailed_connect->stmt_set_status_payment_refund_failed, DBOP_VAR_ExecuteMarkPaymentRefundFailed_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind mark payment refund failed param: %s", DBOP_VAR_ExecuteMarkPaymentRefundFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentRefundFailed_connect->stmt_set_status_payment_refund_failed));
         return -1;
     }
 
-    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkPaymentRefundFailed_connect->stmt_mark_payment_refund_failed)) {
-        dzlog_error("[req: %s] Failed to execute mark payment refund failed statement: %s", DBOP_VAR_ExecuteMarkPaymentRefundFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentRefundFailed_connect->stmt_mark_payment_refund_failed));
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkPaymentRefundFailed_connect->stmt_set_status_payment_refund_failed)) {
+        dzlog_error("[req: %s] Failed to execute mark payment refund failed statement: %s", DBOP_VAR_ExecuteMarkPaymentRefundFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentRefundFailed_connect->stmt_set_status_payment_refund_failed));
         return -1;
     }
 
-    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkPaymentRefundFailed_connect->stmt_mark_payment_refund_failed);
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkPaymentRefundFailed_connect->stmt_set_status_payment_refund_failed);
     if (affected_rows == 0) {
         dzlog_warn("[req: %s] No donation record found with ledger_id: %s or transaction_type is not donation", DBOP_VAR_ExecuteMarkPaymentRefundFailed_requestId, DBOP_VAR_ExecuteMarkPaymentRefundFailed_ledgerId);
         return 1; // 表示记录不存在或不是捐赠类型
@@ -3309,17 +3404,17 @@ int DBOP_FUN_ExecuteMarkPaymentRefundCompleted(DB_CONNECTION *DBOP_VAR_ExecuteMa
     DBOP_VAR_ExecuteMarkPaymentRefundCompleted_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteMarkPaymentRefundCompleted_noConstLedgerId;
     DBOP_VAR_ExecuteMarkPaymentRefundCompleted_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteMarkPaymentRefundCompleted_noConstLedgerId);
 
-    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkPaymentRefundCompleted_connect->stmt_mark_payment_refund_completed, DBOP_VAR_ExecuteMarkPaymentRefundCompleted_bindParams)) {
-        dzlog_error("[req: %s] Failed to bind mark payment refund completed param: %s", DBOP_VAR_ExecuteMarkPaymentRefundCompleted_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentRefundCompleted_connect->stmt_mark_payment_refund_completed));
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkPaymentRefundCompleted_connect->stmt_set_status_payment_refund_completed, DBOP_VAR_ExecuteMarkPaymentRefundCompleted_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind mark payment refund completed param: %s", DBOP_VAR_ExecuteMarkPaymentRefundCompleted_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentRefundCompleted_connect->stmt_set_status_payment_refund_completed));
         return -1;
     }
 
-    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkPaymentRefundCompleted_connect->stmt_mark_payment_refund_completed)) {
-        dzlog_error("[req: %s] Failed to execute mark payment refund completed statement: %s", DBOP_VAR_ExecuteMarkPaymentRefundCompleted_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentRefundCompleted_connect->stmt_mark_payment_refund_completed));
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkPaymentRefundCompleted_connect->stmt_set_status_payment_refund_completed)) {
+        dzlog_error("[req: %s] Failed to execute mark payment refund completed statement: %s", DBOP_VAR_ExecuteMarkPaymentRefundCompleted_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentRefundCompleted_connect->stmt_set_status_payment_refund_completed));
         return -1;
     }
 
-    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkPaymentRefundCompleted_connect->stmt_mark_payment_refund_completed);
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkPaymentRefundCompleted_connect->stmt_set_status_payment_refund_completed);
     if (affected_rows == 0) {
         dzlog_warn("[req: %s] No donation record found with ledger_id: %s or transaction_type is not donation", DBOP_VAR_ExecuteMarkPaymentRefundCompleted_requestId, DBOP_VAR_ExecuteMarkPaymentRefundCompleted_ledgerId);
         return 1; // 表示记录不存在或不是捐赠类型
@@ -3394,17 +3489,17 @@ int DBOP_FUN_ExecuteMarkPaymentCompleted(DB_CONNECTION *DBOP_VAR_ExecuteMarkPaym
     DBOP_VAR_ExecuteMarkPaymentCompleted_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteMarkPaymentCompleted_noConstLedgerId;
     DBOP_VAR_ExecuteMarkPaymentCompleted_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteMarkPaymentCompleted_noConstLedgerId);
 
-    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkPaymentCompleted_connect->stmt_mark_payment_completed, DBOP_VAR_ExecuteMarkPaymentCompleted_bindParams)) {
-        dzlog_error("[req: %s] Failed to bind mark payment completed param: %s", DBOP_VAR_ExecuteMarkPaymentCompleted_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentCompleted_connect->stmt_mark_payment_completed));
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkPaymentCompleted_connect->stmt_set_status_payment_completed, DBOP_VAR_ExecuteMarkPaymentCompleted_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind mark payment completed param: %s", DBOP_VAR_ExecuteMarkPaymentCompleted_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentCompleted_connect->stmt_set_status_payment_completed));
         return -1;
     }
 
-    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkPaymentCompleted_connect->stmt_mark_payment_completed)) {
-        dzlog_error("[req: %s] Failed to execute mark payment completed statement: %s", DBOP_VAR_ExecuteMarkPaymentCompleted_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentCompleted_connect->stmt_mark_payment_completed));
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkPaymentCompleted_connect->stmt_set_status_payment_completed)) {
+        dzlog_error("[req: %s] Failed to execute mark payment completed statement: %s", DBOP_VAR_ExecuteMarkPaymentCompleted_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkPaymentCompleted_connect->stmt_set_status_payment_completed));
         return -1;
     }
 
-    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkPaymentCompleted_connect->stmt_mark_payment_completed);
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkPaymentCompleted_connect->stmt_set_status_payment_completed);
     if (affected_rows == 0) {
         dzlog_warn("[req: %s] No donation record found with ledger_id: %s or transaction_type is not donation", DBOP_VAR_ExecuteMarkPaymentCompleted_requestId, DBOP_VAR_ExecuteMarkPaymentCompleted_ledgerId);
         return 1; // 表示记录不存在或不是捐赠类型
@@ -3460,6 +3555,556 @@ void DBOP_FUN_ApiMarkPaymentCompleted(struct evhttp_request *DBOP_VAR_ApiMarkPay
 // ------------------------mysql标记完成api逻辑结束----------------------------
 
 
+// ------------------------mysql新增退款待选择记录api逻辑开始----------------------------
+
+// 新增退款待选择记录的sql数据化输出
+int DBOP_FUN_ExecuteCreateRefundPendingSelection(DB_CONNECTION *DBOP_VAR_ExecuteCreateRefundPendingSelection_connect, const char *DBOP_VAR_ExecuteCreateRefundPendingSelection_ledgerId, const char *DBOP_VAR_ExecuteCreateRefundPendingSelection_projectId, const char *DBOP_VAR_ExecuteCreateRefundPendingSelection_userId, const char *DBOP_VAR_ExecuteCreateRefundPendingSelection_suffererUserId, const char *DBOP_VAR_ExecuteCreateRefundPendingSelection_donorUserName, const char *DBOP_VAR_ExecuteCreateRefundPendingSelection_suffererRealName, const char *DBOP_VAR_ExecuteCreateRefundPendingSelection_suffererUserName, int DBOP_VAR_ExecuteCreateRefundPendingSelection_amount, const char *DBOP_VAR_ExecuteCreateRefundPendingSelection_note, const char *DBOP_VAR_ExecuteCreateRefundPendingSelection_targetUserId, const char *DBOP_VAR_ExecuteCreateRefundPendingSelection_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteCreateRefundPendingSelection is starting", DBOP_VAR_ExecuteCreateRefundPendingSelection_requestId);
+
+    // 保护原始参数不被修改，复制参数
+    char DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstLedgerId[256];
+    char DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstProjectId[256];
+    char DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstUserId[256];
+    char DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstSuffererUserId[256];
+    char DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstDonorUserName[256];
+    char DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstSuffererRealName[256];
+    char DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstSuffererUserName[256];
+    char DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstNote[1024];
+    char DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstTargetUserId[256];
+
+    strncpy(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstLedgerId, DBOP_VAR_ExecuteCreateRefundPendingSelection_ledgerId, sizeof(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstLedgerId) - 1);
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstLedgerId[sizeof(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstLedgerId) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstProjectId, DBOP_VAR_ExecuteCreateRefundPendingSelection_projectId, sizeof(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstProjectId) - 1);
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstProjectId[sizeof(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstProjectId) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstUserId, DBOP_VAR_ExecuteCreateRefundPendingSelection_userId, sizeof(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstUserId) - 1);
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstUserId[sizeof(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstUserId) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstSuffererUserId, DBOP_VAR_ExecuteCreateRefundPendingSelection_suffererUserId, sizeof(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstSuffererUserId) - 1);
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstSuffererUserId[sizeof(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstSuffererUserId) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstDonorUserName, DBOP_VAR_ExecuteCreateRefundPendingSelection_donorUserName, sizeof(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstDonorUserName) - 1);
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstDonorUserName[sizeof(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstDonorUserName) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstSuffererRealName, DBOP_VAR_ExecuteCreateRefundPendingSelection_suffererRealName, sizeof(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstSuffererRealName) - 1);
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstSuffererRealName[sizeof(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstSuffererRealName) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstSuffererUserName, DBOP_VAR_ExecuteCreateRefundPendingSelection_suffererUserName, sizeof(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstSuffererUserName) - 1);
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstSuffererUserName[sizeof(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstSuffererUserName) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstNote, DBOP_VAR_ExecuteCreateRefundPendingSelection_note, sizeof(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstNote) - 1);
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstNote[sizeof(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstNote) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstTargetUserId, DBOP_VAR_ExecuteCreateRefundPendingSelection_targetUserId, sizeof(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstTargetUserId) - 1);
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstTargetUserId[sizeof(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstTargetUserId) - 1] = '\0';
+
+    MYSQL_BIND DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[10];
+    memset(DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams, 0, sizeof(DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams));
+
+    // 绑定参数
+    // ledger_id
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstLedgerId;
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstLedgerId);
+
+    // project_id
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[1].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[1].buffer = (char *)DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstProjectId;
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[1].buffer_length = strlen(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstProjectId);
+
+    // user_id
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[2].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[2].buffer = (char *)DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstUserId;
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[2].buffer_length = strlen(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstUserId);
+
+    // sufferer_user_id
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[3].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[3].buffer = (char *)DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstSuffererUserId;
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[3].buffer_length = strlen(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstSuffererUserId);
+
+    // donor_user_name
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[4].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[4].buffer = (char *)DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstDonorUserName;
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[4].buffer_length = strlen(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstDonorUserName);
+
+    // sufferer_real_name
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[5].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[5].buffer = (char *)DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstSuffererRealName;
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[5].buffer_length = strlen(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstSuffererRealName);
+
+    // sufferer_user_name
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[6].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[6].buffer = (char *)DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstSuffererUserName;
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[6].buffer_length = strlen(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstSuffererUserName);
+
+    // amount
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[7].buffer_type = MYSQL_TYPE_LONG;
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[7].buffer = (char *)&DBOP_VAR_ExecuteCreateRefundPendingSelection_amount;
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[7].is_null = 0;
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[7].length = 0;
+
+    // note
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[8].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[8].buffer = (char *)DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstNote;
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[8].buffer_length = strlen(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstNote);
+
+    // target_user_id
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[9].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[9].buffer = (char *)DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstTargetUserId;
+    DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams[9].buffer_length = strlen(DBOP_VAR_ExecuteCreateRefundPendingSelection_noConstTargetUserId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteCreateRefundPendingSelection_connect->stmt_create_refund_pending_selection, DBOP_VAR_ExecuteCreateRefundPendingSelection_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind create refund pending selection param: %s", DBOP_VAR_ExecuteCreateRefundPendingSelection_requestId, mysql_stmt_error(DBOP_VAR_ExecuteCreateRefundPendingSelection_connect->stmt_create_refund_pending_selection));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteCreateRefundPendingSelection_connect->stmt_create_refund_pending_selection)) {
+        dzlog_error("[req: %s] Failed to execute create refund pending selection statement: %s", DBOP_VAR_ExecuteCreateRefundPendingSelection_requestId, mysql_stmt_error(DBOP_VAR_ExecuteCreateRefundPendingSelection_connect->stmt_create_refund_pending_selection));
+        return -1;
+    }
+
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteCreateRefundPendingSelection_connect->stmt_create_refund_pending_selection);
+    if (affected_rows == 0) {
+        dzlog_warn("[req: %s] Failed to create refund pending selection record", DBOP_VAR_ExecuteCreateRefundPendingSelection_requestId);
+        return 1;
+    }
+
+    dzlog_info("[req: %s] Successfully created refund pending selection record with ledger_id: %s", DBOP_VAR_ExecuteCreateRefundPendingSelection_requestId, DBOP_VAR_ExecuteCreateRefundPendingSelection_ledgerId);
+    return 0;
+}
+
+// 新增退款待选择记录的API接口
+void DBOP_FUN_ApiCreateRefundPendingSelection(struct evhttp_request *DBOP_VAR_ApiCreateRefundPendingSelection_request, void *DBOP_VAR_ApiCreateRefundPendingSelection_voidCfg) {
+    AppConfig *DBOP_VAR_ApiCreateRefundPendingSelection_cfg = (AppConfig *)DBOP_VAR_ApiCreateRefundPendingSelection_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiCreateRefundPendingSelection_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiCreateRefundPendingSelection_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiCreateRefundPendingSelection.", DBOP_VAR_ApiCreateRefundPendingSelection_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiCreateRefundPendingSelection_request, DBOP_VAR_ApiCreateRefundPendingSelection_cfg, DBOP_VAR_ApiCreateRefundPendingSelection_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiCreateRefundPendingSelection_request, DBOP_VAR_ApiCreateRefundPendingSelection_requestId);
+    if (!DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonAll, "ledger_id");
+    json_t *DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonProjectId = json_object_get(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonAll, "project_id");
+    json_t *DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonUserId = json_object_get(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonAll, "user_id");
+    json_t *DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonSuffererUserId = json_object_get(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonAll, "sufferer_user_id");
+    json_t *DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonDonorUserName = json_object_get(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonAll, "donor_user_name");
+    json_t *DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonSuffererRealName = json_object_get(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonAll, "sufferer_real_name");
+    json_t *DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonSuffererUserName = json_object_get(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonAll, "sufferer_user_name");
+    json_t *DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonAmount = json_object_get(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonAll, "amount");
+    json_t *DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonNote = json_object_get(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonAll, "note");
+    json_t *DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonTargetUserId = json_object_get(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonAll, "target_user_id");
+
+    if (!json_is_string(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonLedgerId) ||
+        !json_is_string(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonProjectId) ||
+        !json_is_string(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonUserId) ||
+        !json_is_string(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonSuffererUserId) ||
+        !json_is_string(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonDonorUserName) ||
+        !json_is_string(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonSuffererRealName) ||
+        !json_is_string(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonSuffererUserName) ||
+        !json_is_string(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonAmount) ||
+        !json_is_string(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonNote) ||
+        !json_is_string(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonTargetUserId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string types for all fields", DBOP_VAR_ApiCreateRefundPendingSelection_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiCreateRefundPendingSelection_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiCreateRefundPendingSelection_ledgerId = json_string_value(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonLedgerId);
+    const char *DBOP_VAR_ApiCreateRefundPendingSelection_projectId = json_string_value(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonProjectId);
+    const char *DBOP_VAR_ApiCreateRefundPendingSelection_userId = json_string_value(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonUserId);
+    const char *DBOP_VAR_ApiCreateRefundPendingSelection_suffererUserId = json_string_value(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonSuffererUserId);
+    const char *DBOP_VAR_ApiCreateRefundPendingSelection_donorUserName = json_string_value(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonDonorUserName);
+    const char *DBOP_VAR_ApiCreateRefundPendingSelection_suffererRealName = json_string_value(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonSuffererRealName);
+    const char *DBOP_VAR_ApiCreateRefundPendingSelection_suffererUserName = json_string_value(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonSuffererUserName);
+    const char *DBOP_VAR_ApiCreateRefundPendingSelection_amountStr = json_string_value(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonAmount);
+    const char *DBOP_VAR_ApiCreateRefundPendingSelection_note = json_string_value(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonNote);
+    const char *DBOP_VAR_ApiCreateRefundPendingSelection_targetUserId = json_string_value(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonTargetUserId);
+
+    // 转换金额字符串为整数
+    int DBOP_VAR_ApiCreateRefundPendingSelection_amount = atoi(DBOP_VAR_ApiCreateRefundPendingSelection_amountStr);
+
+    dzlog_info("[req: %s] Executing database operation for ApiCreateRefundPendingSelection: ledgerId=%s, projectId=%s, amount=%d", 
+               DBOP_VAR_ApiCreateRefundPendingSelection_requestId, 
+               DBOP_VAR_ApiCreateRefundPendingSelection_ledgerId, 
+               DBOP_VAR_ApiCreateRefundPendingSelection_projectId, 
+               DBOP_VAR_ApiCreateRefundPendingSelection_amount);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiCreateRefundPendingSelection_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiCreateRefundPendingSelection_cfg);
+    int result = DBOP_FUN_ExecuteCreateRefundPendingSelection(DBOP_VAR_ApiCreateRefundPendingSelection_mysqlConnect, 
+                                                             DBOP_VAR_ApiCreateRefundPendingSelection_ledgerId, 
+                                                             DBOP_VAR_ApiCreateRefundPendingSelection_projectId, 
+                                                             DBOP_VAR_ApiCreateRefundPendingSelection_userId, 
+                                                             DBOP_VAR_ApiCreateRefundPendingSelection_suffererUserId, 
+                                                             DBOP_VAR_ApiCreateRefundPendingSelection_donorUserName, 
+                                                             DBOP_VAR_ApiCreateRefundPendingSelection_suffererRealName, 
+                                                             DBOP_VAR_ApiCreateRefundPendingSelection_suffererUserName, 
+                                                             DBOP_VAR_ApiCreateRefundPendingSelection_amount, 
+                                                             DBOP_VAR_ApiCreateRefundPendingSelection_note, 
+                                                             DBOP_VAR_ApiCreateRefundPendingSelection_targetUserId, 
+                                                             DBOP_VAR_ApiCreateRefundPendingSelection_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiCreateRefundPendingSelection_request, result, DBOP_VAR_ApiCreateRefundPendingSelection_requestId, "create refund pending selection");
+
+    json_decref(DBOP_VAR_ApiCreateRefundPendingSelection_dataJsonAll);
+}
+
+// ------------------------mysql新增退款待选择记录api逻辑结束----------------------------
+
+
+// ------------------------mysql标记退款待选择转为退款类型api逻辑开始----------------------------
+
+// 标记退款待选择转为退款类型的sql数据化输出
+int DBOP_FUN_ExecuteMarkRefundSelected(DB_CONNECTION *DBOP_VAR_ExecuteMarkRefundSelected_connect, const char *DBOP_VAR_ExecuteMarkRefundSelected_ledgerId, const char *DBOP_VAR_ExecuteMarkRefundSelected_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteMarkRefundSelected is starting", DBOP_VAR_ExecuteMarkRefundSelected_requestId);
+
+    // 保护原始参数不被修改，复制参数
+    char DBOP_VAR_ExecuteMarkRefundSelected_noConstLedgerId[256];
+    strncpy(DBOP_VAR_ExecuteMarkRefundSelected_noConstLedgerId, DBOP_VAR_ExecuteMarkRefundSelected_ledgerId, sizeof(DBOP_VAR_ExecuteMarkRefundSelected_noConstLedgerId) - 1);
+    DBOP_VAR_ExecuteMarkRefundSelected_noConstLedgerId[sizeof(DBOP_VAR_ExecuteMarkRefundSelected_noConstLedgerId) - 1] = '\0';
+
+    MYSQL_BIND DBOP_VAR_ExecuteMarkRefundSelected_bindParams[1];
+    memset(DBOP_VAR_ExecuteMarkRefundSelected_bindParams, 0, sizeof(DBOP_VAR_ExecuteMarkRefundSelected_bindParams));
+
+    // 绑定参数：ledger_id
+    DBOP_VAR_ExecuteMarkRefundSelected_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteMarkRefundSelected_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteMarkRefundSelected_noConstLedgerId;
+    DBOP_VAR_ExecuteMarkRefundSelected_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteMarkRefundSelected_noConstLedgerId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkRefundSelected_connect->stmt_set_type_refund, DBOP_VAR_ExecuteMarkRefundSelected_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind mark refund selected param: %s", DBOP_VAR_ExecuteMarkRefundSelected_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkRefundSelected_connect->stmt_set_type_refund));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkRefundSelected_connect->stmt_set_type_refund)) {
+        dzlog_error("[req: %s] Failed to execute mark refund selected statement: %s", DBOP_VAR_ExecuteMarkRefundSelected_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkRefundSelected_connect->stmt_set_type_refund));
+        return -1;
+    }
+
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkRefundSelected_connect->stmt_set_type_refund);
+    if (affected_rows == 0) {
+        dzlog_warn("[req: %s] No refund pending selection record found with ledger_id: %s or transaction_type is not refund pending selection", DBOP_VAR_ExecuteMarkRefundSelected_requestId, DBOP_VAR_ExecuteMarkRefundSelected_ledgerId);
+        return 1; // 表示记录不存在或不是退款待选择类型
+    }
+
+    dzlog_info("[req: %s] Successfully marked refund pending selection as refund type for ledger: %s", DBOP_VAR_ExecuteMarkRefundSelected_requestId, DBOP_VAR_ExecuteMarkRefundSelected_ledgerId);
+    return 0;
+}
+
+// 标记退款待选择转为退款类型的API接口
+void DBOP_FUN_ApiMarkRefundSelected(struct evhttp_request *DBOP_VAR_ApiMarkRefundSelected_request, void *DBOP_VAR_ApiMarkRefundSelected_voidCfg) {
+    AppConfig *DBOP_VAR_ApiMarkRefundSelected_cfg = (AppConfig *)DBOP_VAR_ApiMarkRefundSelected_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiMarkRefundSelected_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiMarkRefundSelected_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiMarkRefundSelected.", DBOP_VAR_ApiMarkRefundSelected_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiMarkRefundSelected_request, DBOP_VAR_ApiMarkRefundSelected_cfg, DBOP_VAR_ApiMarkRefundSelected_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiMarkRefundSelected_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiMarkRefundSelected_request, DBOP_VAR_ApiMarkRefundSelected_requestId);
+    if (!DBOP_VAR_ApiMarkRefundSelected_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiMarkRefundSelected_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiMarkRefundSelected_dataJsonAll, "ledger_id");
+
+    if (!json_is_string(DBOP_VAR_ApiMarkRefundSelected_dataJsonLedgerId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string type for 'ledger_id'", DBOP_VAR_ApiMarkRefundSelected_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiMarkRefundSelected_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiMarkRefundSelected_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiMarkRefundSelected_ledgerId = json_string_value(DBOP_VAR_ApiMarkRefundSelected_dataJsonLedgerId);
+
+    dzlog_info("[req: %s] Executing database operation for ApiMarkRefundSelected: ledgerId=%s", DBOP_VAR_ApiMarkRefundSelected_requestId, DBOP_VAR_ApiMarkRefundSelected_ledgerId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiMarkRefundSelected_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiMarkRefundSelected_cfg);
+    int result = DBOP_FUN_ExecuteMarkRefundSelected(DBOP_VAR_ApiMarkRefundSelected_mysqlConnect, DBOP_VAR_ApiMarkRefundSelected_ledgerId, DBOP_VAR_ApiMarkRefundSelected_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiMarkRefundSelected_request, result, DBOP_VAR_ApiMarkRefundSelected_requestId, "mark refund selected");
+
+    json_decref(DBOP_VAR_ApiMarkRefundSelected_dataJsonAll);
+}
+
+// ------------------------mysql标记退款待选择转为退款类型api逻辑结束----------------------------
+
+
+// ------------------------mysql标记退款失败api逻辑开始----------------------------
+
+// 标记退款失败的sql数据化输出
+int DBOP_FUN_ExecuteMarkRefundFailed(DB_CONNECTION *DBOP_VAR_ExecuteMarkRefundFailed_connect, const char *DBOP_VAR_ExecuteMarkRefundFailed_ledgerId, const char *DBOP_VAR_ExecuteMarkRefundFailed_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteMarkRefundFailed is starting", DBOP_VAR_ExecuteMarkRefundFailed_requestId);
+
+    // 保护原始参数不被修改，复制参数
+    char DBOP_VAR_ExecuteMarkRefundFailed_noConstLedgerId[256];
+    strncpy(DBOP_VAR_ExecuteMarkRefundFailed_noConstLedgerId, DBOP_VAR_ExecuteMarkRefundFailed_ledgerId, sizeof(DBOP_VAR_ExecuteMarkRefundFailed_noConstLedgerId) - 1);
+    DBOP_VAR_ExecuteMarkRefundFailed_noConstLedgerId[sizeof(DBOP_VAR_ExecuteMarkRefundFailed_noConstLedgerId) - 1] = '\0';
+
+    MYSQL_BIND DBOP_VAR_ExecuteMarkRefundFailed_bindParams[1];
+    memset(DBOP_VAR_ExecuteMarkRefundFailed_bindParams, 0, sizeof(DBOP_VAR_ExecuteMarkRefundFailed_bindParams));
+
+    // 绑定参数：ledger_id
+    DBOP_VAR_ExecuteMarkRefundFailed_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteMarkRefundFailed_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteMarkRefundFailed_noConstLedgerId;
+    DBOP_VAR_ExecuteMarkRefundFailed_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteMarkRefundFailed_noConstLedgerId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkRefundFailed_connect->stmt_set_status_refund_failed, DBOP_VAR_ExecuteMarkRefundFailed_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind mark refund failed param: %s", DBOP_VAR_ExecuteMarkRefundFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkRefundFailed_connect->stmt_set_status_refund_failed));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkRefundFailed_connect->stmt_set_status_refund_failed)) {
+        dzlog_error("[req: %s] Failed to execute mark refund failed statement: %s", DBOP_VAR_ExecuteMarkRefundFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkRefundFailed_connect->stmt_set_status_refund_failed));
+        return -1;
+    }
+
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkRefundFailed_connect->stmt_set_status_refund_failed);
+    if (affected_rows == 0) {
+        dzlog_warn("[req: %s] No refund record found with ledger_id: %s or transaction_type is not refund", DBOP_VAR_ExecuteMarkRefundFailed_requestId, DBOP_VAR_ExecuteMarkRefundFailed_ledgerId);
+        return 1; // 表示记录不存在或不是退款类型
+    }
+
+    dzlog_info("[req: %s] Successfully marked refund as failed for ledger: %s", DBOP_VAR_ExecuteMarkRefundFailed_requestId, DBOP_VAR_ExecuteMarkRefundFailed_ledgerId);
+    return 0;
+}
+
+// 标记退款失败的API接口
+void DBOP_FUN_ApiMarkRefundFailed(struct evhttp_request *DBOP_VAR_ApiMarkRefundFailed_request, void *DBOP_VAR_ApiMarkRefundFailed_voidCfg) {
+    AppConfig *DBOP_VAR_ApiMarkRefundFailed_cfg = (AppConfig *)DBOP_VAR_ApiMarkRefundFailed_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiMarkRefundFailed_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiMarkRefundFailed_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiMarkRefundFailed.", DBOP_VAR_ApiMarkRefundFailed_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiMarkRefundFailed_request, DBOP_VAR_ApiMarkRefundFailed_cfg, DBOP_VAR_ApiMarkRefundFailed_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiMarkRefundFailed_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiMarkRefundFailed_request, DBOP_VAR_ApiMarkRefundFailed_requestId);
+    if (!DBOP_VAR_ApiMarkRefundFailed_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiMarkRefundFailed_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiMarkRefundFailed_dataJsonAll, "ledger_id");
+
+    if (!json_is_string(DBOP_VAR_ApiMarkRefundFailed_dataJsonLedgerId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string type for 'ledger_id'", DBOP_VAR_ApiMarkRefundFailed_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiMarkRefundFailed_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiMarkRefundFailed_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiMarkRefundFailed_ledgerId = json_string_value(DBOP_VAR_ApiMarkRefundFailed_dataJsonLedgerId);
+
+    dzlog_info("[req: %s] Executing database operation for ApiMarkRefundFailed: ledgerId=%s", DBOP_VAR_ApiMarkRefundFailed_requestId, DBOP_VAR_ApiMarkRefundFailed_ledgerId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiMarkRefundFailed_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiMarkRefundFailed_cfg);
+    int result = DBOP_FUN_ExecuteMarkRefundFailed(DBOP_VAR_ApiMarkRefundFailed_mysqlConnect, DBOP_VAR_ApiMarkRefundFailed_ledgerId, DBOP_VAR_ApiMarkRefundFailed_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiMarkRefundFailed_request, result, DBOP_VAR_ApiMarkRefundFailed_requestId, "mark refund failed");
+
+    json_decref(DBOP_VAR_ApiMarkRefundFailed_dataJsonAll);
+}
+
+// ------------------------mysql标记退款失败api逻辑结束----------------------------
+
+
+// ------------------------mysql标记退款完成api逻辑开始----------------------------
+
+// 标记退款完成的sql数据化输出
+int DBOP_FUN_ExecuteMarkRefundCompleted(DB_CONNECTION *DBOP_VAR_ExecuteMarkRefundCompleted_connect, const char *DBOP_VAR_ExecuteMarkRefundCompleted_ledgerId, const char *DBOP_VAR_ExecuteMarkRefundCompleted_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteMarkRefundCompleted is starting", DBOP_VAR_ExecuteMarkRefundCompleted_requestId);
+
+    // 保护原始参数不被修改，复制参数
+    char DBOP_VAR_ExecuteMarkRefundCompleted_noConstLedgerId[256];
+    strncpy(DBOP_VAR_ExecuteMarkRefundCompleted_noConstLedgerId, DBOP_VAR_ExecuteMarkRefundCompleted_ledgerId, sizeof(DBOP_VAR_ExecuteMarkRefundCompleted_noConstLedgerId) - 1);
+    DBOP_VAR_ExecuteMarkRefundCompleted_noConstLedgerId[sizeof(DBOP_VAR_ExecuteMarkRefundCompleted_noConstLedgerId) - 1] = '\0';
+
+    MYSQL_BIND DBOP_VAR_ExecuteMarkRefundCompleted_bindParams[1];
+    memset(DBOP_VAR_ExecuteMarkRefundCompleted_bindParams, 0, sizeof(DBOP_VAR_ExecuteMarkRefundCompleted_bindParams));
+
+    // 绑定参数：ledger_id
+    DBOP_VAR_ExecuteMarkRefundCompleted_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteMarkRefundCompleted_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteMarkRefundCompleted_noConstLedgerId;
+    DBOP_VAR_ExecuteMarkRefundCompleted_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteMarkRefundCompleted_noConstLedgerId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkRefundCompleted_connect->stmt_set_status_refund_completed, DBOP_VAR_ExecuteMarkRefundCompleted_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind mark refund completed param: %s", DBOP_VAR_ExecuteMarkRefundCompleted_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkRefundCompleted_connect->stmt_set_status_refund_completed));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkRefundCompleted_connect->stmt_set_status_refund_completed)) {
+        dzlog_error("[req: %s] Failed to execute mark refund completed statement: %s", DBOP_VAR_ExecuteMarkRefundCompleted_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkRefundCompleted_connect->stmt_set_status_refund_completed));
+        return -1;
+    }
+
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkRefundCompleted_connect->stmt_set_status_refund_completed);
+    if (affected_rows == 0) {
+        dzlog_warn("[req: %s] No refund record found with ledger_id: %s or transaction_type is not refund", DBOP_VAR_ExecuteMarkRefundCompleted_requestId, DBOP_VAR_ExecuteMarkRefundCompleted_ledgerId);
+        return 1; // 表示记录不存在或不是退款类型
+    }
+
+    dzlog_info("[req: %s] Successfully marked refund as completed for ledger: %s", DBOP_VAR_ExecuteMarkRefundCompleted_requestId, DBOP_VAR_ExecuteMarkRefundCompleted_ledgerId);
+    return 0;
+}
+
+// 标记退款完成的API接口
+void DBOP_FUN_ApiMarkRefundCompleted(struct evhttp_request *DBOP_VAR_ApiMarkRefundCompleted_request, void *DBOP_VAR_ApiMarkRefundCompleted_voidCfg) {
+    AppConfig *DBOP_VAR_ApiMarkRefundCompleted_cfg = (AppConfig *)DBOP_VAR_ApiMarkRefundCompleted_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiMarkRefundCompleted_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiMarkRefundCompleted_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiMarkRefundCompleted.", DBOP_VAR_ApiMarkRefundCompleted_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiMarkRefundCompleted_request, DBOP_VAR_ApiMarkRefundCompleted_cfg, DBOP_VAR_ApiMarkRefundCompleted_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiMarkRefundCompleted_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiMarkRefundCompleted_request, DBOP_VAR_ApiMarkRefundCompleted_requestId);
+    if (!DBOP_VAR_ApiMarkRefundCompleted_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiMarkRefundCompleted_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiMarkRefundCompleted_dataJsonAll, "ledger_id");
+
+    if (!json_is_string(DBOP_VAR_ApiMarkRefundCompleted_dataJsonLedgerId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string type for 'ledger_id'", DBOP_VAR_ApiMarkRefundCompleted_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiMarkRefundCompleted_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiMarkRefundCompleted_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiMarkRefundCompleted_ledgerId = json_string_value(DBOP_VAR_ApiMarkRefundCompleted_dataJsonLedgerId);
+
+    dzlog_info("[req: %s] Executing database operation for ApiMarkRefundCompleted: ledgerId=%s", DBOP_VAR_ApiMarkRefundCompleted_requestId, DBOP_VAR_ApiMarkRefundCompleted_ledgerId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiMarkRefundCompleted_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiMarkRefundCompleted_cfg);
+    int result = DBOP_FUN_ExecuteMarkRefundCompleted(DBOP_VAR_ApiMarkRefundCompleted_mysqlConnect, DBOP_VAR_ApiMarkRefundCompleted_ledgerId, DBOP_VAR_ApiMarkRefundCompleted_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiMarkRefundCompleted_request, result, DBOP_VAR_ApiMarkRefundCompleted_requestId, "mark refund completed");
+
+    json_decref(DBOP_VAR_ApiMarkRefundCompleted_dataJsonAll);
+}
+
+// ------------------------mysql标记退款完成api逻辑结束----------------------------
+
+
+// ------------------------mysql标记退款待选择转为转应急池类型api逻辑开始----------------------------
+
+// 标记退款待选择转为转应急池类型的sql数据化输出
+int DBOP_FUN_ExecuteMarkEmergencyPool(DB_CONNECTION *DBOP_VAR_ExecuteMarkEmergencyPool_connect, const char *DBOP_VAR_ExecuteMarkEmergencyPool_ledgerId, const char *DBOP_VAR_ExecuteMarkEmergencyPool_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteMarkEmergencyPool is starting", DBOP_VAR_ExecuteMarkEmergencyPool_requestId);
+
+    // 保护原始参数不被修改，复制参数
+    char DBOP_VAR_ExecuteMarkEmergencyPool_noConstLedgerId[256];
+    strncpy(DBOP_VAR_ExecuteMarkEmergencyPool_noConstLedgerId, DBOP_VAR_ExecuteMarkEmergencyPool_ledgerId, sizeof(DBOP_VAR_ExecuteMarkEmergencyPool_noConstLedgerId) - 1);
+    DBOP_VAR_ExecuteMarkEmergencyPool_noConstLedgerId[sizeof(DBOP_VAR_ExecuteMarkEmergencyPool_noConstLedgerId) - 1] = '\0';
+
+    MYSQL_BIND DBOP_VAR_ExecuteMarkEmergencyPool_bindParams[1];
+    memset(DBOP_VAR_ExecuteMarkEmergencyPool_bindParams, 0, sizeof(DBOP_VAR_ExecuteMarkEmergencyPool_bindParams));
+
+    // 绑定参数：ledger_id
+    DBOP_VAR_ExecuteMarkEmergencyPool_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteMarkEmergencyPool_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteMarkEmergencyPool_noConstLedgerId;
+    DBOP_VAR_ExecuteMarkEmergencyPool_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteMarkEmergencyPool_noConstLedgerId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteMarkEmergencyPool_connect->stmt_set_type_emergency_pool, DBOP_VAR_ExecuteMarkEmergencyPool_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind mark emergency pool param: %s", DBOP_VAR_ExecuteMarkEmergencyPool_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkEmergencyPool_connect->stmt_set_type_emergency_pool));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteMarkEmergencyPool_connect->stmt_set_type_emergency_pool)) {
+        dzlog_error("[req: %s] Failed to execute mark emergency pool statement: %s", DBOP_VAR_ExecuteMarkEmergencyPool_requestId, mysql_stmt_error(DBOP_VAR_ExecuteMarkEmergencyPool_connect->stmt_set_type_emergency_pool));
+        return -1;
+    }
+
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteMarkEmergencyPool_connect->stmt_set_type_emergency_pool);
+    if (affected_rows == 0) {
+        dzlog_warn("[req: %s] No refund pending selection record found with ledger_id: %s or transaction_type is not refund pending selection", DBOP_VAR_ExecuteMarkEmergencyPool_requestId, DBOP_VAR_ExecuteMarkEmergencyPool_ledgerId);
+        return 1; // 表示记录不存在或不是退款待选择类型
+    }
+
+    dzlog_info("[req: %s] Successfully marked refund pending selection as emergency pool for ledger: %s", DBOP_VAR_ExecuteMarkEmergencyPool_requestId, DBOP_VAR_ExecuteMarkEmergencyPool_ledgerId);
+    return 0;
+}
+
+// 标记退款待选择转为转应急池类型的API接口
+void DBOP_FUN_ApiMarkEmergencyPool(struct evhttp_request *DBOP_VAR_ApiMarkEmergencyPool_request, void *DBOP_VAR_ApiMarkEmergencyPool_voidCfg) {
+    AppConfig *DBOP_VAR_ApiMarkEmergencyPool_cfg = (AppConfig *)DBOP_VAR_ApiMarkEmergencyPool_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiMarkEmergencyPool_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiMarkEmergencyPool_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiMarkEmergencyPool.", DBOP_VAR_ApiMarkEmergencyPool_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiMarkEmergencyPool_request, DBOP_VAR_ApiMarkEmergencyPool_cfg, DBOP_VAR_ApiMarkEmergencyPool_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiMarkEmergencyPool_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiMarkEmergencyPool_request, DBOP_VAR_ApiMarkEmergencyPool_requestId);
+    if (!DBOP_VAR_ApiMarkEmergencyPool_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiMarkEmergencyPool_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiMarkEmergencyPool_dataJsonAll, "ledger_id");
+
+    if (!json_is_string(DBOP_VAR_ApiMarkEmergencyPool_dataJsonLedgerId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string type for 'ledger_id'", DBOP_VAR_ApiMarkEmergencyPool_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiMarkEmergencyPool_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiMarkEmergencyPool_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiMarkEmergencyPool_ledgerId = json_string_value(DBOP_VAR_ApiMarkEmergencyPool_dataJsonLedgerId);
+
+    dzlog_info("[req: %s] Executing database operation for ApiMarkEmergencyPool: ledgerId=%s", DBOP_VAR_ApiMarkEmergencyPool_requestId, DBOP_VAR_ApiMarkEmergencyPool_ledgerId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiMarkEmergencyPool_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiMarkEmergencyPool_cfg);
+    int result = DBOP_FUN_ExecuteMarkEmergencyPool(DBOP_VAR_ApiMarkEmergencyPool_mysqlConnect, DBOP_VAR_ApiMarkEmergencyPool_ledgerId, DBOP_VAR_ApiMarkEmergencyPool_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiMarkEmergencyPool_request, result, DBOP_VAR_ApiMarkEmergencyPool_requestId, "mark emergency pool");
+
+    json_decref(DBOP_VAR_ApiMarkEmergencyPool_dataJsonAll);
+}
+
+// ------------------------mysql标记退款待选择转为转应急池类型api逻辑结束----------------------------
+
+
 int main() { 
     AppConfig DBOP_VAR_Main_cfg = DBOP_FUN_MainConfigParse("config/config.yaml"); //初始化结构体
     struct event_base *DBOP_VAR_Main_eventBase = event_base_new();
@@ -3508,13 +4153,18 @@ int main() {
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/project/update_pathography", DBOP_FUN_ApiUpdateProjectPathography, &DBOP_VAR_Main_cfg);
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/project/update_volunteer", DBOP_FUN_ApiUpdateProjectVolunteer, &DBOP_VAR_Main_cfg);
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/create_donation", DBOP_FUN_ApiMakeDonation, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/mark_payment_failed", DBOP_FUN_ApiMarkPaymentFailed, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/mark_payment_processing", DBOP_FUN_ApiMarkPaymentProcessing, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/mark_payment_process_failed", DBOP_FUN_ApiMarkPaymentProcessFailed, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/mark_payment_refunding", DBOP_FUN_ApiMarkPaymentRefunding, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/mark_payment_refund_failed", DBOP_FUN_ApiMarkPaymentRefundFailed, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/mark_payment_refund_completed", DBOP_FUN_ApiMarkPaymentRefundCompleted, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/mark_payment_completed", DBOP_FUN_ApiMarkPaymentCompleted, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_payment_failed", DBOP_FUN_ApiMarkPaymentFailed, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_payment_processing", DBOP_FUN_ApiMarkPaymentProcessing, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_payment_process_failed", DBOP_FUN_ApiMarkPaymentProcessFailed, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_payment_refunding", DBOP_FUN_ApiMarkPaymentRefunding, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_payment_refund_failed", DBOP_FUN_ApiMarkPaymentRefundFailed, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_payment_refund_completed", DBOP_FUN_ApiMarkPaymentRefundCompleted, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_payment_completed", DBOP_FUN_ApiMarkPaymentCompleted, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/create_refund_pending_selection", DBOP_FUN_ApiCreateRefundPendingSelection, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_type_refund", DBOP_FUN_ApiMarkRefundSelected, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_refund_failed", DBOP_FUN_ApiMarkRefundFailed, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_refund_completed", DBOP_FUN_ApiMarkRefundCompleted, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_type_emergency_pool", DBOP_FUN_ApiMarkEmergencyPool, &DBOP_VAR_Main_cfg);
 
     // 绑定到 0.0.0.0:DBOP_GLV_serverPort
     if (evhttp_bind_socket(DBOP_VAR_Main_httpServer, "0.0.0.0", atoi(DBOP_VAR_Main_cfg.DBOP_GLV_serverPort)) != 0) {
