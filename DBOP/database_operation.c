@@ -107,6 +107,10 @@
                 curl -X POST "http://服务ip:服务端口/ledger/set_type_emergency_pool" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
                 curl -X POST "http://192.168.1.10:1900/ledger/set_type_emergency_pool" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"5206f237-f070-48a9-8f4d-9eb15e31c21b"}'
     200RETURN：什么都不返回
+    REQUEST: 新增患者使用记录
+                curl -X POST "http://服务ip:服务端口/ledger/create_patient_usage" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID", "project_id":"项目ID", "user_id":"患者用户ID", "sufferer_user_id":"项目受助者ID", "sufferer_real_name":"患者真实姓名", "sufferer_user_name":"患者用户名", "amount":"使用金额", "payment_method":"使用渠道", "note":"备注", "verification_record":"审计json"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/create_patient_usage" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"5206f237-f070-48a9-8f4d-9eb15e31c21b", "project_id":"a7c16b7d-bc2e-4e2e-8617-527cfb23d29f", "user_id":"4647baa3-8af6-4dca-90c1-30e5ddbca112", "sufferer_user_id":"d17d43db-121a-4b9e-97d6-80a3b00ae062", "sufferer_real_name":"李四", "sufferer_user_name":"木子四", "amount":"-100", "payment_method":0, "note":"化验费用报销申请", "verification_record":"[{"patient":{"我在遥望":"化验费用报销申请","attachment":["https://minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/医保结算单.pdf","https://minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/发票.jpg"],"time":"2025-06-29T11:12:00+08:00"},"volunteer":{"bceac":"没什么问题，给您通过了。","attachment":[],"time":"2025-06-29T11:20:00+08:00"}}]"}'
+    200RETURN：什么都不返回
 */
 /*
 变量命名要求如下：
@@ -196,6 +200,8 @@ typedef struct {
     MYSQL_STMT *stmt_set_status_refund_failed;
     MYSQL_STMT *stmt_set_status_refund_completed;
     MYSQL_STMT *stmt_set_type_emergency_pool;
+    MYSQL_STMT *stmt_create_patient_usage;
+    MYSQL_STMT *stmt_create_volunteer_audit;
 } DB_CONNECTION;
 
 // 初始化dzlog
@@ -655,13 +661,13 @@ void DBOP_FUN_InitializeMySQLConnection(DB_CONNECTION *DBOP_VAR_InitializeMySQLC
     }
     // 初始化新增捐款记录预处理语句
     DBOP_VAR_InitializeMySQLConnection_connect->stmt_make_donation = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
-    const char *make_donation_sql = "INSERT INTO donation_ledger (ledger_id, project_id, user_id, sufferer_user_id, donor_user_name, sufferer_real_name, sufferer_user_name, amount, transaction_time, note, payment_method, method_id, transaction_type, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, 0, 1);";
+    const char *make_donation_sql = "INSERT INTO donation_ledger (ledger_id, project_id, user_id, sufferer_user_id, donor_user_name, sufferer_real_name, sufferer_user_name, amount, transaction_time, note, payment_method, method_id, transaction_type, status, change_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, 0, 1, NOW());";
     if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_make_donation, make_donation_sql, strlen(make_donation_sql))) {
         dzlog_error("Failed to prepare make donation statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_make_donation));
         exit(EXIT_FAILURE);
     }
     DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_failed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
-    const char *set_status_payment_failed_sql = "UPDATE donation_ledger SET status = 2 WHERE ledger_id = ? AND transaction_type = 0;";
+    const char *set_status_payment_failed_sql = "UPDATE donation_ledger SET status = 2, change_time = NOW() WHERE ledger_id = ? AND transaction_type = 0;";
     if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_failed, set_status_payment_failed_sql, strlen(set_status_payment_failed_sql))) {
         dzlog_error("Failed to prepare mark payment failed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_failed));
         exit(EXIT_FAILURE);
@@ -669,7 +675,7 @@ void DBOP_FUN_InitializeMySQLConnection(DB_CONNECTION *DBOP_VAR_InitializeMySQLC
 
     // 初始化标记处理中预处理语句
     DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_processing = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
-    const char *set_status_payment_processing_sql = "UPDATE donation_ledger SET status = 3 WHERE ledger_id = ? AND transaction_type = 0;";
+    const char *set_status_payment_processing_sql = "UPDATE donation_ledger SET status = 3, change_time = NOW() WHERE ledger_id = ? AND transaction_type = 0;";
     if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_processing, set_status_payment_processing_sql, strlen(set_status_payment_processing_sql))) {
         dzlog_error("Failed to prepare mark payment processing statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_processing));
         exit(EXIT_FAILURE);
@@ -677,7 +683,7 @@ void DBOP_FUN_InitializeMySQLConnection(DB_CONNECTION *DBOP_VAR_InitializeMySQLC
 
     // 初始化标记处理失败预处理语句
     DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_process_failed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
-    const char *set_status_payment_process_failed_sql = "UPDATE donation_ledger SET status = 4 WHERE ledger_id = ? AND transaction_type = 0;";
+    const char *set_status_payment_process_failed_sql = "UPDATE donation_ledger SET status = 4, change_time = NOW() WHERE ledger_id = ? AND transaction_type = 0;";
     if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_process_failed, set_status_payment_process_failed_sql, strlen(set_status_payment_process_failed_sql))) {
         dzlog_error("Failed to prepare mark payment process failed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_process_failed));
         exit(EXIT_FAILURE);
@@ -685,7 +691,7 @@ void DBOP_FUN_InitializeMySQLConnection(DB_CONNECTION *DBOP_VAR_InitializeMySQLC
 
     // 初始化标记退款中预处理语句
     DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_refunding = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
-    const char *set_status_payment_refunding_sql = "UPDATE donation_ledger SET status = 5 WHERE ledger_id = ? AND transaction_type = 0;";
+    const char *set_status_payment_refunding_sql = "UPDATE donation_ledger SET status = 5, change_time = NOW() WHERE ledger_id = ? AND transaction_type = 0;";
     if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_refunding, set_status_payment_refunding_sql, strlen(set_status_payment_refunding_sql))) {
         dzlog_error("Failed to prepare mark payment refunding statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_refunding));
         exit(EXIT_FAILURE);
@@ -693,7 +699,7 @@ void DBOP_FUN_InitializeMySQLConnection(DB_CONNECTION *DBOP_VAR_InitializeMySQLC
 
     // 初始化标记退款失败预处理语句
     DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_refund_failed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
-    const char *set_status_payment_refund_failed_sql = "UPDATE donation_ledger SET status = 6 WHERE ledger_id = ? AND transaction_type = 0;";
+    const char *set_status_payment_refund_failed_sql = "UPDATE donation_ledger SET status = 6, change_time = NOW() WHERE ledger_id = ? AND transaction_type = 0;";
     if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_refund_failed, set_status_payment_refund_failed_sql, strlen(set_status_payment_refund_failed_sql))) {
         dzlog_error("Failed to prepare mark payment refund failed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_refund_failed));
         exit(EXIT_FAILURE);
@@ -701,7 +707,7 @@ void DBOP_FUN_InitializeMySQLConnection(DB_CONNECTION *DBOP_VAR_InitializeMySQLC
 
     // 初始化标记退款完成预处理语句
     DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_refund_completed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
-    const char *set_status_payment_refund_completed_sql = "UPDATE donation_ledger SET status = 7 WHERE ledger_id = ? AND transaction_type = 0;";
+    const char *set_status_payment_refund_completed_sql = "UPDATE donation_ledger SET status = 7, change_time = NOW() WHERE ledger_id = ? AND transaction_type = 0;";
     if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_refund_completed, set_status_payment_refund_completed_sql, strlen(set_status_payment_refund_completed_sql))) {
         dzlog_error("Failed to prepare mark payment refund completed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_refund_completed));
         exit(EXIT_FAILURE);
@@ -709,7 +715,7 @@ void DBOP_FUN_InitializeMySQLConnection(DB_CONNECTION *DBOP_VAR_InitializeMySQLC
 
     // 初始化标记完成预处理语句
     DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_completed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
-    const char *set_status_payment_completed_sql = "UPDATE donation_ledger SET status = 0 WHERE ledger_id = ? AND transaction_type = 0;";
+    const char *set_status_payment_completed_sql = "UPDATE donation_ledger SET status = 0, change_time = NOW() WHERE ledger_id = ? AND transaction_type = 0;";
     if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_completed, set_status_payment_completed_sql, strlen(set_status_payment_completed_sql))) {
         dzlog_error("Failed to prepare mark payment completed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_payment_completed));
         exit(EXIT_FAILURE);
@@ -717,7 +723,7 @@ void DBOP_FUN_InitializeMySQLConnection(DB_CONNECTION *DBOP_VAR_InitializeMySQLC
 
     // 初始化新增退款待选择记录预处理语句
     DBOP_VAR_InitializeMySQLConnection_connect->stmt_create_refund_pending_selection = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
-    const char *create_refund_pending_selection_sql = "INSERT INTO donation_ledger (ledger_id, project_id, user_id, sufferer_user_id, donor_user_name, sufferer_real_name, sufferer_user_name, amount, transaction_time, note, target_user_id, transaction_type, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, 1, 1);";
+    const char *create_refund_pending_selection_sql = "INSERT INTO donation_ledger (ledger_id, project_id, user_id, sufferer_user_id, donor_user_name, sufferer_real_name, sufferer_user_name, amount, transaction_time, note, target_user_id, transaction_type, status, change_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, 1, 1, NOW());";
     if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_create_refund_pending_selection, create_refund_pending_selection_sql, strlen(create_refund_pending_selection_sql))) {
         dzlog_error("Failed to prepare create refund pending selection statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_create_refund_pending_selection));
         exit(EXIT_FAILURE);
@@ -725,7 +731,7 @@ void DBOP_FUN_InitializeMySQLConnection(DB_CONNECTION *DBOP_VAR_InitializeMySQLC
 
     // 初始化标记退款待选择转为退款类型预处理语句
     DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_type_refund = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
-    const char *set_type_refund_sql = "UPDATE donation_ledger SET transaction_type = 2 WHERE ledger_id = ? AND transaction_type = 1;";
+    const char *set_type_refund_sql = "UPDATE donation_ledger SET transaction_type = 2, change_time = NOW() WHERE ledger_id = ? AND transaction_type = 1;";
     if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_type_refund, set_type_refund_sql, strlen(set_type_refund_sql))) {
         dzlog_error("Failed to prepare mark refund selected statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_type_refund));
         exit(EXIT_FAILURE);
@@ -733,7 +739,7 @@ void DBOP_FUN_InitializeMySQLConnection(DB_CONNECTION *DBOP_VAR_InitializeMySQLC
 
     // 初始化标记退款失败预处理语句
     DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_refund_failed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
-    const char *set_status_refund_failed_sql = "UPDATE donation_ledger SET status = 6 WHERE ledger_id = ? AND transaction_type = 2;";
+    const char *set_status_refund_failed_sql = "UPDATE donation_ledger SET status = 6, change_time = NOW() WHERE ledger_id = ? AND transaction_type = 2;";
     if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_refund_failed, set_status_refund_failed_sql, strlen(set_status_refund_failed_sql))) {
         dzlog_error("Failed to prepare mark refund failed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_refund_failed));
         exit(EXIT_FAILURE);
@@ -741,7 +747,7 @@ void DBOP_FUN_InitializeMySQLConnection(DB_CONNECTION *DBOP_VAR_InitializeMySQLC
 
     // 初始化标记退款完成预处理语句
     DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_refund_completed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
-    const char *set_status_refund_completed_sql = "UPDATE donation_ledger SET status = 7 WHERE ledger_id = ? AND transaction_type = 2;";
+    const char *set_status_refund_completed_sql = "UPDATE donation_ledger SET status = 7, change_time = NOW() WHERE ledger_id = ? AND transaction_type = 2;";
     if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_refund_completed, set_status_refund_completed_sql, strlen(set_status_refund_completed_sql))) {
         dzlog_error("Failed to prepare mark refund completed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_refund_completed));
         exit(EXIT_FAILURE);
@@ -749,9 +755,25 @@ void DBOP_FUN_InitializeMySQLConnection(DB_CONNECTION *DBOP_VAR_InitializeMySQLC
 
     // 初始化标记退款待选择转为转应急池类型预处理语句
     DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_type_emergency_pool = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
-    const char *set_type_emergency_pool_sql = "UPDATE donation_ledger SET transaction_type = 3 WHERE ledger_id = ? AND transaction_type = 1;";
+    const char *set_type_emergency_pool_sql = "UPDATE donation_ledger SET transaction_type = 3, change_time = NOW() WHERE ledger_id = ? AND transaction_type = 1;";
     if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_type_emergency_pool, set_type_emergency_pool_sql, strlen(set_type_emergency_pool_sql))) {
         dzlog_error("Failed to prepare mark emergency pool statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_type_emergency_pool));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化新增患者使用记录预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_create_patient_usage = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *create_patient_usage_sql = "INSERT INTO donation_ledger (ledger_id, project_id, user_id, sufferer_user_id, sufferer_real_name, sufferer_user_name, amount, transaction_time, note, payment_method, transaction_type, status, volunteer_audit_id, change_time) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, 4, 3, ?, NOW());";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_create_patient_usage, create_patient_usage_sql, strlen(create_patient_usage_sql))) {
+        dzlog_error("Failed to prepare create patient usage statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_create_patient_usage));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化新增志愿者审计记录预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_create_volunteer_audit = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *create_volunteer_audit_sql = "INSERT INTO donation_volunteer_audit (audit_id, verification_record, last_change_time) VALUES (?, ?, NOW());";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_create_volunteer_audit, create_volunteer_audit_sql, strlen(create_volunteer_audit_sql))) {
+        dzlog_error("Failed to prepare create volunteer audit statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_create_volunteer_audit));
         exit(EXIT_FAILURE);
     }
 }
@@ -885,6 +907,12 @@ void DBOP_FUN_DestroyConnPool() {
         if (DBOP_GLV_mysqlConnectPool[i]->stmt_set_type_emergency_pool != NULL) {
             mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_set_type_emergency_pool);
         }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_create_patient_usage != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_create_patient_usage);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_create_volunteer_audit != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_create_volunteer_audit);
+        }
         if (DBOP_GLV_mysqlConnectPool[i]->mysql != NULL) {
             mysql_close(DBOP_GLV_mysqlConnectPool[i]->mysql);
         }
@@ -987,6 +1015,12 @@ void DBOP_FUN_ReinitializeConnPool(AppConfig *DBOP_VAR_ReinitializeConnPool_cfg,
     }
     if (DBOP_VAR_ReinitializeConnPool_connect->stmt_set_type_emergency_pool != NULL) {
         mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_set_type_emergency_pool);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_create_patient_usage != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_create_patient_usage);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_create_volunteer_audit != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_create_volunteer_audit);
     }
     if (DBOP_VAR_ReinitializeConnPool_connect->mysql != NULL) {
         mysql_close(DBOP_VAR_ReinitializeConnPool_connect->mysql);
@@ -4105,6 +4139,204 @@ void DBOP_FUN_ApiMarkEmergencyPool(struct evhttp_request *DBOP_VAR_ApiMarkEmerge
 // ------------------------mysql标记退款待选择转为转应急池类型api逻辑结束----------------------------
 
 
+// ------------------------mysql新增患者使用记录api逻辑开始----------------------------
+
+// 新增患者使用记录的sql数据化输出
+int DBOP_FUN_ExecuteCreatePatientUsage(DB_CONNECTION *DBOP_VAR_ExecuteCreatePatientUsage_connect, const char *DBOP_VAR_ExecuteCreatePatientUsage_ledgerId, const char *DBOP_VAR_ExecuteCreatePatientUsage_projectId, const char *DBOP_VAR_ExecuteCreatePatientUsage_userId, const char *DBOP_VAR_ExecuteCreatePatientUsage_suffererUserId, const char *DBOP_VAR_ExecuteCreatePatientUsage_suffererRealName, const char *DBOP_VAR_ExecuteCreatePatientUsage_suffererUserName, int DBOP_VAR_ExecuteCreatePatientUsage_amount, const char *DBOP_VAR_ExecuteCreatePatientUsage_note, int DBOP_VAR_ExecuteCreatePatientUsage_paymentMethod, const char *DBOP_VAR_ExecuteCreatePatientUsage_verificationRecord, const char *DBOP_VAR_ExecuteCreatePatientUsage_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteCreatePatientUsage is starting", DBOP_VAR_ExecuteCreatePatientUsage_requestId);
+
+    // 首先创建志愿者审计记录，使用相同的ID
+    char DBOP_VAR_ExecuteCreatePatientUsage_noConstAuditId[256];
+    strncpy(DBOP_VAR_ExecuteCreatePatientUsage_noConstAuditId, DBOP_VAR_ExecuteCreatePatientUsage_ledgerId, sizeof(DBOP_VAR_ExecuteCreatePatientUsage_noConstAuditId) - 1);
+    DBOP_VAR_ExecuteCreatePatientUsage_noConstAuditId[sizeof(DBOP_VAR_ExecuteCreatePatientUsage_noConstAuditId) - 1] = '\0';
+
+    char DBOP_VAR_ExecuteCreatePatientUsage_noConstVerificationRecord[4096];
+    strncpy(DBOP_VAR_ExecuteCreatePatientUsage_noConstVerificationRecord, DBOP_VAR_ExecuteCreatePatientUsage_verificationRecord, sizeof(DBOP_VAR_ExecuteCreatePatientUsage_noConstVerificationRecord) - 1);
+    DBOP_VAR_ExecuteCreatePatientUsage_noConstVerificationRecord[sizeof(DBOP_VAR_ExecuteCreatePatientUsage_noConstVerificationRecord) - 1] = '\0';
+
+    MYSQL_BIND DBOP_VAR_ExecuteCreatePatientUsage_auditBindParams[2];
+    memset(DBOP_VAR_ExecuteCreatePatientUsage_auditBindParams, 0, sizeof(DBOP_VAR_ExecuteCreatePatientUsage_auditBindParams));
+
+    // 绑定审计记录参数：audit_id, verification_record
+    DBOP_VAR_ExecuteCreatePatientUsage_auditBindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreatePatientUsage_auditBindParams[0].buffer = (char *)DBOP_VAR_ExecuteCreatePatientUsage_noConstAuditId;
+    DBOP_VAR_ExecuteCreatePatientUsage_auditBindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteCreatePatientUsage_noConstAuditId);
+
+    DBOP_VAR_ExecuteCreatePatientUsage_auditBindParams[1].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreatePatientUsage_auditBindParams[1].buffer = (char *)DBOP_VAR_ExecuteCreatePatientUsage_noConstVerificationRecord;
+    DBOP_VAR_ExecuteCreatePatientUsage_auditBindParams[1].buffer_length = strlen(DBOP_VAR_ExecuteCreatePatientUsage_noConstVerificationRecord);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteCreatePatientUsage_connect->stmt_create_volunteer_audit, DBOP_VAR_ExecuteCreatePatientUsage_auditBindParams)) {
+        dzlog_error("[req: %s] Failed to bind volunteer audit param: %s", DBOP_VAR_ExecuteCreatePatientUsage_requestId, mysql_stmt_error(DBOP_VAR_ExecuteCreatePatientUsage_connect->stmt_create_volunteer_audit));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteCreatePatientUsage_connect->stmt_create_volunteer_audit)) {
+        dzlog_error("[req: %s] Failed to execute volunteer audit statement: %s", DBOP_VAR_ExecuteCreatePatientUsage_requestId, mysql_stmt_error(DBOP_VAR_ExecuteCreatePatientUsage_connect->stmt_create_volunteer_audit));
+        return -1;
+    }
+
+    dzlog_info("[req: %s] Successfully created volunteer audit record with ID: %s", DBOP_VAR_ExecuteCreatePatientUsage_requestId, DBOP_VAR_ExecuteCreatePatientUsage_ledgerId);
+
+    // 然后创建患者使用记录
+    char DBOP_VAR_ExecuteCreatePatientUsage_noConstLedgerId[256];
+    strncpy(DBOP_VAR_ExecuteCreatePatientUsage_noConstLedgerId, DBOP_VAR_ExecuteCreatePatientUsage_ledgerId, sizeof(DBOP_VAR_ExecuteCreatePatientUsage_noConstLedgerId) - 1);
+    DBOP_VAR_ExecuteCreatePatientUsage_noConstLedgerId[sizeof(DBOP_VAR_ExecuteCreatePatientUsage_noConstLedgerId) - 1] = '\0';
+
+    char DBOP_VAR_ExecuteCreatePatientUsage_noConstProjectId[256];
+    strncpy(DBOP_VAR_ExecuteCreatePatientUsage_noConstProjectId, DBOP_VAR_ExecuteCreatePatientUsage_projectId, sizeof(DBOP_VAR_ExecuteCreatePatientUsage_noConstProjectId) - 1);
+    DBOP_VAR_ExecuteCreatePatientUsage_noConstProjectId[sizeof(DBOP_VAR_ExecuteCreatePatientUsage_noConstProjectId) - 1] = '\0';
+
+    char DBOP_VAR_ExecuteCreatePatientUsage_noConstUserId[256];
+    strncpy(DBOP_VAR_ExecuteCreatePatientUsage_noConstUserId, DBOP_VAR_ExecuteCreatePatientUsage_userId, sizeof(DBOP_VAR_ExecuteCreatePatientUsage_noConstUserId) - 1);
+    DBOP_VAR_ExecuteCreatePatientUsage_noConstUserId[sizeof(DBOP_VAR_ExecuteCreatePatientUsage_noConstUserId) - 1] = '\0';
+
+    char DBOP_VAR_ExecuteCreatePatientUsage_noConstSuffererUserId[256];
+    strncpy(DBOP_VAR_ExecuteCreatePatientUsage_noConstSuffererUserId, DBOP_VAR_ExecuteCreatePatientUsage_suffererUserId, sizeof(DBOP_VAR_ExecuteCreatePatientUsage_noConstSuffererUserId) - 1);
+    DBOP_VAR_ExecuteCreatePatientUsage_noConstSuffererUserId[sizeof(DBOP_VAR_ExecuteCreatePatientUsage_noConstSuffererUserId) - 1] = '\0';
+
+    char DBOP_VAR_ExecuteCreatePatientUsage_noConstSuffererRealName[256];
+    strncpy(DBOP_VAR_ExecuteCreatePatientUsage_noConstSuffererRealName, DBOP_VAR_ExecuteCreatePatientUsage_suffererRealName, sizeof(DBOP_VAR_ExecuteCreatePatientUsage_noConstSuffererRealName) - 1);
+    DBOP_VAR_ExecuteCreatePatientUsage_noConstSuffererRealName[sizeof(DBOP_VAR_ExecuteCreatePatientUsage_noConstSuffererRealName) - 1] = '\0';
+
+    char DBOP_VAR_ExecuteCreatePatientUsage_noConstSuffererUserName[256];
+    strncpy(DBOP_VAR_ExecuteCreatePatientUsage_noConstSuffererUserName, DBOP_VAR_ExecuteCreatePatientUsage_suffererUserName, sizeof(DBOP_VAR_ExecuteCreatePatientUsage_noConstSuffererUserName) - 1);
+    DBOP_VAR_ExecuteCreatePatientUsage_noConstSuffererUserName[sizeof(DBOP_VAR_ExecuteCreatePatientUsage_noConstSuffererUserName) - 1] = '\0';
+
+    char DBOP_VAR_ExecuteCreatePatientUsage_noConstNote[512];
+    strncpy(DBOP_VAR_ExecuteCreatePatientUsage_noConstNote, DBOP_VAR_ExecuteCreatePatientUsage_note, sizeof(DBOP_VAR_ExecuteCreatePatientUsage_noConstNote) - 1);
+    DBOP_VAR_ExecuteCreatePatientUsage_noConstNote[sizeof(DBOP_VAR_ExecuteCreatePatientUsage_noConstNote) - 1] = '\0';
+
+    MYSQL_BIND DBOP_VAR_ExecuteCreatePatientUsage_bindParams[10];
+    memset(DBOP_VAR_ExecuteCreatePatientUsage_bindParams, 0, sizeof(DBOP_VAR_ExecuteCreatePatientUsage_bindParams));
+
+    // 绑定参数：ledger_id, project_id, user_id, sufferer_user_id, sufferer_real_name, sufferer_user_name, amount, note, payment_method, volunteer_audit_id
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[0].buffer = (char *)DBOP_VAR_ExecuteCreatePatientUsage_noConstLedgerId;
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteCreatePatientUsage_noConstLedgerId);
+
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[1].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[1].buffer = (char *)DBOP_VAR_ExecuteCreatePatientUsage_noConstProjectId;
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[1].buffer_length = strlen(DBOP_VAR_ExecuteCreatePatientUsage_noConstProjectId);
+
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[2].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[2].buffer = (char *)DBOP_VAR_ExecuteCreatePatientUsage_noConstUserId;
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[2].buffer_length = strlen(DBOP_VAR_ExecuteCreatePatientUsage_noConstUserId);
+
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[3].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[3].buffer = (char *)DBOP_VAR_ExecuteCreatePatientUsage_noConstSuffererUserId;
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[3].buffer_length = strlen(DBOP_VAR_ExecuteCreatePatientUsage_noConstSuffererUserId);
+
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[4].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[4].buffer = (char *)DBOP_VAR_ExecuteCreatePatientUsage_noConstSuffererRealName;
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[4].buffer_length = strlen(DBOP_VAR_ExecuteCreatePatientUsage_noConstSuffererRealName);
+
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[5].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[5].buffer = (char *)DBOP_VAR_ExecuteCreatePatientUsage_noConstSuffererUserName;
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[5].buffer_length = strlen(DBOP_VAR_ExecuteCreatePatientUsage_noConstSuffererUserName);
+
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[6].buffer_type = MYSQL_TYPE_LONG;
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[6].buffer = &DBOP_VAR_ExecuteCreatePatientUsage_amount;
+
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[7].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[7].buffer = (char *)DBOP_VAR_ExecuteCreatePatientUsage_noConstNote;
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[7].buffer_length = strlen(DBOP_VAR_ExecuteCreatePatientUsage_noConstNote);
+
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[8].buffer_type = MYSQL_TYPE_LONG;
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[8].buffer = &DBOP_VAR_ExecuteCreatePatientUsage_paymentMethod;
+
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[9].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[9].buffer = (char *)DBOP_VAR_ExecuteCreatePatientUsage_noConstAuditId;
+    DBOP_VAR_ExecuteCreatePatientUsage_bindParams[9].buffer_length = strlen(DBOP_VAR_ExecuteCreatePatientUsage_noConstAuditId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteCreatePatientUsage_connect->stmt_create_patient_usage, DBOP_VAR_ExecuteCreatePatientUsage_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind create patient usage param: %s", DBOP_VAR_ExecuteCreatePatientUsage_requestId, mysql_stmt_error(DBOP_VAR_ExecuteCreatePatientUsage_connect->stmt_create_patient_usage));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteCreatePatientUsage_connect->stmt_create_patient_usage)) {
+        dzlog_error("[req: %s] Failed to execute create patient usage statement: %s", DBOP_VAR_ExecuteCreatePatientUsage_requestId, mysql_stmt_error(DBOP_VAR_ExecuteCreatePatientUsage_connect->stmt_create_patient_usage));
+        return -1;
+    }
+
+    dzlog_info("[req: %s] Successfully created patient usage record with ledger ID: %s", DBOP_VAR_ExecuteCreatePatientUsage_requestId, DBOP_VAR_ExecuteCreatePatientUsage_ledgerId);
+    return 0;
+}
+
+// 新增患者使用记录的API接口
+void DBOP_FUN_ApiCreatePatientUsage(struct evhttp_request *DBOP_VAR_ApiCreatePatientUsage_request, void *DBOP_VAR_ApiCreatePatientUsage_voidCfg) {
+    AppConfig *DBOP_VAR_ApiCreatePatientUsage_cfg = (AppConfig *)DBOP_VAR_ApiCreatePatientUsage_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiCreatePatientUsage_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiCreatePatientUsage_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiCreatePatientUsage.", DBOP_VAR_ApiCreatePatientUsage_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiCreatePatientUsage_request, DBOP_VAR_ApiCreatePatientUsage_cfg, DBOP_VAR_ApiCreatePatientUsage_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiCreatePatientUsage_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiCreatePatientUsage_request, DBOP_VAR_ApiCreatePatientUsage_requestId);
+    if (!DBOP_VAR_ApiCreatePatientUsage_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiCreatePatientUsage_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiCreatePatientUsage_dataJsonAll, "ledger_id");
+    json_t *DBOP_VAR_ApiCreatePatientUsage_dataJsonProjectId = json_object_get(DBOP_VAR_ApiCreatePatientUsage_dataJsonAll, "project_id");
+    json_t *DBOP_VAR_ApiCreatePatientUsage_dataJsonUserId = json_object_get(DBOP_VAR_ApiCreatePatientUsage_dataJsonAll, "user_id");
+    json_t *DBOP_VAR_ApiCreatePatientUsage_dataJsonSuffererUserId = json_object_get(DBOP_VAR_ApiCreatePatientUsage_dataJsonAll, "sufferer_user_id");
+    json_t *DBOP_VAR_ApiCreatePatientUsage_dataJsonSuffererRealName = json_object_get(DBOP_VAR_ApiCreatePatientUsage_dataJsonAll, "sufferer_real_name");
+    json_t *DBOP_VAR_ApiCreatePatientUsage_dataJsonSuffererUserName = json_object_get(DBOP_VAR_ApiCreatePatientUsage_dataJsonAll, "sufferer_user_name");
+    json_t *DBOP_VAR_ApiCreatePatientUsage_dataJsonAmount = json_object_get(DBOP_VAR_ApiCreatePatientUsage_dataJsonAll, "amount");
+    json_t *DBOP_VAR_ApiCreatePatientUsage_dataJsonNote = json_object_get(DBOP_VAR_ApiCreatePatientUsage_dataJsonAll, "note");
+    json_t *DBOP_VAR_ApiCreatePatientUsage_dataJsonPaymentMethod = json_object_get(DBOP_VAR_ApiCreatePatientUsage_dataJsonAll, "payment_method");
+    json_t *DBOP_VAR_ApiCreatePatientUsage_dataJsonVerificationRecord = json_object_get(DBOP_VAR_ApiCreatePatientUsage_dataJsonAll, "verification_record");
+
+    if (!json_is_string(DBOP_VAR_ApiCreatePatientUsage_dataJsonLedgerId) ||
+        !json_is_string(DBOP_VAR_ApiCreatePatientUsage_dataJsonProjectId) ||
+        !json_is_string(DBOP_VAR_ApiCreatePatientUsage_dataJsonUserId) ||
+        !json_is_string(DBOP_VAR_ApiCreatePatientUsage_dataJsonSuffererUserId) ||
+        !json_is_string(DBOP_VAR_ApiCreatePatientUsage_dataJsonSuffererRealName) ||
+        !json_is_string(DBOP_VAR_ApiCreatePatientUsage_dataJsonSuffererUserName) ||
+        !json_is_string(DBOP_VAR_ApiCreatePatientUsage_dataJsonAmount) ||
+        !json_is_string(DBOP_VAR_ApiCreatePatientUsage_dataJsonNote) ||
+        !json_is_integer(DBOP_VAR_ApiCreatePatientUsage_dataJsonPaymentMethod) ||
+        !json_is_string(DBOP_VAR_ApiCreatePatientUsage_dataJsonVerificationRecord)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting correct types for all fields", DBOP_VAR_ApiCreatePatientUsage_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiCreatePatientUsage_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiCreatePatientUsage_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiCreatePatientUsage_ledgerId = json_string_value(DBOP_VAR_ApiCreatePatientUsage_dataJsonLedgerId);
+    const char *DBOP_VAR_ApiCreatePatientUsage_projectId = json_string_value(DBOP_VAR_ApiCreatePatientUsage_dataJsonProjectId);
+    const char *DBOP_VAR_ApiCreatePatientUsage_userId = json_string_value(DBOP_VAR_ApiCreatePatientUsage_dataJsonUserId);
+    const char *DBOP_VAR_ApiCreatePatientUsage_suffererUserId = json_string_value(DBOP_VAR_ApiCreatePatientUsage_dataJsonSuffererUserId);
+    const char *DBOP_VAR_ApiCreatePatientUsage_suffererRealName = json_string_value(DBOP_VAR_ApiCreatePatientUsage_dataJsonSuffererRealName);
+    const char *DBOP_VAR_ApiCreatePatientUsage_suffererUserName = json_string_value(DBOP_VAR_ApiCreatePatientUsage_dataJsonSuffererUserName);
+    int DBOP_VAR_ApiCreatePatientUsage_amount = atoi(json_string_value(DBOP_VAR_ApiCreatePatientUsage_dataJsonAmount));
+    const char *DBOP_VAR_ApiCreatePatientUsage_note = json_string_value(DBOP_VAR_ApiCreatePatientUsage_dataJsonNote);
+    int DBOP_VAR_ApiCreatePatientUsage_paymentMethod = (int)json_integer_value(DBOP_VAR_ApiCreatePatientUsage_dataJsonPaymentMethod);
+    const char *DBOP_VAR_ApiCreatePatientUsage_verificationRecord = json_string_value(DBOP_VAR_ApiCreatePatientUsage_dataJsonVerificationRecord);
+
+    dzlog_info("[req: %s] Executing database operation for ApiCreatePatientUsage: ledgerId=%s, projectId=%s, userId=%s, amount=%d", 
+               DBOP_VAR_ApiCreatePatientUsage_requestId, DBOP_VAR_ApiCreatePatientUsage_ledgerId, DBOP_VAR_ApiCreatePatientUsage_projectId, DBOP_VAR_ApiCreatePatientUsage_userId, DBOP_VAR_ApiCreatePatientUsage_amount);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiCreatePatientUsage_mysqlConnect = DBOP_FUN_GetDatabaseConnection(DBOP_VAR_ApiCreatePatientUsage_cfg);
+    int result = DBOP_FUN_ExecuteCreatePatientUsage(DBOP_VAR_ApiCreatePatientUsage_mysqlConnect, DBOP_VAR_ApiCreatePatientUsage_ledgerId, DBOP_VAR_ApiCreatePatientUsage_projectId, DBOP_VAR_ApiCreatePatientUsage_userId, DBOP_VAR_ApiCreatePatientUsage_suffererUserId, DBOP_VAR_ApiCreatePatientUsage_suffererRealName, DBOP_VAR_ApiCreatePatientUsage_suffererUserName, DBOP_VAR_ApiCreatePatientUsage_amount, DBOP_VAR_ApiCreatePatientUsage_note, DBOP_VAR_ApiCreatePatientUsage_paymentMethod, DBOP_VAR_ApiCreatePatientUsage_verificationRecord, DBOP_VAR_ApiCreatePatientUsage_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiCreatePatientUsage_request, result, DBOP_VAR_ApiCreatePatientUsage_requestId, "create patient usage");
+
+    json_decref(DBOP_VAR_ApiCreatePatientUsage_dataJsonAll);
+}
+
+// ------------------------mysql新增患者使用记录api逻辑结束----------------------------
+
+
 int main() { 
     AppConfig DBOP_VAR_Main_cfg = DBOP_FUN_MainConfigParse("config/config.yaml"); //初始化结构体
     struct event_base *DBOP_VAR_Main_eventBase = event_base_new();
@@ -4165,6 +4397,7 @@ int main() {
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_refund_failed", DBOP_FUN_ApiMarkRefundFailed, &DBOP_VAR_Main_cfg);
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_refund_completed", DBOP_FUN_ApiMarkRefundCompleted, &DBOP_VAR_Main_cfg);
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_type_emergency_pool", DBOP_FUN_ApiMarkEmergencyPool, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/create_patient_usage", DBOP_FUN_ApiCreatePatientUsage, &DBOP_VAR_Main_cfg);
 
     // 绑定到 0.0.0.0:DBOP_GLV_serverPort
     if (evhttp_bind_socket(DBOP_VAR_Main_httpServer, "0.0.0.0", atoi(DBOP_VAR_Main_cfg.DBOP_GLV_serverPort)) != 0) {
