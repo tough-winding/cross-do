@@ -52,8 +52,8 @@
                 curl -X POST "http://192.168.1.10:1900/project/update_pathography" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"project_id":"f47ac10b-58cc-4372-a567-0e02b2c3d479", "pathography":"[{"time":"2020-01-05 14:03:01","content":"刚刚确诊为***，心情很是沉重，医生说需要******来治疗","attachment":["minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/20200105140301-1.jpg","minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/20200105140301-2.jpg"]},{"time":"2020-01-15 12:25:31","content":"这一周多的治疗效果好多了，现在又有点希望了","attachment":["minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/20200115122531-1.jpg","minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/20200115122531-2.jpg"]}]"}'
     200RETURN： 什么都不返回
     REQUEST:    更新项目负责志愿者ID
-                curl -X POST "http://服务ip:服务端口/project/update_volunteer" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"project_id":"项目ID", "volunteer_id":"志愿者ID"}'
-                curl -X POST "http://192.168.1.10:1900/project/update_volunteer" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"project_id":"f47ac10b-58cc-4372-a567-0e02b2c3d479", "volunteer_id":"8f76fa9c-18d2-41a9-bdd6-6c8e4c489872"}'
+                curl -X POST "http://服务ip:服务端口/project/update_project_volunteer" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"project_id":"项目ID", "volunteer_id":"志愿者ID"}'
+                curl -X POST "http://192.168.1.10:1900/project/update_project_volunteer" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"project_id":"f47ac10b-58cc-4372-a567-0e02b2c3d479", "volunteer_id":"8f76fa9c-18d2-41a9-bdd6-6c8e4c489872"}'
     200RETURN： 什么都不返回
     REQUEST:    新增捐款记录
                 curl -X POST "http://服务ip:服务端口/ledger/create_donation" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID", "project_id":"项目ID", "user_id":"捐赠者ID", "sufferer_user_id":"项目受助者ID", "donor_user_name":"捐赠者用户名", "sufferer_real_name":"患者真实姓名", "sufferer_user_name":"患者用户名", "amount":"捐赠金额", "note":"备注", "payment_method":"捐款渠道", "method_id":"渠道账单ID"}'
@@ -131,6 +131,31 @@
                 curl -X POST "http://服务ip:服务端口/ledger/create_emergency_usage" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID", "project_id":"项目ID", "user_id":"患者用户ID", "sufferer_user_id":"项目受助者ID", "sufferer_real_name":"患者真实姓名", "sufferer_user_name":"患者用户名", "amount":"使用金额", "payment_method":"使用渠道", "note":"备注"}'
                 curl -X POST "http://192.168.1.10:1900/ledger/create_emergency_usage" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"5206f237-f070-48a9-8f4d-9eb15e31c21b", "project_id":"a7c16b7d-bc2e-4e2e-8617-527cfb23d29f", "user_id":"4647baa3-8af6-4dca-90c1-30e5ddbca112", "sufferer_user_id":"d17d43db-121a-4b9e-97d6-80a3b00ae062", "sufferer_real_name":"李四", "sufferer_user_name":"木子四", "amount":"-100", "payment_method":0, "note":"化验费用报销申请"}'
     200RETURN：什么都不返回
+    REQUEST: 将应急使用类型的记录性质转为处理失败类型
+                curl -X POST "http://服务ip:服务端口/ledger/set_status_emergency_usage_process_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/set_status_emergency_usage_process_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"5206f237-f070-48a9-8f4d-9eb15e31c21b"}'
+    200RETURN：什么都不返回
+    REQUEST: 将应急使用类型的记录性质转为发款中类型
+                curl -X POST "http://服务ip:服务端口/ledger/set_status_emergency_usage_paying" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/set_status_emergency_usage_paying" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"5206f237-f070-48a9-8f4d-9eb15e31c21b"}'
+    200RETURN：什么都不返回
+    REQUEST: 将应急使用类型的记录性质转为发款失败类型
+                curl -X POST "http://服务ip:服务端口/ledger/set_status_emergency_usage_pay_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/set_status_emergency_usage_pay_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"5206f237-f070-48a9-8f4d-9eb15e31c21b"}'
+    200RETURN：什么都不返回
+    REQUEST: 将应急使用类型的记录性质转为应急使用未核销类型
+                curl -X POST "http://服务ip:服务端口/ledger/set_status_emergency_usage_unverified" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/set_status_emergency_usage_unverified" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"5206f237-f070-48a9-8f4d-9eb15e31c21b"}'
+    200RETURN：什么都不返回
+    REQUEST: 将应急使用类型的记录性质转为应急使用核销完成类型
+                curl -X POST "http://服务ip:服务端口/ledger/set_status_emergency_usage_verified" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/set_status_emergency_usage_verified" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"5206f237-f070-48a9-8f4d-9eb15e31c21b"}'
+    200RETURN：什么都不返回
+    REQUEST:    更新审计志愿者ID
+                curl -X POST "http://服务ip:服务端口/ledger/update_audit_volunteer" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID", "volunteer_id":"志愿者ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/update_audit_volunteer" -H "ServiceName: IAM_SERVICE" -H "Authorization: WuWVKPN3EaPkLStZP8DxLKLcaANN6NVc" -H "Content-Type: application/json" -d '{"ledger_id":"5206f237-f070-48a9-8f4d-9eb15e31c21b", "volunteer_id":"8f76fa9c-18d2-41a9-bdd6-6c8e4c489872"}'
+    200RETURN： 什么都不返回
+    
 */
 /*
 变量命名要求如下：
@@ -228,6 +253,13 @@ typedef struct {
     MYSQL_STMT *stmt_set_status_patient_usage_paying;
     MYSQL_STMT *stmt_set_status_patient_usage_pay_failed;
     MYSQL_STMT *stmt_set_status_patient_usage_completed;
+    MYSQL_STMT *stmt_set_status_emergency_usage_process_failed;
+    MYSQL_STMT *stmt_set_status_emergency_usage_paying;
+    MYSQL_STMT *stmt_set_status_emergency_usage_pay_failed;
+    MYSQL_STMT *stmt_set_status_emergency_usage_unverified;
+    MYSQL_STMT *stmt_set_status_emergency_usage_verified;
+    MYSQL_STMT *stmt_get_audit_volunteer_info;
+    MYSQL_STMT *stmt_update_audit_volunteer;
 } DB_CONNECTION;
 
 // 初始化dzlog
@@ -847,6 +879,58 @@ void DBOP_FUN_InitializeMySQLConnection(DB_CONNECTION *DBOP_VAR_InitializeMySQLC
         dzlog_error("Failed to prepare check pending emergency usage statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_check_pending_emergency_usage));
         exit(EXIT_FAILURE);
     }
+
+    // 初始化应急使用记录状态更新预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_emergency_usage_process_failed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *set_status_emergency_usage_process_failed_sql = "UPDATE donation_ledger SET status = 4, change_time = NOW() WHERE ledger_id = ? AND transaction_type = 5;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_emergency_usage_process_failed, set_status_emergency_usage_process_failed_sql, strlen(set_status_emergency_usage_process_failed_sql))) {
+        dzlog_error("Failed to prepare set emergency usage process failed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_emergency_usage_process_failed));
+        exit(EXIT_FAILURE);
+    }
+
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_emergency_usage_paying = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *set_status_emergency_usage_paying_sql = "UPDATE donation_ledger SET status = 8, change_time = NOW() WHERE ledger_id = ? AND transaction_type = 5;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_emergency_usage_paying, set_status_emergency_usage_paying_sql, strlen(set_status_emergency_usage_paying_sql))) {
+        dzlog_error("Failed to prepare set emergency usage paying statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_emergency_usage_paying));
+        exit(EXIT_FAILURE);
+    }
+
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_emergency_usage_pay_failed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *set_status_emergency_usage_pay_failed_sql = "UPDATE donation_ledger SET status = 9, change_time = NOW() WHERE ledger_id = ? AND transaction_type = 5;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_emergency_usage_pay_failed, set_status_emergency_usage_pay_failed_sql, strlen(set_status_emergency_usage_pay_failed_sql))) {
+        dzlog_error("Failed to prepare set emergency usage pay failed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_emergency_usage_pay_failed));
+        exit(EXIT_FAILURE);
+    }
+
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_emergency_usage_unverified = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *set_status_emergency_usage_unverified_sql = "UPDATE donation_ledger SET status = 13, change_time = NOW() WHERE ledger_id = ? AND transaction_type = 5;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_emergency_usage_unverified, set_status_emergency_usage_unverified_sql, strlen(set_status_emergency_usage_unverified_sql))) {
+        dzlog_error("Failed to prepare set emergency usage unverified statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_emergency_usage_unverified));
+        exit(EXIT_FAILURE);
+    }
+
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_emergency_usage_verified = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *set_status_emergency_usage_verified_sql = "UPDATE donation_ledger SET status = 14, change_time = NOW() WHERE ledger_id = ? AND transaction_type = 5;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_emergency_usage_verified, set_status_emergency_usage_verified_sql, strlen(set_status_emergency_usage_verified_sql))) {
+        dzlog_error("Failed to prepare set emergency usage verified statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_emergency_usage_verified));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化查询审计志愿者信息预处理语句 - 通过ledger_id查找对应的audit记录
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_get_audit_volunteer_info = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *get_audit_volunteer_info_sql = "SELECT dva.audit_id, dva.current_volunteer, dva.previous_volunteers FROM donation_volunteer_audit dva INNER JOIN donation_ledger dl ON dva.audit_id = dl.volunteer_audit_id WHERE dl.ledger_id = ?;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_get_audit_volunteer_info, get_audit_volunteer_info_sql, strlen(get_audit_volunteer_info_sql))) {
+        dzlog_error("Failed to prepare get audit volunteer info statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_get_audit_volunteer_info));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化更新审计志愿者预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_audit_volunteer = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *update_audit_volunteer_sql = "UPDATE donation_volunteer_audit SET current_volunteer = ?, previous_volunteers = ?, last_change_time = NOW() WHERE audit_id = ?;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_audit_volunteer, update_audit_volunteer_sql, strlen(update_audit_volunteer_sql))) {
+        dzlog_error("Failed to prepare update audit volunteer statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_update_audit_volunteer));
+        exit(EXIT_FAILURE);
+    }
 }
 
 // 初始化mysql连接池
@@ -1002,6 +1086,27 @@ void DBOP_FUN_DestroyConnPool() {
         if (DBOP_GLV_mysqlConnectPool[i]->stmt_check_pending_emergency_usage != NULL) {
             mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_check_pending_emergency_usage);
         }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_emergency_usage_process_failed != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_emergency_usage_process_failed);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_emergency_usage_paying != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_emergency_usage_paying);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_emergency_usage_pay_failed != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_emergency_usage_pay_failed);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_emergency_usage_unverified != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_emergency_usage_unverified);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_emergency_usage_verified != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_emergency_usage_verified);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_get_audit_volunteer_info != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_get_audit_volunteer_info);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_update_audit_volunteer != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_update_audit_volunteer);
+        }
         if (DBOP_GLV_mysqlConnectPool[i]->mysql != NULL) {
             mysql_close(DBOP_GLV_mysqlConnectPool[i]->mysql);
         }
@@ -1128,6 +1233,27 @@ void DBOP_FUN_ReinitializeConnPool(AppConfig *DBOP_VAR_ReinitializeConnPool_cfg,
     }
     if (DBOP_VAR_ReinitializeConnPool_connect->stmt_check_pending_emergency_usage != NULL) {
         mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_check_pending_emergency_usage);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_emergency_usage_process_failed != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_emergency_usage_process_failed);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_emergency_usage_paying != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_emergency_usage_paying);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_emergency_usage_pay_failed != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_emergency_usage_pay_failed);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_emergency_usage_unverified != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_emergency_usage_unverified);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_emergency_usage_verified != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_emergency_usage_verified);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_get_audit_volunteer_info != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_get_audit_volunteer_info);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_update_audit_volunteer != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_update_audit_volunteer);
     }
     if (DBOP_VAR_ReinitializeConnPool_connect->mysql != NULL) {
         mysql_close(DBOP_VAR_ReinitializeConnPool_connect->mysql);
@@ -4982,6 +5108,670 @@ void DBOP_FUN_ApiCreateEmergencyUsage(struct evhttp_request *DBOP_VAR_ApiCreateE
 
 // ------------------------mysql新增应急使用记录api逻辑结束----------------------------
 
+// ------------------------mysql应急使用记录设置处理失败状态api逻辑开始----------------------------
+
+// 执行应急使用记录设置处理失败状态的数据库操作
+int DBOP_FUN_ExecuteSetEmergencyUsageProcessFailed(DB_CONNECTION *DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_connect, const char *DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_ledgerId, const char *DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_requestId) {
+    dzlog_info("[req: %s] Executing set emergency usage process failed for ledger ID: %s", DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_requestId, DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_ledgerId);
+
+    // 为了避免const限制，创建非const副本
+    char *DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_noConstLedgerId = malloc(strlen(DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_ledgerId) + 1);
+    strcpy(DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_noConstLedgerId, DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_ledgerId);
+
+    // 绑定参数
+    MYSQL_BIND DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_bindParams[1];
+    memset(DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_bindParams, 0, sizeof(DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_bindParams));
+
+    DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_bindParams[0].buffer = DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_noConstLedgerId;
+    DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_noConstLedgerId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_connect->stmt_set_status_emergency_usage_process_failed, DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind set emergency usage process failed params: %s", DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_connect->stmt_set_status_emergency_usage_process_failed));
+        free(DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_noConstLedgerId);
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_connect->stmt_set_status_emergency_usage_process_failed)) {
+        dzlog_error("[req: %s] Failed to execute set emergency usage process failed statement: %s", DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_connect->stmt_set_status_emergency_usage_process_failed));
+        free(DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_noConstLedgerId);
+        return -1;
+    }
+
+    free(DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_noConstLedgerId);
+    dzlog_info("[req: %s] Successfully set emergency usage process failed status for ledger ID: %s", DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_requestId, DBOP_VAR_ExecuteSetEmergencyUsageProcessFailed_ledgerId);
+    return 0;
+}
+
+// 应急使用记录设置处理失败状态的API接口
+void DBOP_FUN_ApiSetEmergencyUsageProcessFailed(struct evhttp_request *DBOP_VAR_ApiSetEmergencyUsageProcessFailed_request, void *DBOP_VAR_ApiSetEmergencyUsageProcessFailed_voidCfg) {
+    AppConfig *DBOP_VAR_ApiSetEmergencyUsageProcessFailed_cfg = (AppConfig *)DBOP_VAR_ApiSetEmergencyUsageProcessFailed_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiSetEmergencyUsageProcessFailed_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiSetEmergencyUsageProcessFailed_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to set emergency usage process failed.", DBOP_VAR_ApiSetEmergencyUsageProcessFailed_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiSetEmergencyUsageProcessFailed_request, DBOP_VAR_ApiSetEmergencyUsageProcessFailed_cfg, DBOP_VAR_ApiSetEmergencyUsageProcessFailed_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiSetEmergencyUsageProcessFailed_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiSetEmergencyUsageProcessFailed_request, DBOP_VAR_ApiSetEmergencyUsageProcessFailed_requestId);
+    if (!DBOP_VAR_ApiSetEmergencyUsageProcessFailed_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiSetEmergencyUsageProcessFailed_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiSetEmergencyUsageProcessFailed_dataJsonAll, "ledger_id");
+
+    if (!json_is_string(DBOP_VAR_ApiSetEmergencyUsageProcessFailed_dataJsonLedgerId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Missing or invalid ledger_id field", DBOP_VAR_ApiSetEmergencyUsageProcessFailed_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiSetEmergencyUsageProcessFailed_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiSetEmergencyUsageProcessFailed_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiSetEmergencyUsageProcessFailed_ledgerId = json_string_value(DBOP_VAR_ApiSetEmergencyUsageProcessFailed_dataJsonLedgerId);
+
+    dzlog_info("[req: %s] Executing database operation for ApiSetEmergencyUsageProcessFailed: ledgerId=%s", 
+               DBOP_VAR_ApiSetEmergencyUsageProcessFailed_requestId, DBOP_VAR_ApiSetEmergencyUsageProcessFailed_ledgerId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiSetEmergencyUsageProcessFailed_mysqlConnect = DBOP_FUN_GetConnectFromPool(DBOP_VAR_ApiSetEmergencyUsageProcessFailed_cfg, 0);
+    int result = DBOP_FUN_ExecuteSetEmergencyUsageProcessFailed(DBOP_VAR_ApiSetEmergencyUsageProcessFailed_mysqlConnect, DBOP_VAR_ApiSetEmergencyUsageProcessFailed_ledgerId, DBOP_VAR_ApiSetEmergencyUsageProcessFailed_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiSetEmergencyUsageProcessFailed_request, result, DBOP_VAR_ApiSetEmergencyUsageProcessFailed_requestId, "set emergency usage process failed");
+
+    json_decref(DBOP_VAR_ApiSetEmergencyUsageProcessFailed_dataJsonAll);
+}
+
+// ------------------------mysql应急使用记录设置处理失败状态api逻辑结束----------------------------
+
+// ------------------------mysql应急使用记录设置发款中状态api逻辑开始----------------------------
+
+// 执行应急使用记录设置发款中状态的数据库操作
+int DBOP_FUN_ExecuteSetEmergencyUsagePaying(DB_CONNECTION *DBOP_VAR_ExecuteSetEmergencyUsagePaying_connect, const char *DBOP_VAR_ExecuteSetEmergencyUsagePaying_ledgerId, const char *DBOP_VAR_ExecuteSetEmergencyUsagePaying_requestId) {
+    dzlog_info("[req: %s] Executing set emergency usage paying for ledger ID: %s", DBOP_VAR_ExecuteSetEmergencyUsagePaying_requestId, DBOP_VAR_ExecuteSetEmergencyUsagePaying_ledgerId);
+
+    // 为了避免const限制，创建非const副本
+    char *DBOP_VAR_ExecuteSetEmergencyUsagePaying_noConstLedgerId = malloc(strlen(DBOP_VAR_ExecuteSetEmergencyUsagePaying_ledgerId) + 1);
+    strcpy(DBOP_VAR_ExecuteSetEmergencyUsagePaying_noConstLedgerId, DBOP_VAR_ExecuteSetEmergencyUsagePaying_ledgerId);
+
+    // 绑定参数
+    MYSQL_BIND DBOP_VAR_ExecuteSetEmergencyUsagePaying_bindParams[1];
+    memset(DBOP_VAR_ExecuteSetEmergencyUsagePaying_bindParams, 0, sizeof(DBOP_VAR_ExecuteSetEmergencyUsagePaying_bindParams));
+
+    DBOP_VAR_ExecuteSetEmergencyUsagePaying_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteSetEmergencyUsagePaying_bindParams[0].buffer = DBOP_VAR_ExecuteSetEmergencyUsagePaying_noConstLedgerId;
+    DBOP_VAR_ExecuteSetEmergencyUsagePaying_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteSetEmergencyUsagePaying_noConstLedgerId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteSetEmergencyUsagePaying_connect->stmt_set_status_emergency_usage_paying, DBOP_VAR_ExecuteSetEmergencyUsagePaying_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind set emergency usage paying params: %s", DBOP_VAR_ExecuteSetEmergencyUsagePaying_requestId, mysql_stmt_error(DBOP_VAR_ExecuteSetEmergencyUsagePaying_connect->stmt_set_status_emergency_usage_paying));
+        free(DBOP_VAR_ExecuteSetEmergencyUsagePaying_noConstLedgerId);
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteSetEmergencyUsagePaying_connect->stmt_set_status_emergency_usage_paying)) {
+        dzlog_error("[req: %s] Failed to execute set emergency usage paying statement: %s", DBOP_VAR_ExecuteSetEmergencyUsagePaying_requestId, mysql_stmt_error(DBOP_VAR_ExecuteSetEmergencyUsagePaying_connect->stmt_set_status_emergency_usage_paying));
+        free(DBOP_VAR_ExecuteSetEmergencyUsagePaying_noConstLedgerId);
+        return -1;
+    }
+
+    free(DBOP_VAR_ExecuteSetEmergencyUsagePaying_noConstLedgerId);
+    dzlog_info("[req: %s] Successfully set emergency usage paying status for ledger ID: %s", DBOP_VAR_ExecuteSetEmergencyUsagePaying_requestId, DBOP_VAR_ExecuteSetEmergencyUsagePaying_ledgerId);
+    return 0;
+}
+
+// 应急使用记录设置发款中状态的API接口
+void DBOP_FUN_ApiSetEmergencyUsagePaying(struct evhttp_request *DBOP_VAR_ApiSetEmergencyUsagePaying_request, void *DBOP_VAR_ApiSetEmergencyUsagePaying_voidCfg) {
+    AppConfig *DBOP_VAR_ApiSetEmergencyUsagePaying_cfg = (AppConfig *)DBOP_VAR_ApiSetEmergencyUsagePaying_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiSetEmergencyUsagePaying_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiSetEmergencyUsagePaying_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to set emergency usage paying.", DBOP_VAR_ApiSetEmergencyUsagePaying_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiSetEmergencyUsagePaying_request, DBOP_VAR_ApiSetEmergencyUsagePaying_cfg, DBOP_VAR_ApiSetEmergencyUsagePaying_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiSetEmergencyUsagePaying_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiSetEmergencyUsagePaying_request, DBOP_VAR_ApiSetEmergencyUsagePaying_requestId);
+    if (!DBOP_VAR_ApiSetEmergencyUsagePaying_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiSetEmergencyUsagePaying_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiSetEmergencyUsagePaying_dataJsonAll, "ledger_id");
+
+    if (!json_is_string(DBOP_VAR_ApiSetEmergencyUsagePaying_dataJsonLedgerId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Missing or invalid ledger_id field", DBOP_VAR_ApiSetEmergencyUsagePaying_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiSetEmergencyUsagePaying_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiSetEmergencyUsagePaying_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiSetEmergencyUsagePaying_ledgerId = json_string_value(DBOP_VAR_ApiSetEmergencyUsagePaying_dataJsonLedgerId);
+
+    dzlog_info("[req: %s] Executing database operation for ApiSetEmergencyUsagePaying: ledgerId=%s", 
+               DBOP_VAR_ApiSetEmergencyUsagePaying_requestId, DBOP_VAR_ApiSetEmergencyUsagePaying_ledgerId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiSetEmergencyUsagePaying_mysqlConnect = DBOP_FUN_GetConnectFromPool(DBOP_VAR_ApiSetEmergencyUsagePaying_cfg, 0);
+    int result = DBOP_FUN_ExecuteSetEmergencyUsagePaying(DBOP_VAR_ApiSetEmergencyUsagePaying_mysqlConnect, DBOP_VAR_ApiSetEmergencyUsagePaying_ledgerId, DBOP_VAR_ApiSetEmergencyUsagePaying_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiSetEmergencyUsagePaying_request, result, DBOP_VAR_ApiSetEmergencyUsagePaying_requestId, "set emergency usage paying");
+
+    json_decref(DBOP_VAR_ApiSetEmergencyUsagePaying_dataJsonAll);
+}
+
+// ------------------------mysql应急使用记录设置发款中状态api逻辑结束----------------------------
+
+// ------------------------mysql应急使用记录设置发款失败状态api逻辑开始----------------------------
+
+// 执行应急使用记录设置发款失败状态的数据库操作
+int DBOP_FUN_ExecuteSetEmergencyUsagePayFailed(DB_CONNECTION *DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_connect, const char *DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_ledgerId, const char *DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_requestId) {
+    dzlog_info("[req: %s] Executing set emergency usage pay failed for ledger ID: %s", DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_requestId, DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_ledgerId);
+
+    // 为了避免const限制，创建非const副本
+    char *DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_noConstLedgerId = malloc(strlen(DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_ledgerId) + 1);
+    strcpy(DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_noConstLedgerId, DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_ledgerId);
+
+    // 绑定参数
+    MYSQL_BIND DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_bindParams[1];
+    memset(DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_bindParams, 0, sizeof(DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_bindParams));
+
+    DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_bindParams[0].buffer = DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_noConstLedgerId;
+    DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_noConstLedgerId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_connect->stmt_set_status_emergency_usage_pay_failed, DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind set emergency usage pay failed params: %s", DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_connect->stmt_set_status_emergency_usage_pay_failed));
+        free(DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_noConstLedgerId);
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_connect->stmt_set_status_emergency_usage_pay_failed)) {
+        dzlog_error("[req: %s] Failed to execute set emergency usage pay failed statement: %s", DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_connect->stmt_set_status_emergency_usage_pay_failed));
+        free(DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_noConstLedgerId);
+        return -1;
+    }
+
+    free(DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_noConstLedgerId);
+    dzlog_info("[req: %s] Successfully set emergency usage pay failed status for ledger ID: %s", DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_requestId, DBOP_VAR_ExecuteSetEmergencyUsagePayFailed_ledgerId);
+    return 0;
+}
+
+// 应急使用记录设置发款失败状态的API接口
+void DBOP_FUN_ApiSetEmergencyUsagePayFailed(struct evhttp_request *DBOP_VAR_ApiSetEmergencyUsagePayFailed_request, void *DBOP_VAR_ApiSetEmergencyUsagePayFailed_voidCfg) {
+    AppConfig *DBOP_VAR_ApiSetEmergencyUsagePayFailed_cfg = (AppConfig *)DBOP_VAR_ApiSetEmergencyUsagePayFailed_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiSetEmergencyUsagePayFailed_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiSetEmergencyUsagePayFailed_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to set emergency usage pay failed.", DBOP_VAR_ApiSetEmergencyUsagePayFailed_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiSetEmergencyUsagePayFailed_request, DBOP_VAR_ApiSetEmergencyUsagePayFailed_cfg, DBOP_VAR_ApiSetEmergencyUsagePayFailed_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiSetEmergencyUsagePayFailed_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiSetEmergencyUsagePayFailed_request, DBOP_VAR_ApiSetEmergencyUsagePayFailed_requestId);
+    if (!DBOP_VAR_ApiSetEmergencyUsagePayFailed_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiSetEmergencyUsagePayFailed_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiSetEmergencyUsagePayFailed_dataJsonAll, "ledger_id");
+
+    if (!json_is_string(DBOP_VAR_ApiSetEmergencyUsagePayFailed_dataJsonLedgerId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Missing or invalid ledger_id field", DBOP_VAR_ApiSetEmergencyUsagePayFailed_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiSetEmergencyUsagePayFailed_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiSetEmergencyUsagePayFailed_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiSetEmergencyUsagePayFailed_ledgerId = json_string_value(DBOP_VAR_ApiSetEmergencyUsagePayFailed_dataJsonLedgerId);
+
+    dzlog_info("[req: %s] Executing database operation for ApiSetEmergencyUsagePayFailed: ledgerId=%s", 
+               DBOP_VAR_ApiSetEmergencyUsagePayFailed_requestId, DBOP_VAR_ApiSetEmergencyUsagePayFailed_ledgerId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiSetEmergencyUsagePayFailed_mysqlConnect = DBOP_FUN_GetConnectFromPool(DBOP_VAR_ApiSetEmergencyUsagePayFailed_cfg, 0);
+    int result = DBOP_FUN_ExecuteSetEmergencyUsagePayFailed(DBOP_VAR_ApiSetEmergencyUsagePayFailed_mysqlConnect, DBOP_VAR_ApiSetEmergencyUsagePayFailed_ledgerId, DBOP_VAR_ApiSetEmergencyUsagePayFailed_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiSetEmergencyUsagePayFailed_request, result, DBOP_VAR_ApiSetEmergencyUsagePayFailed_requestId, "set emergency usage pay failed");
+
+    json_decref(DBOP_VAR_ApiSetEmergencyUsagePayFailed_dataJsonAll);
+}
+
+// ------------------------mysql应急使用记录设置发款失败状态api逻辑结束----------------------------
+
+// ------------------------mysql应急使用记录设置未核销状态api逻辑开始----------------------------
+
+// 执行应急使用记录设置未核销状态的数据库操作
+int DBOP_FUN_ExecuteSetEmergencyUsageUnverified(DB_CONNECTION *DBOP_VAR_ExecuteSetEmergencyUsageUnverified_connect, const char *DBOP_VAR_ExecuteSetEmergencyUsageUnverified_ledgerId, const char *DBOP_VAR_ExecuteSetEmergencyUsageUnverified_requestId) {
+    dzlog_info("[req: %s] Executing set emergency usage unverified for ledger ID: %s", DBOP_VAR_ExecuteSetEmergencyUsageUnverified_requestId, DBOP_VAR_ExecuteSetEmergencyUsageUnverified_ledgerId);
+
+    // 为了避免const限制，创建非const副本
+    char *DBOP_VAR_ExecuteSetEmergencyUsageUnverified_noConstLedgerId = malloc(strlen(DBOP_VAR_ExecuteSetEmergencyUsageUnverified_ledgerId) + 1);
+    strcpy(DBOP_VAR_ExecuteSetEmergencyUsageUnverified_noConstLedgerId, DBOP_VAR_ExecuteSetEmergencyUsageUnverified_ledgerId);
+
+    // 绑定参数
+    MYSQL_BIND DBOP_VAR_ExecuteSetEmergencyUsageUnverified_bindParams[1];
+    memset(DBOP_VAR_ExecuteSetEmergencyUsageUnverified_bindParams, 0, sizeof(DBOP_VAR_ExecuteSetEmergencyUsageUnverified_bindParams));
+
+    DBOP_VAR_ExecuteSetEmergencyUsageUnverified_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteSetEmergencyUsageUnverified_bindParams[0].buffer = DBOP_VAR_ExecuteSetEmergencyUsageUnverified_noConstLedgerId;
+    DBOP_VAR_ExecuteSetEmergencyUsageUnverified_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteSetEmergencyUsageUnverified_noConstLedgerId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteSetEmergencyUsageUnverified_connect->stmt_set_status_emergency_usage_unverified, DBOP_VAR_ExecuteSetEmergencyUsageUnverified_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind set emergency usage unverified params: %s", DBOP_VAR_ExecuteSetEmergencyUsageUnverified_requestId, mysql_stmt_error(DBOP_VAR_ExecuteSetEmergencyUsageUnverified_connect->stmt_set_status_emergency_usage_unverified));
+        free(DBOP_VAR_ExecuteSetEmergencyUsageUnverified_noConstLedgerId);
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteSetEmergencyUsageUnverified_connect->stmt_set_status_emergency_usage_unverified)) {
+        dzlog_error("[req: %s] Failed to execute set emergency usage unverified statement: %s", DBOP_VAR_ExecuteSetEmergencyUsageUnverified_requestId, mysql_stmt_error(DBOP_VAR_ExecuteSetEmergencyUsageUnverified_connect->stmt_set_status_emergency_usage_unverified));
+        free(DBOP_VAR_ExecuteSetEmergencyUsageUnverified_noConstLedgerId);
+        return -1;
+    }
+
+    free(DBOP_VAR_ExecuteSetEmergencyUsageUnverified_noConstLedgerId);
+    dzlog_info("[req: %s] Successfully set emergency usage unverified status for ledger ID: %s", DBOP_VAR_ExecuteSetEmergencyUsageUnverified_requestId, DBOP_VAR_ExecuteSetEmergencyUsageUnverified_ledgerId);
+    return 0;
+}
+
+// 应急使用记录设置未核销状态的API接口
+void DBOP_FUN_ApiSetEmergencyUsageUnverified(struct evhttp_request *DBOP_VAR_ApiSetEmergencyUsageUnverified_request, void *DBOP_VAR_ApiSetEmergencyUsageUnverified_voidCfg) {
+    AppConfig *DBOP_VAR_ApiSetEmergencyUsageUnverified_cfg = (AppConfig *)DBOP_VAR_ApiSetEmergencyUsageUnverified_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiSetEmergencyUsageUnverified_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiSetEmergencyUsageUnverified_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to set emergency usage unverified.", DBOP_VAR_ApiSetEmergencyUsageUnverified_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiSetEmergencyUsageUnverified_request, DBOP_VAR_ApiSetEmergencyUsageUnverified_cfg, DBOP_VAR_ApiSetEmergencyUsageUnverified_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiSetEmergencyUsageUnverified_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiSetEmergencyUsageUnverified_request, DBOP_VAR_ApiSetEmergencyUsageUnverified_requestId);
+    if (!DBOP_VAR_ApiSetEmergencyUsageUnverified_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiSetEmergencyUsageUnverified_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiSetEmergencyUsageUnverified_dataJsonAll, "ledger_id");
+
+    if (!json_is_string(DBOP_VAR_ApiSetEmergencyUsageUnverified_dataJsonLedgerId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Missing or invalid ledger_id field", DBOP_VAR_ApiSetEmergencyUsageUnverified_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiSetEmergencyUsageUnverified_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiSetEmergencyUsageUnverified_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiSetEmergencyUsageUnverified_ledgerId = json_string_value(DBOP_VAR_ApiSetEmergencyUsageUnverified_dataJsonLedgerId);
+
+    dzlog_info("[req: %s] Executing database operation for ApiSetEmergencyUsageUnverified: ledgerId=%s", 
+               DBOP_VAR_ApiSetEmergencyUsageUnverified_requestId, DBOP_VAR_ApiSetEmergencyUsageUnverified_ledgerId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiSetEmergencyUsageUnverified_mysqlConnect = DBOP_FUN_GetConnectFromPool(DBOP_VAR_ApiSetEmergencyUsageUnverified_cfg, 0);
+    int result = DBOP_FUN_ExecuteSetEmergencyUsageUnverified(DBOP_VAR_ApiSetEmergencyUsageUnverified_mysqlConnect, DBOP_VAR_ApiSetEmergencyUsageUnverified_ledgerId, DBOP_VAR_ApiSetEmergencyUsageUnverified_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiSetEmergencyUsageUnverified_request, result, DBOP_VAR_ApiSetEmergencyUsageUnverified_requestId, "set emergency usage unverified");
+
+    json_decref(DBOP_VAR_ApiSetEmergencyUsageUnverified_dataJsonAll);
+}
+
+// ------------------------mysql应急使用记录设置未核销状态api逻辑结束----------------------------
+
+// ------------------------mysql应急使用记录设置核销完成状态api逻辑开始----------------------------
+
+// 执行应急使用记录设置核销完成状态的数据库操作
+int DBOP_FUN_ExecuteSetEmergencyUsageVerified(DB_CONNECTION *DBOP_VAR_ExecuteSetEmergencyUsageVerified_connect, const char *DBOP_VAR_ExecuteSetEmergencyUsageVerified_ledgerId, const char *DBOP_VAR_ExecuteSetEmergencyUsageVerified_requestId) {
+    dzlog_info("[req: %s] Executing set emergency usage verified for ledger ID: %s", DBOP_VAR_ExecuteSetEmergencyUsageVerified_requestId, DBOP_VAR_ExecuteSetEmergencyUsageVerified_ledgerId);
+
+    // 为了避免const限制，创建非const副本
+    char *DBOP_VAR_ExecuteSetEmergencyUsageVerified_noConstLedgerId = malloc(strlen(DBOP_VAR_ExecuteSetEmergencyUsageVerified_ledgerId) + 1);
+    strcpy(DBOP_VAR_ExecuteSetEmergencyUsageVerified_noConstLedgerId, DBOP_VAR_ExecuteSetEmergencyUsageVerified_ledgerId);
+
+    // 绑定参数
+    MYSQL_BIND DBOP_VAR_ExecuteSetEmergencyUsageVerified_bindParams[1];
+    memset(DBOP_VAR_ExecuteSetEmergencyUsageVerified_bindParams, 0, sizeof(DBOP_VAR_ExecuteSetEmergencyUsageVerified_bindParams));
+
+    DBOP_VAR_ExecuteSetEmergencyUsageVerified_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteSetEmergencyUsageVerified_bindParams[0].buffer = DBOP_VAR_ExecuteSetEmergencyUsageVerified_noConstLedgerId;
+    DBOP_VAR_ExecuteSetEmergencyUsageVerified_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteSetEmergencyUsageVerified_noConstLedgerId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteSetEmergencyUsageVerified_connect->stmt_set_status_emergency_usage_verified, DBOP_VAR_ExecuteSetEmergencyUsageVerified_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind set emergency usage verified params: %s", DBOP_VAR_ExecuteSetEmergencyUsageVerified_requestId, mysql_stmt_error(DBOP_VAR_ExecuteSetEmergencyUsageVerified_connect->stmt_set_status_emergency_usage_verified));
+        free(DBOP_VAR_ExecuteSetEmergencyUsageVerified_noConstLedgerId);
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteSetEmergencyUsageVerified_connect->stmt_set_status_emergency_usage_verified)) {
+        dzlog_error("[req: %s] Failed to execute set emergency usage verified statement: %s", DBOP_VAR_ExecuteSetEmergencyUsageVerified_requestId, mysql_stmt_error(DBOP_VAR_ExecuteSetEmergencyUsageVerified_connect->stmt_set_status_emergency_usage_verified));
+        free(DBOP_VAR_ExecuteSetEmergencyUsageVerified_noConstLedgerId);
+        return -1;
+    }
+
+    free(DBOP_VAR_ExecuteSetEmergencyUsageVerified_noConstLedgerId);
+    dzlog_info("[req: %s] Successfully set emergency usage verified status for ledger ID: %s", DBOP_VAR_ExecuteSetEmergencyUsageVerified_requestId, DBOP_VAR_ExecuteSetEmergencyUsageVerified_ledgerId);
+    return 0;
+}
+
+// 应急使用记录设置核销完成状态的API接口
+void DBOP_FUN_ApiSetEmergencyUsageVerified(struct evhttp_request *DBOP_VAR_ApiSetEmergencyUsageVerified_request, void *DBOP_VAR_ApiSetEmergencyUsageVerified_voidCfg) {
+    AppConfig *DBOP_VAR_ApiSetEmergencyUsageVerified_cfg = (AppConfig *)DBOP_VAR_ApiSetEmergencyUsageVerified_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiSetEmergencyUsageVerified_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiSetEmergencyUsageVerified_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to set emergency usage verified.", DBOP_VAR_ApiSetEmergencyUsageVerified_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiSetEmergencyUsageVerified_request, DBOP_VAR_ApiSetEmergencyUsageVerified_cfg, DBOP_VAR_ApiSetEmergencyUsageVerified_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiSetEmergencyUsageVerified_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiSetEmergencyUsageVerified_request, DBOP_VAR_ApiSetEmergencyUsageVerified_requestId);
+    if (!DBOP_VAR_ApiSetEmergencyUsageVerified_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiSetEmergencyUsageVerified_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiSetEmergencyUsageVerified_dataJsonAll, "ledger_id");
+
+    if (!json_is_string(DBOP_VAR_ApiSetEmergencyUsageVerified_dataJsonLedgerId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Missing or invalid ledger_id field", DBOP_VAR_ApiSetEmergencyUsageVerified_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiSetEmergencyUsageVerified_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiSetEmergencyUsageVerified_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiSetEmergencyUsageVerified_ledgerId = json_string_value(DBOP_VAR_ApiSetEmergencyUsageVerified_dataJsonLedgerId);
+
+    dzlog_info("[req: %s] Executing database operation for ApiSetEmergencyUsageVerified: ledgerId=%s", 
+               DBOP_VAR_ApiSetEmergencyUsageVerified_requestId, DBOP_VAR_ApiSetEmergencyUsageVerified_ledgerId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiSetEmergencyUsageVerified_mysqlConnect = DBOP_FUN_GetConnectFromPool(DBOP_VAR_ApiSetEmergencyUsageVerified_cfg, 0);
+    int result = DBOP_FUN_ExecuteSetEmergencyUsageVerified(DBOP_VAR_ApiSetEmergencyUsageVerified_mysqlConnect, DBOP_VAR_ApiSetEmergencyUsageVerified_ledgerId, DBOP_VAR_ApiSetEmergencyUsageVerified_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiSetEmergencyUsageVerified_request, result, DBOP_VAR_ApiSetEmergencyUsageVerified_requestId, "set emergency usage verified");
+
+    json_decref(DBOP_VAR_ApiSetEmergencyUsageVerified_dataJsonAll);
+}
+
+// ------------------------mysql应急使用记录设置核销完成状态api逻辑结束----------------------------
+
+// ------------------------mysql更新审计志愿者ID api逻辑开始----------------------------
+
+// 更新审计志愿者ID的sql数据化输出
+int DBOP_FUN_ExecuteUpdateAuditVolunteer(DB_CONNECTION *DBOP_VAR_ExecuteUpdateAuditVolunteer_connect, const char *DBOP_VAR_ExecuteUpdateAuditVolunteer_ledgerId, const char *DBOP_VAR_ExecuteUpdateAuditVolunteer_volunteerId, const char *DBOP_VAR_ExecuteUpdateAuditVolunteer_requestId) {
+    dzlog_info("[req: %s] DBOP_FUN_ExecuteUpdateAuditVolunteer is starting", DBOP_VAR_ExecuteUpdateAuditVolunteer_requestId);
+
+    // 保护原始参数不被修改，复制参数
+    char DBOP_VAR_ExecuteUpdateAuditVolunteer_noConstLedgerId[256];
+    char DBOP_VAR_ExecuteUpdateAuditVolunteer_noConstVolunteerId[256];
+
+    strncpy(DBOP_VAR_ExecuteUpdateAuditVolunteer_noConstLedgerId, DBOP_VAR_ExecuteUpdateAuditVolunteer_ledgerId, sizeof(DBOP_VAR_ExecuteUpdateAuditVolunteer_noConstLedgerId) - 1);
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_noConstLedgerId[sizeof(DBOP_VAR_ExecuteUpdateAuditVolunteer_noConstLedgerId) - 1] = '\0';
+
+    strncpy(DBOP_VAR_ExecuteUpdateAuditVolunteer_noConstVolunteerId, DBOP_VAR_ExecuteUpdateAuditVolunteer_volunteerId, sizeof(DBOP_VAR_ExecuteUpdateAuditVolunteer_noConstVolunteerId) - 1);
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_noConstVolunteerId[sizeof(DBOP_VAR_ExecuteUpdateAuditVolunteer_noConstVolunteerId) - 1] = '\0';
+
+    // 开始事务
+    if (mysql_autocommit(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->mysql, 0)) {
+        dzlog_error("[req: %s] Failed to start transaction: %s", DBOP_VAR_ExecuteUpdateAuditVolunteer_requestId, mysql_error(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->mysql));
+        return -1;
+    }
+
+    // 第一步：查询当前审计志愿者信息
+    MYSQL_BIND DBOP_VAR_ExecuteUpdateAuditVolunteer_queryBind[1];
+    memset(DBOP_VAR_ExecuteUpdateAuditVolunteer_queryBind, 0, sizeof(DBOP_VAR_ExecuteUpdateAuditVolunteer_queryBind));
+
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_queryBind[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_queryBind[0].buffer = (char *)DBOP_VAR_ExecuteUpdateAuditVolunteer_noConstLedgerId;
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_queryBind[0].buffer_length = strlen(DBOP_VAR_ExecuteUpdateAuditVolunteer_noConstLedgerId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->stmt_get_audit_volunteer_info, DBOP_VAR_ExecuteUpdateAuditVolunteer_queryBind)) {
+        dzlog_error("[req: %s] Failed to bind query param: %s", DBOP_VAR_ExecuteUpdateAuditVolunteer_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->stmt_get_audit_volunteer_info));
+        mysql_rollback(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->mysql);
+        mysql_autocommit(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->mysql, 1);
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->stmt_get_audit_volunteer_info)) {
+        dzlog_error("[req: %s] Failed to execute query statement: %s", DBOP_VAR_ExecuteUpdateAuditVolunteer_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->stmt_get_audit_volunteer_info));
+        mysql_rollback(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->mysql);
+        mysql_autocommit(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->mysql, 1);
+        return -1;
+    }
+
+    // 绑定查询结果
+    MYSQL_BIND DBOP_VAR_ExecuteUpdateAuditVolunteer_queryResult[3];
+    memset(DBOP_VAR_ExecuteUpdateAuditVolunteer_queryResult, 0, sizeof(DBOP_VAR_ExecuteUpdateAuditVolunteer_queryResult));
+    
+    char DBOP_VAR_ExecuteUpdateAuditVolunteer_auditId[256];
+    char DBOP_VAR_ExecuteUpdateAuditVolunteer_currentVolunteer[256];
+    char DBOP_VAR_ExecuteUpdateAuditVolunteer_previousVolunteers[4096];
+    unsigned long DBOP_VAR_ExecuteUpdateAuditVolunteer_auditIdLength;
+    unsigned long DBOP_VAR_ExecuteUpdateAuditVolunteer_currentVolunteerLength;
+    unsigned long DBOP_VAR_ExecuteUpdateAuditVolunteer_previousVolunteersLength;
+    my_bool DBOP_VAR_ExecuteUpdateAuditVolunteer_auditIdIsNull;
+    my_bool DBOP_VAR_ExecuteUpdateAuditVolunteer_currentVolunteerIsNull;
+    my_bool DBOP_VAR_ExecuteUpdateAuditVolunteer_previousVolunteersIsNull;
+
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_queryResult[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_queryResult[0].buffer = DBOP_VAR_ExecuteUpdateAuditVolunteer_auditId;
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_queryResult[0].buffer_length = sizeof(DBOP_VAR_ExecuteUpdateAuditVolunteer_auditId);
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_queryResult[0].length = &DBOP_VAR_ExecuteUpdateAuditVolunteer_auditIdLength;
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_queryResult[0].is_null = &DBOP_VAR_ExecuteUpdateAuditVolunteer_auditIdIsNull;
+
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_queryResult[1].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_queryResult[1].buffer = DBOP_VAR_ExecuteUpdateAuditVolunteer_currentVolunteer;
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_queryResult[1].buffer_length = sizeof(DBOP_VAR_ExecuteUpdateAuditVolunteer_currentVolunteer);
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_queryResult[1].length = &DBOP_VAR_ExecuteUpdateAuditVolunteer_currentVolunteerLength;
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_queryResult[1].is_null = &DBOP_VAR_ExecuteUpdateAuditVolunteer_currentVolunteerIsNull;
+
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_queryResult[2].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_queryResult[2].buffer = DBOP_VAR_ExecuteUpdateAuditVolunteer_previousVolunteers;
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_queryResult[2].buffer_length = sizeof(DBOP_VAR_ExecuteUpdateAuditVolunteer_previousVolunteers);
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_queryResult[2].length = &DBOP_VAR_ExecuteUpdateAuditVolunteer_previousVolunteersLength;
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_queryResult[2].is_null = &DBOP_VAR_ExecuteUpdateAuditVolunteer_previousVolunteersIsNull;
+
+    if (mysql_stmt_bind_result(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->stmt_get_audit_volunteer_info, DBOP_VAR_ExecuteUpdateAuditVolunteer_queryResult)) {
+        dzlog_error("[req: %s] Failed to bind query result: %s", DBOP_VAR_ExecuteUpdateAuditVolunteer_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->stmt_get_audit_volunteer_info));
+        mysql_rollback(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->mysql);
+        mysql_autocommit(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->mysql, 1);
+        return -1;
+    }
+
+    // 获取查询结果
+    int fetchResult = mysql_stmt_fetch(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->stmt_get_audit_volunteer_info);
+    if (fetchResult == MYSQL_NO_DATA) {
+        dzlog_warn("[req: %s] No audit record found for ledger_id: %s", DBOP_VAR_ExecuteUpdateAuditVolunteer_requestId, DBOP_VAR_ExecuteUpdateAuditVolunteer_ledgerId);
+        mysql_stmt_free_result(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->stmt_get_audit_volunteer_info);
+        mysql_rollback(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->mysql);
+        mysql_autocommit(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->mysql, 1);
+        return 1;
+    } else if (fetchResult != 0) {
+        dzlog_error("[req: %s] Failed to fetch query result: %s", DBOP_VAR_ExecuteUpdateAuditVolunteer_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->stmt_get_audit_volunteer_info));
+        mysql_stmt_free_result(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->stmt_get_audit_volunteer_info);
+        mysql_rollback(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->mysql);
+        mysql_autocommit(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->mysql, 1);
+        return -1;
+    }
+
+    mysql_stmt_free_result(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->stmt_get_audit_volunteer_info);
+
+    // 确保字符串正确终止
+    if (!DBOP_VAR_ExecuteUpdateAuditVolunteer_auditIdIsNull) {
+        DBOP_VAR_ExecuteUpdateAuditVolunteer_auditId[DBOP_VAR_ExecuteUpdateAuditVolunteer_auditIdLength] = '\0';
+    }
+    if (!DBOP_VAR_ExecuteUpdateAuditVolunteer_currentVolunteerIsNull) {
+        DBOP_VAR_ExecuteUpdateAuditVolunteer_currentVolunteer[DBOP_VAR_ExecuteUpdateAuditVolunteer_currentVolunteerLength] = '\0';
+    }
+    if (!DBOP_VAR_ExecuteUpdateAuditVolunteer_previousVolunteersIsNull) {
+        DBOP_VAR_ExecuteUpdateAuditVolunteer_previousVolunteers[DBOP_VAR_ExecuteUpdateAuditVolunteer_previousVolunteersLength] = '\0';
+    }
+
+    // 第二步：构建新的previous_volunteers列表
+    char *DBOP_VAR_ExecuteUpdateAuditVolunteer_newPreviousVolunteers = NULL;
+    
+    if (DBOP_VAR_ExecuteUpdateAuditVolunteer_currentVolunteerIsNull || DBOP_VAR_ExecuteUpdateAuditVolunteer_currentVolunteerLength == 0) {
+        // 当前没有志愿者，保持previous_volunteers不变
+        if (DBOP_VAR_ExecuteUpdateAuditVolunteer_previousVolunteersIsNull) {
+            DBOP_VAR_ExecuteUpdateAuditVolunteer_newPreviousVolunteers = strdup("[]");
+        } else {
+            DBOP_VAR_ExecuteUpdateAuditVolunteer_newPreviousVolunteers = strdup(DBOP_VAR_ExecuteUpdateAuditVolunteer_previousVolunteers);
+        }
+    } else {
+        // 有当前志愿者，需要添加到previous_volunteers列表末尾
+        json_error_t error;
+        json_t *previousArray;
+        
+        if (DBOP_VAR_ExecuteUpdateAuditVolunteer_previousVolunteersIsNull || DBOP_VAR_ExecuteUpdateAuditVolunteer_previousVolunteersLength == 0) {
+            // 创建新的数组
+            previousArray = json_array();
+        } else {
+            // 解析现有的JSON数组
+            previousArray = json_loads(DBOP_VAR_ExecuteUpdateAuditVolunteer_previousVolunteers, 0, &error);
+            if (!previousArray || !json_is_array(previousArray)) {
+                dzlog_warn("[req: %s] Invalid previous_volunteers JSON, creating new array", DBOP_VAR_ExecuteUpdateAuditVolunteer_requestId);
+                if (previousArray) json_decref(previousArray);
+                previousArray = json_array();
+            }
+        }
+        
+        // 添加当前志愿者到数组末尾
+        json_t *currentVolunteerJson = json_string(DBOP_VAR_ExecuteUpdateAuditVolunteer_currentVolunteer);
+        json_array_append_new(previousArray, currentVolunteerJson);
+        
+        // 将数组转换为字符串
+        DBOP_VAR_ExecuteUpdateAuditVolunteer_newPreviousVolunteers = json_dumps(previousArray, JSON_COMPACT);
+        json_decref(previousArray);
+    }
+
+    if (!DBOP_VAR_ExecuteUpdateAuditVolunteer_newPreviousVolunteers) {
+        dzlog_error("[req: %s] Failed to create new previous_volunteers string", DBOP_VAR_ExecuteUpdateAuditVolunteer_requestId);
+        mysql_rollback(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->mysql);
+        mysql_autocommit(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->mysql, 1);
+        return -1;
+    }
+
+    // 第三步：更新donation_volunteer_audit表
+    MYSQL_BIND DBOP_VAR_ExecuteUpdateAuditVolunteer_updateBind[3];
+    memset(DBOP_VAR_ExecuteUpdateAuditVolunteer_updateBind, 0, sizeof(DBOP_VAR_ExecuteUpdateAuditVolunteer_updateBind));
+
+    // 绑定参数：current_volunteer, previous_volunteers, audit_id
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_updateBind[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_updateBind[0].buffer = (char *)DBOP_VAR_ExecuteUpdateAuditVolunteer_noConstVolunteerId;
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_updateBind[0].buffer_length = strlen(DBOP_VAR_ExecuteUpdateAuditVolunteer_noConstVolunteerId);
+
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_updateBind[1].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_updateBind[1].buffer = DBOP_VAR_ExecuteUpdateAuditVolunteer_newPreviousVolunteers;
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_updateBind[1].buffer_length = strlen(DBOP_VAR_ExecuteUpdateAuditVolunteer_newPreviousVolunteers);
+
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_updateBind[2].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_updateBind[2].buffer = DBOP_VAR_ExecuteUpdateAuditVolunteer_auditId;
+    DBOP_VAR_ExecuteUpdateAuditVolunteer_updateBind[2].buffer_length = strlen(DBOP_VAR_ExecuteUpdateAuditVolunteer_auditId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->stmt_update_audit_volunteer, DBOP_VAR_ExecuteUpdateAuditVolunteer_updateBind)) {
+        dzlog_error("[req: %s] Failed to bind update param: %s", DBOP_VAR_ExecuteUpdateAuditVolunteer_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->stmt_update_audit_volunteer));
+        free(DBOP_VAR_ExecuteUpdateAuditVolunteer_newPreviousVolunteers);
+        mysql_rollback(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->mysql);
+        mysql_autocommit(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->mysql, 1);
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->stmt_update_audit_volunteer)) {
+        dzlog_error("[req: %s] Failed to execute update statement: %s", DBOP_VAR_ExecuteUpdateAuditVolunteer_requestId, mysql_stmt_error(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->stmt_update_audit_volunteer));
+        free(DBOP_VAR_ExecuteUpdateAuditVolunteer_newPreviousVolunteers);
+        mysql_rollback(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->mysql);
+        mysql_autocommit(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->mysql, 1);
+        return -1;
+    }
+
+    // 提交事务
+    if (mysql_commit(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->mysql)) {
+        dzlog_error("[req: %s] Failed to commit transaction: %s", DBOP_VAR_ExecuteUpdateAuditVolunteer_requestId, mysql_error(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->mysql));
+        free(DBOP_VAR_ExecuteUpdateAuditVolunteer_newPreviousVolunteers);
+        mysql_rollback(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->mysql);
+        mysql_autocommit(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->mysql, 1);
+        return -1;
+    }
+
+    // 恢复自动提交
+    mysql_autocommit(DBOP_VAR_ExecuteUpdateAuditVolunteer_connect->mysql, 1);
+
+    dzlog_info("[req: %s] Successfully updated audit volunteer for ledger: %s from %s to %s", 
+               DBOP_VAR_ExecuteUpdateAuditVolunteer_requestId, 
+               DBOP_VAR_ExecuteUpdateAuditVolunteer_ledgerId, 
+               DBOP_VAR_ExecuteUpdateAuditVolunteer_currentVolunteerIsNull ? "NULL" : DBOP_VAR_ExecuteUpdateAuditVolunteer_currentVolunteer, 
+               DBOP_VAR_ExecuteUpdateAuditVolunteer_volunteerId);
+
+    free(DBOP_VAR_ExecuteUpdateAuditVolunteer_newPreviousVolunteers);
+    return 0;
+}
+
+// 更新审计志愿者ID的API接口
+void DBOP_FUN_ApiUpdateAuditVolunteer(struct evhttp_request *DBOP_VAR_ApiUpdateAuditVolunteer_request, void *DBOP_VAR_ApiUpdateAuditVolunteer_voidCfg) {
+    AppConfig *DBOP_VAR_ApiUpdateAuditVolunteer_cfg = (AppConfig *)DBOP_VAR_ApiUpdateAuditVolunteer_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiUpdateAuditVolunteer_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiUpdateAuditVolunteer_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to ApiUpdateAuditVolunteer.", DBOP_VAR_ApiUpdateAuditVolunteer_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiUpdateAuditVolunteer_request, DBOP_VAR_ApiUpdateAuditVolunteer_cfg, DBOP_VAR_ApiUpdateAuditVolunteer_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiUpdateAuditVolunteer_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiUpdateAuditVolunteer_request, DBOP_VAR_ApiUpdateAuditVolunteer_requestId);
+    if (!DBOP_VAR_ApiUpdateAuditVolunteer_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiUpdateAuditVolunteer_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiUpdateAuditVolunteer_dataJsonAll, "ledger_id");
+    json_t *DBOP_VAR_ApiUpdateAuditVolunteer_dataJsonVolunteerId = json_object_get(DBOP_VAR_ApiUpdateAuditVolunteer_dataJsonAll, "volunteer_id");
+
+    if (!json_is_string(DBOP_VAR_ApiUpdateAuditVolunteer_dataJsonLedgerId) ||
+        !json_is_string(DBOP_VAR_ApiUpdateAuditVolunteer_dataJsonVolunteerId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string types for 'ledger_id' and 'volunteer_id'", DBOP_VAR_ApiUpdateAuditVolunteer_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiUpdateAuditVolunteer_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiUpdateAuditVolunteer_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiUpdateAuditVolunteer_ledgerId = json_string_value(DBOP_VAR_ApiUpdateAuditVolunteer_dataJsonLedgerId);
+    const char *DBOP_VAR_ApiUpdateAuditVolunteer_volunteerId = json_string_value(DBOP_VAR_ApiUpdateAuditVolunteer_dataJsonVolunteerId);
+
+    dzlog_info("[req: %s] Executing database operation for ApiUpdateAuditVolunteer: ledgerId=%s, volunteerId=%s", DBOP_VAR_ApiUpdateAuditVolunteer_requestId, DBOP_VAR_ApiUpdateAuditVolunteer_ledgerId, DBOP_VAR_ApiUpdateAuditVolunteer_volunteerId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiUpdateAuditVolunteer_mysqlConnect = DBOP_FUN_GetConnectFromPool(DBOP_VAR_ApiUpdateAuditVolunteer_cfg, 0);
+    int result = DBOP_FUN_ExecuteUpdateAuditVolunteer(DBOP_VAR_ApiUpdateAuditVolunteer_mysqlConnect, DBOP_VAR_ApiUpdateAuditVolunteer_ledgerId, DBOP_VAR_ApiUpdateAuditVolunteer_volunteerId, DBOP_VAR_ApiUpdateAuditVolunteer_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiUpdateAuditVolunteer_request, result, DBOP_VAR_ApiUpdateAuditVolunteer_requestId, "update audit volunteer");
+
+    json_decref(DBOP_VAR_ApiUpdateAuditVolunteer_dataJsonAll);
+}
+
+// ------------------------mysql更新审计志愿者ID api逻辑结束----------------------------
+
 
 int main() { 
     AppConfig DBOP_VAR_Main_cfg = DBOP_FUN_MainConfigParse("config/config.yaml"); //初始化结构体
@@ -5029,7 +5819,7 @@ int main() {
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/project/update_verification_record", DBOP_FUN_ApiUpdateVerificationRecord, &DBOP_VAR_Main_cfg);
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/project/update_status", DBOP_FUN_ApiUpdateProjectStatus, &DBOP_VAR_Main_cfg);
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/project/update_pathography", DBOP_FUN_ApiUpdateProjectPathography, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/project/update_volunteer", DBOP_FUN_ApiUpdateProjectVolunteer, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/project/update_project_volunteer", DBOP_FUN_ApiUpdateProjectVolunteer, &DBOP_VAR_Main_cfg);
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/create_donation", DBOP_FUN_ApiMakeDonation, &DBOP_VAR_Main_cfg);
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_payment_failed", DBOP_FUN_ApiMarkPaymentFailed, &DBOP_VAR_Main_cfg);
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_payment_processing", DBOP_FUN_ApiMarkPaymentProcessing, &DBOP_VAR_Main_cfg);
@@ -5049,6 +5839,12 @@ int main() {
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_patient_usage_pay_failed", DBOP_FUN_ApiSetPatientUsagePayFailed, &DBOP_VAR_Main_cfg);
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_patient_usage_completed", DBOP_FUN_ApiSetPatientUsageCompleted, &DBOP_VAR_Main_cfg);
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/create_emergency_usage", DBOP_FUN_ApiCreateEmergencyUsage, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_emergency_usage_process_failed", DBOP_FUN_ApiSetEmergencyUsageProcessFailed, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_emergency_usage_paying", DBOP_FUN_ApiSetEmergencyUsagePaying, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_emergency_usage_pay_failed", DBOP_FUN_ApiSetEmergencyUsagePayFailed, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_emergency_usage_unverified", DBOP_FUN_ApiSetEmergencyUsageUnverified, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_emergency_usage_verified", DBOP_FUN_ApiSetEmergencyUsageVerified, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/update_audit_volunteer", DBOP_FUN_ApiUpdateAuditVolunteer, &DBOP_VAR_Main_cfg);
 
     // 绑定到 0.0.0.0:DBOP_GLV_serverPort
     if (evhttp_bind_socket(DBOP_VAR_Main_httpServer, "0.0.0.0", atoi(DBOP_VAR_Main_cfg.DBOP_GLV_serverPort)) != 0) {
