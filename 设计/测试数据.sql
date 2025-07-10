@@ -206,8 +206,8 @@ CREATE TABLE `donation_ledger` (
   `note` VARCHAR(200) DEFAULT NULL,                 -- 备注
   `payment_method` TINYINT   DEFAULT NULL,          -- 支付方式（0：支付宝 1：微信 2：银行卡）
   `method_id` CHAR(36)  DEFAULT NULL,               -- 支付平台返回的ID，如微信单号
-  `transaction_type` TINYINT   NOT NULL,            -- 记录性质（0：捐赠 1：退款待选择 2：退款 3：转应急池 4：患者使用 5：应急使用 6：平台使用）
-  `status` TINYINT   DEFAULT 1,                     -- 账单状态（0：成功 1：等待支付 2：支付失败 3：处理中 4：处理失败 5：退款中 6：退款失败 7：退款完成 8：发款中 9：发款失败 10：发起人工介入 11：人工介入中 12：人工介入完成）
+  `transaction_type` TINYINT   NOT NULL,            -- 记录性质（0：捐赠 1：退款待选择 2：退款 3：转应急池 4：患者使用 5：患者应急使用 6：平台使用 7：项目援助）
+  `status` TINYINT   DEFAULT 1,                     -- 账单状态（0：成功 1：等待支付 2：支付失败 3：处理中 4：处理失败 5：退款中 6：退款失败 7：退款完成 8：发款中 9：发款失败 10：发起人工介入 11：人工介入中 12：人工介入完成 13：应急使用未核销 14：应急使用核销完成）
   `investigation_id` CHAR(36)  DEFAULT NULL,        -- 人工介入调查ID
   `volunteer_audit_id` CHAR(36) DEFAULT NULL,       -- 关联的志愿者审计记录ID，仅有志愿者介入时有值
   PRIMARY KEY (`ledger_id`)
@@ -230,7 +230,7 @@ CREATE TABLE `donation_volunteer_audit` (
   `audit_id` CHAR(36)  NOT NULL,              -- 通常等于 ledger_id，特殊情况下也可单独生成
   `current_volunteer` CHAR(36)  DEFAULT NULL, -- 当前志愿者 ID
   `previous_volunteers` TEXT  DEFAULT NULL,   -- 历任志愿者 UUID 数组（JSON）
-  `verification_record` TEXT  NOT NULL,       -- 审计详情，JSON 格式
+  `verification_record` TEXT  DEFAULT NULL,   -- 审计详情，JSON 格式
   `last_change_time` DATETIME  NOT NULL,      -- 最近修改时间
   PRIMARY KEY (`audit_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

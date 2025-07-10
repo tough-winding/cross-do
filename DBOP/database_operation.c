@@ -111,6 +111,26 @@
                 curl -X POST "http://服务ip:服务端口/ledger/create_patient_usage" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID", "project_id":"项目ID", "user_id":"患者用户ID", "sufferer_user_id":"项目受助者ID", "sufferer_real_name":"患者真实姓名", "sufferer_user_name":"患者用户名", "amount":"使用金额", "payment_method":"使用渠道", "note":"备注", "verification_record":"审计json"}'
                 curl -X POST "http://192.168.1.10:1900/ledger/create_patient_usage" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"5206f237-f070-48a9-8f4d-9eb15e31c21b", "project_id":"a7c16b7d-bc2e-4e2e-8617-527cfb23d29f", "user_id":"4647baa3-8af6-4dca-90c1-30e5ddbca112", "sufferer_user_id":"d17d43db-121a-4b9e-97d6-80a3b00ae062", "sufferer_real_name":"李四", "sufferer_user_name":"木子四", "amount":"-100", "payment_method":0, "note":"化验费用报销申请", "verification_record":"[{"patient":{"我在遥望":"化验费用报销申请","attachment":["https://minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/医保结算单.pdf","https://minio.cross.com/550e8400-e29b-41d4-a716-446655440000/f47ac10b-58cc-4372-a567-0e02b2c3d479/发票.jpg"],"time":"2025-06-29T11:12:00+08:00"},"volunteer":{"bceac":"没什么问题，给您通过了。","attachment":[],"time":"2025-06-29T11:20:00+08:00"}}]"}'
     200RETURN：什么都不返回
+    REQUEST: 将患者使用类型的记录性质转为处理失败类型
+                curl -X POST "http://服务ip:服务端口/ledger/set_status_patient_usage_process_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/set_status_patient_usage_process_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"5206f237-f070-48a9-8f4d-9eb15e31c21b"}'
+    200RETURN：什么都不返回
+    REQUEST: 将患者使用类型的记录性质转为发款中类型
+                curl -X POST "http://服务ip:服务端口/ledger/set_status_patient_usage_paying" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/set_status_patient_usage_paying" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"5206f237-f070-48a9-8f4d-9eb15e31c21b"}'
+    200RETURN：什么都不返回
+    REQUEST: 将患者使用类型的记录性质转为发款失败类型
+                curl -X POST "http://服务ip:服务端口/ledger/set_status_patient_usage_pay_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/set_status_patient_usage_pay_failed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"5206f237-f070-48a9-8f4d-9eb15e31c21b"}'
+    200RETURN：什么都不返回
+    REQUEST: 将患者使用类型的记录性质转为完成类型
+                curl -X POST "http://服务ip:服务端口/ledger/set_status_patient_usage_completed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/set_status_patient_usage_completed" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"5206f237-f070-48a9-8f4d-9eb15e31c21b"}'
+    200RETURN：什么都不返回
+    REQUEST: 新增患者应急使用记录
+                curl -X POST "http://服务ip:服务端口/ledger/create_emergency_usage" -H "ServiceName: service服务名" -H "Authorization: service服务token" -H "Content-Type: application/json" -d '{"ledger_id":"记录ID", "project_id":"项目ID", "user_id":"患者用户ID", "sufferer_user_id":"项目受助者ID", "sufferer_real_name":"患者真实姓名", "sufferer_user_name":"患者用户名", "amount":"使用金额", "payment_method":"使用渠道", "note":"备注"}'
+                curl -X POST "http://192.168.1.10:1900/ledger/create_emergency_usage" -H "ServiceName: IAM_SERVICE" -H "Authorization: 服务token" -H "Content-Type: application/json" -d '{"ledger_id":"5206f237-f070-48a9-8f4d-9eb15e31c21b", "project_id":"a7c16b7d-bc2e-4e2e-8617-527cfb23d29f", "user_id":"4647baa3-8af6-4dca-90c1-30e5ddbca112", "sufferer_user_id":"d17d43db-121a-4b9e-97d6-80a3b00ae062", "sufferer_real_name":"李四", "sufferer_user_name":"木子四", "amount":"-100", "payment_method":0, "note":"化验费用报销申请"}'
+    200RETURN：什么都不返回
 */
 /*
 变量命名要求如下：
@@ -202,6 +222,12 @@ typedef struct {
     MYSQL_STMT *stmt_set_type_emergency_pool;
     MYSQL_STMT *stmt_create_patient_usage;
     MYSQL_STMT *stmt_create_volunteer_audit;
+    MYSQL_STMT *stmt_create_emergency_usage;
+    MYSQL_STMT *stmt_check_pending_emergency_usage;
+    MYSQL_STMT *stmt_set_status_patient_usage_process_failed;
+    MYSQL_STMT *stmt_set_status_patient_usage_paying;
+    MYSQL_STMT *stmt_set_status_patient_usage_pay_failed;
+    MYSQL_STMT *stmt_set_status_patient_usage_completed;
 } DB_CONNECTION;
 
 // 初始化dzlog
@@ -776,6 +802,51 @@ void DBOP_FUN_InitializeMySQLConnection(DB_CONNECTION *DBOP_VAR_InitializeMySQLC
         dzlog_error("Failed to prepare create volunteer audit statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_create_volunteer_audit));
         exit(EXIT_FAILURE);
     }
+
+    // 初始化患者使用记录状态更新预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_patient_usage_process_failed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *set_status_patient_usage_process_failed_sql = "UPDATE donation_ledger SET status = 4, change_time = NOW() WHERE ledger_id = ? AND transaction_type = 4;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_patient_usage_process_failed, set_status_patient_usage_process_failed_sql, strlen(set_status_patient_usage_process_failed_sql))) {
+        dzlog_error("Failed to prepare set patient usage process failed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_patient_usage_process_failed));
+        exit(EXIT_FAILURE);
+    }
+
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_patient_usage_paying = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *set_status_patient_usage_paying_sql = "UPDATE donation_ledger SET status = 8, change_time = NOW() WHERE ledger_id = ? AND transaction_type = 4;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_patient_usage_paying, set_status_patient_usage_paying_sql, strlen(set_status_patient_usage_paying_sql))) {
+        dzlog_error("Failed to prepare set patient usage paying statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_patient_usage_paying));
+        exit(EXIT_FAILURE);
+    }
+
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_patient_usage_pay_failed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *set_status_patient_usage_pay_failed_sql = "UPDATE donation_ledger SET status = 9, change_time = NOW() WHERE ledger_id = ? AND transaction_type = 4;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_patient_usage_pay_failed, set_status_patient_usage_pay_failed_sql, strlen(set_status_patient_usage_pay_failed_sql))) {
+        dzlog_error("Failed to prepare set patient usage pay failed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_patient_usage_pay_failed));
+        exit(EXIT_FAILURE);
+    }
+
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_patient_usage_completed = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *set_status_patient_usage_completed_sql = "UPDATE donation_ledger SET status = 0, change_time = NOW() WHERE ledger_id = ? AND transaction_type = 4;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_patient_usage_completed, set_status_patient_usage_completed_sql, strlen(set_status_patient_usage_completed_sql))) {
+        dzlog_error("Failed to prepare set patient usage completed statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_set_status_patient_usage_completed));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化新增应急使用记录预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_create_emergency_usage = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *create_emergency_usage_sql = "INSERT INTO donation_ledger (ledger_id, project_id, user_id, sufferer_user_id, sufferer_real_name, sufferer_user_name, amount, transaction_time, note, payment_method, transaction_type, status, volunteer_audit_id) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, 5, 3, ?);";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_create_emergency_usage, create_emergency_usage_sql, strlen(create_emergency_usage_sql))) {
+        dzlog_error("Failed to prepare create emergency usage statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_create_emergency_usage));
+        exit(EXIT_FAILURE);
+    }
+
+    // 初始化检查待核销应急使用记录预处理语句
+    DBOP_VAR_InitializeMySQLConnection_connect->stmt_check_pending_emergency_usage = mysql_stmt_init(DBOP_VAR_InitializeMySQLConnection_connect->mysql);
+    const char *check_pending_emergency_usage_sql = "SELECT COUNT(*) FROM donation_ledger WHERE project_id = ? AND sufferer_user_id = ? AND transaction_type = 5 AND status != 14;";
+    if (mysql_stmt_prepare(DBOP_VAR_InitializeMySQLConnection_connect->stmt_check_pending_emergency_usage, check_pending_emergency_usage_sql, strlen(check_pending_emergency_usage_sql))) {
+        dzlog_error("Failed to prepare check pending emergency usage statement: %s", mysql_stmt_error(DBOP_VAR_InitializeMySQLConnection_connect->stmt_check_pending_emergency_usage));
+        exit(EXIT_FAILURE);
+    }
 }
 
 // 初始化mysql连接池
@@ -913,6 +984,24 @@ void DBOP_FUN_DestroyConnPool() {
         if (DBOP_GLV_mysqlConnectPool[i]->stmt_create_volunteer_audit != NULL) {
             mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_create_volunteer_audit);
         }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_patient_usage_process_failed != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_patient_usage_process_failed);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_patient_usage_paying != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_patient_usage_paying);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_patient_usage_pay_failed != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_patient_usage_pay_failed);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_patient_usage_completed != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_set_status_patient_usage_completed);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_create_emergency_usage != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_create_emergency_usage);
+        }
+        if (DBOP_GLV_mysqlConnectPool[i]->stmt_check_pending_emergency_usage != NULL) {
+            mysql_stmt_close(DBOP_GLV_mysqlConnectPool[i]->stmt_check_pending_emergency_usage);
+        }
         if (DBOP_GLV_mysqlConnectPool[i]->mysql != NULL) {
             mysql_close(DBOP_GLV_mysqlConnectPool[i]->mysql);
         }
@@ -1021,6 +1110,24 @@ void DBOP_FUN_ReinitializeConnPool(AppConfig *DBOP_VAR_ReinitializeConnPool_cfg,
     }
     if (DBOP_VAR_ReinitializeConnPool_connect->stmt_create_volunteer_audit != NULL) {
         mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_create_volunteer_audit);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_patient_usage_process_failed != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_patient_usage_process_failed);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_patient_usage_paying != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_patient_usage_paying);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_patient_usage_pay_failed != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_patient_usage_pay_failed);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_patient_usage_completed != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_set_status_patient_usage_completed);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_create_emergency_usage != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_create_emergency_usage);
+    }
+    if (DBOP_VAR_ReinitializeConnPool_connect->stmt_check_pending_emergency_usage != NULL) {
+        mysql_stmt_close(DBOP_VAR_ReinitializeConnPool_connect->stmt_check_pending_emergency_usage);
     }
     if (DBOP_VAR_ReinitializeConnPool_connect->mysql != NULL) {
         mysql_close(DBOP_VAR_ReinitializeConnPool_connect->mysql);
@@ -4336,6 +4443,545 @@ void DBOP_FUN_ApiCreatePatientUsage(struct evhttp_request *DBOP_VAR_ApiCreatePat
 
 // ------------------------mysql新增患者使用记录api逻辑结束----------------------------
 
+// ------------------------mysql患者使用记录设置处理失败状态api逻辑开始----------------------------
+
+// 将患者使用记录状态设置为处理失败
+int DBOP_FUN_ExecuteSetPatientUsageProcessFailed(DB_CONNECTION *DBOP_VAR_ExecuteSetPatientUsageProcessFailed_connect, const char *DBOP_VAR_ExecuteSetPatientUsageProcessFailed_ledgerId, const char *DBOP_VAR_ExecuteSetPatientUsageProcessFailed_requestId) {
+    char *DBOP_VAR_ExecuteSetPatientUsageProcessFailed_noConstLedgerId = (char *)DBOP_VAR_ExecuteSetPatientUsageProcessFailed_ledgerId;
+
+    MYSQL_BIND DBOP_VAR_ExecuteSetPatientUsageProcessFailed_bindParams[1];
+    memset(DBOP_VAR_ExecuteSetPatientUsageProcessFailed_bindParams, 0, sizeof(DBOP_VAR_ExecuteSetPatientUsageProcessFailed_bindParams));
+
+    DBOP_VAR_ExecuteSetPatientUsageProcessFailed_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteSetPatientUsageProcessFailed_bindParams[0].buffer = DBOP_VAR_ExecuteSetPatientUsageProcessFailed_noConstLedgerId;
+    DBOP_VAR_ExecuteSetPatientUsageProcessFailed_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteSetPatientUsageProcessFailed_noConstLedgerId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteSetPatientUsageProcessFailed_connect->stmt_set_status_patient_usage_process_failed, DBOP_VAR_ExecuteSetPatientUsageProcessFailed_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind set patient usage process failed param: %s", DBOP_VAR_ExecuteSetPatientUsageProcessFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteSetPatientUsageProcessFailed_connect->stmt_set_status_patient_usage_process_failed));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteSetPatientUsageProcessFailed_connect->stmt_set_status_patient_usage_process_failed)) {
+        dzlog_error("[req: %s] Failed to execute set patient usage process failed statement: %s", DBOP_VAR_ExecuteSetPatientUsageProcessFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteSetPatientUsageProcessFailed_connect->stmt_set_status_patient_usage_process_failed));
+        return -1;
+    }
+
+    my_ulonglong DBOP_VAR_ExecuteSetPatientUsageProcessFailed_affectedRows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteSetPatientUsageProcessFailed_connect->stmt_set_status_patient_usage_process_failed);
+    if (DBOP_VAR_ExecuteSetPatientUsageProcessFailed_affectedRows == 0) {
+        dzlog_warn("[req: %s] No patient usage record found with ledger ID: %s", DBOP_VAR_ExecuteSetPatientUsageProcessFailed_requestId, DBOP_VAR_ExecuteSetPatientUsageProcessFailed_ledgerId);
+        return 1; // 记录不存在
+    }
+
+    dzlog_info("[req: %s] Successfully set patient usage process failed status for ledger ID: %s", DBOP_VAR_ExecuteSetPatientUsageProcessFailed_requestId, DBOP_VAR_ExecuteSetPatientUsageProcessFailed_ledgerId);
+    return 0;
+}
+
+
+
+// 将患者使用记录状态设置为处理失败的API接口
+void DBOP_FUN_ApiSetPatientUsageProcessFailed(struct evhttp_request *DBOP_VAR_ApiSetPatientUsageProcessFailed_request, void *DBOP_VAR_ApiSetPatientUsageProcessFailed_voidCfg) {
+    AppConfig *DBOP_VAR_ApiSetPatientUsageProcessFailed_cfg = (AppConfig *)DBOP_VAR_ApiSetPatientUsageProcessFailed_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiSetPatientUsageProcessFailed_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiSetPatientUsageProcessFailed_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to set patient usage process failed.", DBOP_VAR_ApiSetPatientUsageProcessFailed_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiSetPatientUsageProcessFailed_request, DBOP_VAR_ApiSetPatientUsageProcessFailed_cfg, DBOP_VAR_ApiSetPatientUsageProcessFailed_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiSetPatientUsageProcessFailed_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiSetPatientUsageProcessFailed_request, DBOP_VAR_ApiSetPatientUsageProcessFailed_requestId);
+    if (!DBOP_VAR_ApiSetPatientUsageProcessFailed_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiSetPatientUsageProcessFailed_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiSetPatientUsageProcessFailed_dataJsonAll, "ledger_id");
+    if (!json_is_string(DBOP_VAR_ApiSetPatientUsageProcessFailed_dataJsonLedgerId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string for ledger_id", DBOP_VAR_ApiSetPatientUsageProcessFailed_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiSetPatientUsageProcessFailed_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiSetPatientUsageProcessFailed_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiSetPatientUsageProcessFailed_ledgerId = json_string_value(DBOP_VAR_ApiSetPatientUsageProcessFailed_dataJsonLedgerId);
+
+    dzlog_info("[req: %s] Executing database operation to set patient usage process failed: ledgerId=%s", 
+               DBOP_VAR_ApiSetPatientUsageProcessFailed_requestId, DBOP_VAR_ApiSetPatientUsageProcessFailed_ledgerId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiSetPatientUsageProcessFailed_mysqlConnect = DBOP_FUN_GetConnectFromPool(DBOP_VAR_ApiSetPatientUsageProcessFailed_cfg, 0);
+    int result = DBOP_FUN_ExecuteSetPatientUsageProcessFailed(DBOP_VAR_ApiSetPatientUsageProcessFailed_mysqlConnect, DBOP_VAR_ApiSetPatientUsageProcessFailed_ledgerId, DBOP_VAR_ApiSetPatientUsageProcessFailed_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiSetPatientUsageProcessFailed_request, result, DBOP_VAR_ApiSetPatientUsageProcessFailed_requestId, "set patient usage process failed");
+
+    json_decref(DBOP_VAR_ApiSetPatientUsageProcessFailed_dataJsonAll);
+}
+
+// ------------------------mysql患者使用记录设置处理失败状态api逻辑结束----------------------------
+
+// ------------------------mysql患者使用记录设置发款中状态api逻辑开始----------------------------
+
+// 将患者使用记录状态设置为发款中
+int DBOP_FUN_ExecuteSetPatientUsagePaying(DB_CONNECTION *DBOP_VAR_ExecuteSetPatientUsagePaying_connect, const char *DBOP_VAR_ExecuteSetPatientUsagePaying_ledgerId, const char *DBOP_VAR_ExecuteSetPatientUsagePaying_requestId) {
+    char *DBOP_VAR_ExecuteSetPatientUsagePaying_noConstLedgerId = (char *)DBOP_VAR_ExecuteSetPatientUsagePaying_ledgerId;
+
+    MYSQL_BIND DBOP_VAR_ExecuteSetPatientUsagePaying_bindParams[1];
+    memset(DBOP_VAR_ExecuteSetPatientUsagePaying_bindParams, 0, sizeof(DBOP_VAR_ExecuteSetPatientUsagePaying_bindParams));
+
+    DBOP_VAR_ExecuteSetPatientUsagePaying_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteSetPatientUsagePaying_bindParams[0].buffer = DBOP_VAR_ExecuteSetPatientUsagePaying_noConstLedgerId;
+    DBOP_VAR_ExecuteSetPatientUsagePaying_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteSetPatientUsagePaying_noConstLedgerId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteSetPatientUsagePaying_connect->stmt_set_status_patient_usage_paying, DBOP_VAR_ExecuteSetPatientUsagePaying_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind set patient usage paying param: %s", DBOP_VAR_ExecuteSetPatientUsagePaying_requestId, mysql_stmt_error(DBOP_VAR_ExecuteSetPatientUsagePaying_connect->stmt_set_status_patient_usage_paying));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteSetPatientUsagePaying_connect->stmt_set_status_patient_usage_paying)) {
+        dzlog_error("[req: %s] Failed to execute set patient usage paying statement: %s", DBOP_VAR_ExecuteSetPatientUsagePaying_requestId, mysql_stmt_error(DBOP_VAR_ExecuteSetPatientUsagePaying_connect->stmt_set_status_patient_usage_paying));
+        return -1;
+    }
+
+    my_ulonglong DBOP_VAR_ExecuteSetPatientUsagePaying_affectedRows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteSetPatientUsagePaying_connect->stmt_set_status_patient_usage_paying);
+    if (DBOP_VAR_ExecuteSetPatientUsagePaying_affectedRows == 0) {
+        dzlog_warn("[req: %s] No patient usage record found with ledger ID: %s", DBOP_VAR_ExecuteSetPatientUsagePaying_requestId, DBOP_VAR_ExecuteSetPatientUsagePaying_ledgerId);
+        return 1; // 记录不存在
+    }
+
+    dzlog_info("[req: %s] Successfully set patient usage paying status for ledger ID: %s", DBOP_VAR_ExecuteSetPatientUsagePaying_requestId, DBOP_VAR_ExecuteSetPatientUsagePaying_ledgerId);
+    return 0;
+}
+
+
+// 将患者使用记录状态设置为发款中的API接口
+void DBOP_FUN_ApiSetPatientUsagePaying(struct evhttp_request *DBOP_VAR_ApiSetPatientUsagePaying_request, void *DBOP_VAR_ApiSetPatientUsagePaying_voidCfg) {
+    AppConfig *DBOP_VAR_ApiSetPatientUsagePaying_cfg = (AppConfig *)DBOP_VAR_ApiSetPatientUsagePaying_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiSetPatientUsagePaying_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiSetPatientUsagePaying_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to set patient usage paying.", DBOP_VAR_ApiSetPatientUsagePaying_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiSetPatientUsagePaying_request, DBOP_VAR_ApiSetPatientUsagePaying_cfg, DBOP_VAR_ApiSetPatientUsagePaying_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiSetPatientUsagePaying_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiSetPatientUsagePaying_request, DBOP_VAR_ApiSetPatientUsagePaying_requestId);
+    if (!DBOP_VAR_ApiSetPatientUsagePaying_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiSetPatientUsagePaying_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiSetPatientUsagePaying_dataJsonAll, "ledger_id");
+    if (!json_is_string(DBOP_VAR_ApiSetPatientUsagePaying_dataJsonLedgerId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string for ledger_id", DBOP_VAR_ApiSetPatientUsagePaying_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiSetPatientUsagePaying_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiSetPatientUsagePaying_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiSetPatientUsagePaying_ledgerId = json_string_value(DBOP_VAR_ApiSetPatientUsagePaying_dataJsonLedgerId);
+
+    dzlog_info("[req: %s] Executing database operation to set patient usage paying: ledgerId=%s", 
+               DBOP_VAR_ApiSetPatientUsagePaying_requestId, DBOP_VAR_ApiSetPatientUsagePaying_ledgerId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiSetPatientUsagePaying_mysqlConnect = DBOP_FUN_GetConnectFromPool(DBOP_VAR_ApiSetPatientUsagePaying_cfg, 0);
+    int result = DBOP_FUN_ExecuteSetPatientUsagePaying(DBOP_VAR_ApiSetPatientUsagePaying_mysqlConnect, DBOP_VAR_ApiSetPatientUsagePaying_ledgerId, DBOP_VAR_ApiSetPatientUsagePaying_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiSetPatientUsagePaying_request, result, DBOP_VAR_ApiSetPatientUsagePaying_requestId, "set patient usage paying");
+
+    json_decref(DBOP_VAR_ApiSetPatientUsagePaying_dataJsonAll);
+}
+
+// ------------------------mysql患者使用记录设置发款中状态api逻辑结束----------------------------
+
+// ------------------------mysql患者使用记录设置发款失败状态api逻辑开始----------------------------
+
+// 将患者使用记录状态设置为发款失败
+int DBOP_FUN_ExecuteSetPatientUsagePayFailed(DB_CONNECTION *DBOP_VAR_ExecuteSetPatientUsagePayFailed_connect, const char *DBOP_VAR_ExecuteSetPatientUsagePayFailed_ledgerId, const char *DBOP_VAR_ExecuteSetPatientUsagePayFailed_requestId) {
+    char *DBOP_VAR_ExecuteSetPatientUsagePayFailed_noConstLedgerId = (char *)DBOP_VAR_ExecuteSetPatientUsagePayFailed_ledgerId;
+
+    MYSQL_BIND DBOP_VAR_ExecuteSetPatientUsagePayFailed_bindParams[1];
+    memset(DBOP_VAR_ExecuteSetPatientUsagePayFailed_bindParams, 0, sizeof(DBOP_VAR_ExecuteSetPatientUsagePayFailed_bindParams));
+
+    DBOP_VAR_ExecuteSetPatientUsagePayFailed_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteSetPatientUsagePayFailed_bindParams[0].buffer = DBOP_VAR_ExecuteSetPatientUsagePayFailed_noConstLedgerId;
+    DBOP_VAR_ExecuteSetPatientUsagePayFailed_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteSetPatientUsagePayFailed_noConstLedgerId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteSetPatientUsagePayFailed_connect->stmt_set_status_patient_usage_pay_failed, DBOP_VAR_ExecuteSetPatientUsagePayFailed_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind set patient usage pay failed param: %s", DBOP_VAR_ExecuteSetPatientUsagePayFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteSetPatientUsagePayFailed_connect->stmt_set_status_patient_usage_pay_failed));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteSetPatientUsagePayFailed_connect->stmt_set_status_patient_usage_pay_failed)) {
+        dzlog_error("[req: %s] Failed to execute set patient usage pay failed statement: %s", DBOP_VAR_ExecuteSetPatientUsagePayFailed_requestId, mysql_stmt_error(DBOP_VAR_ExecuteSetPatientUsagePayFailed_connect->stmt_set_status_patient_usage_pay_failed));
+        return -1;
+    }
+
+    my_ulonglong DBOP_VAR_ExecuteSetPatientUsagePayFailed_affectedRows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteSetPatientUsagePayFailed_connect->stmt_set_status_patient_usage_pay_failed);
+    if (DBOP_VAR_ExecuteSetPatientUsagePayFailed_affectedRows == 0) {
+        dzlog_warn("[req: %s] No patient usage record found with ledger ID: %s", DBOP_VAR_ExecuteSetPatientUsagePayFailed_requestId, DBOP_VAR_ExecuteSetPatientUsagePayFailed_ledgerId);
+        return 1; // 记录不存在
+    }
+
+    dzlog_info("[req: %s] Successfully set patient usage pay failed status for ledger ID: %s", DBOP_VAR_ExecuteSetPatientUsagePayFailed_requestId, DBOP_VAR_ExecuteSetPatientUsagePayFailed_ledgerId);
+    return 0;
+}
+
+
+
+// 将患者使用记录状态设置为发款失败的API接口
+void DBOP_FUN_ApiSetPatientUsagePayFailed(struct evhttp_request *DBOP_VAR_ApiSetPatientUsagePayFailed_request, void *DBOP_VAR_ApiSetPatientUsagePayFailed_voidCfg) {
+    AppConfig *DBOP_VAR_ApiSetPatientUsagePayFailed_cfg = (AppConfig *)DBOP_VAR_ApiSetPatientUsagePayFailed_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiSetPatientUsagePayFailed_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiSetPatientUsagePayFailed_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to set patient usage pay failed.", DBOP_VAR_ApiSetPatientUsagePayFailed_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiSetPatientUsagePayFailed_request, DBOP_VAR_ApiSetPatientUsagePayFailed_cfg, DBOP_VAR_ApiSetPatientUsagePayFailed_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiSetPatientUsagePayFailed_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiSetPatientUsagePayFailed_request, DBOP_VAR_ApiSetPatientUsagePayFailed_requestId);
+    if (!DBOP_VAR_ApiSetPatientUsagePayFailed_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiSetPatientUsagePayFailed_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiSetPatientUsagePayFailed_dataJsonAll, "ledger_id");
+    if (!json_is_string(DBOP_VAR_ApiSetPatientUsagePayFailed_dataJsonLedgerId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string for ledger_id", DBOP_VAR_ApiSetPatientUsagePayFailed_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiSetPatientUsagePayFailed_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiSetPatientUsagePayFailed_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiSetPatientUsagePayFailed_ledgerId = json_string_value(DBOP_VAR_ApiSetPatientUsagePayFailed_dataJsonLedgerId);
+
+    dzlog_info("[req: %s] Executing database operation to set patient usage pay failed: ledgerId=%s", 
+               DBOP_VAR_ApiSetPatientUsagePayFailed_requestId, DBOP_VAR_ApiSetPatientUsagePayFailed_ledgerId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiSetPatientUsagePayFailed_mysqlConnect = DBOP_FUN_GetConnectFromPool(DBOP_VAR_ApiSetPatientUsagePayFailed_cfg, 0);
+    int result = DBOP_FUN_ExecuteSetPatientUsagePayFailed(DBOP_VAR_ApiSetPatientUsagePayFailed_mysqlConnect, DBOP_VAR_ApiSetPatientUsagePayFailed_ledgerId, DBOP_VAR_ApiSetPatientUsagePayFailed_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiSetPatientUsagePayFailed_request, result, DBOP_VAR_ApiSetPatientUsagePayFailed_requestId, "set patient usage pay failed");
+
+    json_decref(DBOP_VAR_ApiSetPatientUsagePayFailed_dataJsonAll);
+}
+
+// ------------------------mysql患者使用记录设置发款失败状态api逻辑结束----------------------------
+
+// ------------------------mysql患者使用记录设置完成状态api逻辑开始----------------------------
+
+// 将患者使用记录状态设置为完成
+int DBOP_FUN_ExecuteSetPatientUsageCompleted(DB_CONNECTION *DBOP_VAR_ExecuteSetPatientUsageCompleted_connect, const char *DBOP_VAR_ExecuteSetPatientUsageCompleted_ledgerId, const char *DBOP_VAR_ExecuteSetPatientUsageCompleted_requestId) {
+    char *DBOP_VAR_ExecuteSetPatientUsageCompleted_noConstLedgerId = (char *)DBOP_VAR_ExecuteSetPatientUsageCompleted_ledgerId;
+
+    MYSQL_BIND DBOP_VAR_ExecuteSetPatientUsageCompleted_bindParams[1];
+    memset(DBOP_VAR_ExecuteSetPatientUsageCompleted_bindParams, 0, sizeof(DBOP_VAR_ExecuteSetPatientUsageCompleted_bindParams));
+
+    DBOP_VAR_ExecuteSetPatientUsageCompleted_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteSetPatientUsageCompleted_bindParams[0].buffer = DBOP_VAR_ExecuteSetPatientUsageCompleted_noConstLedgerId;
+    DBOP_VAR_ExecuteSetPatientUsageCompleted_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteSetPatientUsageCompleted_noConstLedgerId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteSetPatientUsageCompleted_connect->stmt_set_status_patient_usage_completed, DBOP_VAR_ExecuteSetPatientUsageCompleted_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind set patient usage completed param: %s", DBOP_VAR_ExecuteSetPatientUsageCompleted_requestId, mysql_stmt_error(DBOP_VAR_ExecuteSetPatientUsageCompleted_connect->stmt_set_status_patient_usage_completed));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteSetPatientUsageCompleted_connect->stmt_set_status_patient_usage_completed)) {
+        dzlog_error("[req: %s] Failed to execute set patient usage completed statement: %s", DBOP_VAR_ExecuteSetPatientUsageCompleted_requestId, mysql_stmt_error(DBOP_VAR_ExecuteSetPatientUsageCompleted_connect->stmt_set_status_patient_usage_completed));
+        return -1;
+    }
+
+    my_ulonglong DBOP_VAR_ExecuteSetPatientUsageCompleted_affectedRows = mysql_stmt_affected_rows(DBOP_VAR_ExecuteSetPatientUsageCompleted_connect->stmt_set_status_patient_usage_completed);
+    if (DBOP_VAR_ExecuteSetPatientUsageCompleted_affectedRows == 0) {
+        dzlog_warn("[req: %s] No patient usage record found with ledger ID: %s", DBOP_VAR_ExecuteSetPatientUsageCompleted_requestId, DBOP_VAR_ExecuteSetPatientUsageCompleted_ledgerId);
+        return 1; // 记录不存在
+    }
+
+    dzlog_info("[req: %s] Successfully set patient usage completed status for ledger ID: %s", DBOP_VAR_ExecuteSetPatientUsageCompleted_requestId, DBOP_VAR_ExecuteSetPatientUsageCompleted_ledgerId);
+    return 0;
+}
+
+
+
+// 将患者使用记录状态设置为完成的API接口
+void DBOP_FUN_ApiSetPatientUsageCompleted(struct evhttp_request *DBOP_VAR_ApiSetPatientUsageCompleted_request, void *DBOP_VAR_ApiSetPatientUsageCompleted_voidCfg) {
+    AppConfig *DBOP_VAR_ApiSetPatientUsageCompleted_cfg = (AppConfig *)DBOP_VAR_ApiSetPatientUsageCompleted_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiSetPatientUsageCompleted_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiSetPatientUsageCompleted_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to set patient usage completed.", DBOP_VAR_ApiSetPatientUsageCompleted_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiSetPatientUsageCompleted_request, DBOP_VAR_ApiSetPatientUsageCompleted_cfg, DBOP_VAR_ApiSetPatientUsageCompleted_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiSetPatientUsageCompleted_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiSetPatientUsageCompleted_request, DBOP_VAR_ApiSetPatientUsageCompleted_requestId);
+    if (!DBOP_VAR_ApiSetPatientUsageCompleted_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiSetPatientUsageCompleted_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiSetPatientUsageCompleted_dataJsonAll, "ledger_id");
+    if (!json_is_string(DBOP_VAR_ApiSetPatientUsageCompleted_dataJsonLedgerId)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Expecting string for ledger_id", DBOP_VAR_ApiSetPatientUsageCompleted_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiSetPatientUsageCompleted_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiSetPatientUsageCompleted_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiSetPatientUsageCompleted_ledgerId = json_string_value(DBOP_VAR_ApiSetPatientUsageCompleted_dataJsonLedgerId);
+
+    dzlog_info("[req: %s] Executing database operation to set patient usage completed: ledgerId=%s", 
+               DBOP_VAR_ApiSetPatientUsageCompleted_requestId, DBOP_VAR_ApiSetPatientUsageCompleted_ledgerId);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiSetPatientUsageCompleted_mysqlConnect = DBOP_FUN_GetConnectFromPool(DBOP_VAR_ApiSetPatientUsageCompleted_cfg, 0);
+    int result = DBOP_FUN_ExecuteSetPatientUsageCompleted(DBOP_VAR_ApiSetPatientUsageCompleted_mysqlConnect, DBOP_VAR_ApiSetPatientUsageCompleted_ledgerId, DBOP_VAR_ApiSetPatientUsageCompleted_requestId);
+
+    // 发送响应
+    DBOP_FUN_SendStandardResponse(DBOP_VAR_ApiSetPatientUsageCompleted_request, result, DBOP_VAR_ApiSetPatientUsageCompleted_requestId, "set patient usage completed");
+
+    json_decref(DBOP_VAR_ApiSetPatientUsageCompleted_dataJsonAll);
+}
+
+// ------------------------mysql患者使用记录设置完成状态api逻辑结束----------------------------
+
+// ------------------------mysql新增应急使用记录api逻辑开始----------------------------
+
+// 新增应急使用记录
+int DBOP_FUN_ExecuteCreateEmergencyUsage(DB_CONNECTION *DBOP_VAR_ExecuteCreateEmergencyUsage_connect, const char *DBOP_VAR_ExecuteCreateEmergencyUsage_ledgerId, const char *DBOP_VAR_ExecuteCreateEmergencyUsage_projectId, const char *DBOP_VAR_ExecuteCreateEmergencyUsage_userId, const char *DBOP_VAR_ExecuteCreateEmergencyUsage_suffererUserId, const char *DBOP_VAR_ExecuteCreateEmergencyUsage_suffererRealName, const char *DBOP_VAR_ExecuteCreateEmergencyUsage_suffererUserName, int DBOP_VAR_ExecuteCreateEmergencyUsage_amount, const char *DBOP_VAR_ExecuteCreateEmergencyUsage_note, int DBOP_VAR_ExecuteCreateEmergencyUsage_paymentMethod, const char *DBOP_VAR_ExecuteCreateEmergencyUsage_requestId) {
+    // 首先检查该项目和患者是否还有其他未核销的应急使用账单
+    char *DBOP_VAR_ExecuteCreateEmergencyUsage_noConstProjectId = (char *)DBOP_VAR_ExecuteCreateEmergencyUsage_projectId;
+    char *DBOP_VAR_ExecuteCreateEmergencyUsage_noConstSuffererUserId = (char *)DBOP_VAR_ExecuteCreateEmergencyUsage_suffererUserId;
+
+    MYSQL_BIND DBOP_VAR_ExecuteCreateEmergencyUsage_checkBindParams[2];
+    memset(DBOP_VAR_ExecuteCreateEmergencyUsage_checkBindParams, 0, sizeof(DBOP_VAR_ExecuteCreateEmergencyUsage_checkBindParams));
+
+    DBOP_VAR_ExecuteCreateEmergencyUsage_checkBindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_checkBindParams[0].buffer = DBOP_VAR_ExecuteCreateEmergencyUsage_noConstProjectId;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_checkBindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteCreateEmergencyUsage_noConstProjectId);
+
+    DBOP_VAR_ExecuteCreateEmergencyUsage_checkBindParams[1].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_checkBindParams[1].buffer = DBOP_VAR_ExecuteCreateEmergencyUsage_noConstSuffererUserId;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_checkBindParams[1].buffer_length = strlen(DBOP_VAR_ExecuteCreateEmergencyUsage_noConstSuffererUserId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteCreateEmergencyUsage_connect->stmt_check_pending_emergency_usage, DBOP_VAR_ExecuteCreateEmergencyUsage_checkBindParams)) {
+        dzlog_error("[req: %s] Failed to bind check pending emergency usage params: %s", DBOP_VAR_ExecuteCreateEmergencyUsage_requestId, mysql_stmt_error(DBOP_VAR_ExecuteCreateEmergencyUsage_connect->stmt_check_pending_emergency_usage));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteCreateEmergencyUsage_connect->stmt_check_pending_emergency_usage)) {
+        dzlog_error("[req: %s] Failed to execute check pending emergency usage statement: %s", DBOP_VAR_ExecuteCreateEmergencyUsage_requestId, mysql_stmt_error(DBOP_VAR_ExecuteCreateEmergencyUsage_connect->stmt_check_pending_emergency_usage));
+        return -1;
+    }
+
+    // 绑定结果
+    long long DBOP_VAR_ExecuteCreateEmergencyUsage_pendingCount = 0;
+    MYSQL_BIND DBOP_VAR_ExecuteCreateEmergencyUsage_resultBind[1];
+    memset(DBOP_VAR_ExecuteCreateEmergencyUsage_resultBind, 0, sizeof(DBOP_VAR_ExecuteCreateEmergencyUsage_resultBind));
+
+    DBOP_VAR_ExecuteCreateEmergencyUsage_resultBind[0].buffer_type = MYSQL_TYPE_LONGLONG;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_resultBind[0].buffer = &DBOP_VAR_ExecuteCreateEmergencyUsage_pendingCount;
+
+    if (mysql_stmt_bind_result(DBOP_VAR_ExecuteCreateEmergencyUsage_connect->stmt_check_pending_emergency_usage, DBOP_VAR_ExecuteCreateEmergencyUsage_resultBind)) {
+        dzlog_error("[req: %s] Failed to bind check pending emergency usage result: %s", DBOP_VAR_ExecuteCreateEmergencyUsage_requestId, mysql_stmt_error(DBOP_VAR_ExecuteCreateEmergencyUsage_connect->stmt_check_pending_emergency_usage));
+        return -1;
+    }
+
+    if (mysql_stmt_fetch(DBOP_VAR_ExecuteCreateEmergencyUsage_connect->stmt_check_pending_emergency_usage) == 0) {
+        if (DBOP_VAR_ExecuteCreateEmergencyUsage_pendingCount > 0) {
+            dzlog_warn("[req: %s] Found %lld pending emergency usage records for project %s and sufferer %s", 
+                      DBOP_VAR_ExecuteCreateEmergencyUsage_requestId, DBOP_VAR_ExecuteCreateEmergencyUsage_pendingCount, 
+                      DBOP_VAR_ExecuteCreateEmergencyUsage_projectId, DBOP_VAR_ExecuteCreateEmergencyUsage_suffererUserId);
+            mysql_stmt_free_result(DBOP_VAR_ExecuteCreateEmergencyUsage_connect->stmt_check_pending_emergency_usage);
+            return 2; // 返回特殊错误码表示存在未核销的应急使用账单
+        }
+    }
+
+    mysql_stmt_free_result(DBOP_VAR_ExecuteCreateEmergencyUsage_connect->stmt_check_pending_emergency_usage);
+    
+    // 检查通过，开始创建志愿者审计记录
+    char *DBOP_VAR_ExecuteCreateEmergencyUsage_noConstLedgerId = (char *)DBOP_VAR_ExecuteCreateEmergencyUsage_ledgerId;
+    char *DBOP_VAR_ExecuteCreateEmergencyUsage_emptyVerificationRecord = "";
+
+    MYSQL_BIND DBOP_VAR_ExecuteCreateEmergencyUsage_auditBindParams[2];
+    memset(DBOP_VAR_ExecuteCreateEmergencyUsage_auditBindParams, 0, sizeof(DBOP_VAR_ExecuteCreateEmergencyUsage_auditBindParams));
+
+    DBOP_VAR_ExecuteCreateEmergencyUsage_auditBindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_auditBindParams[0].buffer = DBOP_VAR_ExecuteCreateEmergencyUsage_noConstLedgerId;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_auditBindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteCreateEmergencyUsage_noConstLedgerId);
+
+    DBOP_VAR_ExecuteCreateEmergencyUsage_auditBindParams[1].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_auditBindParams[1].buffer = DBOP_VAR_ExecuteCreateEmergencyUsage_emptyVerificationRecord;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_auditBindParams[1].buffer_length = strlen(DBOP_VAR_ExecuteCreateEmergencyUsage_emptyVerificationRecord);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteCreateEmergencyUsage_connect->stmt_create_volunteer_audit, DBOP_VAR_ExecuteCreateEmergencyUsage_auditBindParams)) {
+        dzlog_error("[req: %s] Failed to bind create volunteer audit params: %s", DBOP_VAR_ExecuteCreateEmergencyUsage_requestId, mysql_stmt_error(DBOP_VAR_ExecuteCreateEmergencyUsage_connect->stmt_create_volunteer_audit));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteCreateEmergencyUsage_connect->stmt_create_volunteer_audit)) {
+        dzlog_error("[req: %s] Failed to execute create volunteer audit statement: %s", DBOP_VAR_ExecuteCreateEmergencyUsage_requestId, mysql_stmt_error(DBOP_VAR_ExecuteCreateEmergencyUsage_connect->stmt_create_volunteer_audit));
+        return -1;
+    }
+
+    // 然后创建应急使用记录
+    char *DBOP_VAR_ExecuteCreateEmergencyUsage_noConstUserId = (char *)DBOP_VAR_ExecuteCreateEmergencyUsage_userId;
+    char *DBOP_VAR_ExecuteCreateEmergencyUsage_noConstSuffererRealName = (char *)DBOP_VAR_ExecuteCreateEmergencyUsage_suffererRealName;
+    char *DBOP_VAR_ExecuteCreateEmergencyUsage_noConstSuffererUserName = (char *)DBOP_VAR_ExecuteCreateEmergencyUsage_suffererUserName;
+    char *DBOP_VAR_ExecuteCreateEmergencyUsage_noConstNote = (char *)DBOP_VAR_ExecuteCreateEmergencyUsage_note;
+    char *DBOP_VAR_ExecuteCreateEmergencyUsage_noConstVolunteerAuditId = (char *)DBOP_VAR_ExecuteCreateEmergencyUsage_ledgerId; // 使用相同的ID
+
+    MYSQL_BIND DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[10];
+    memset(DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams, 0, sizeof(DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams));
+
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[0].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[0].buffer = DBOP_VAR_ExecuteCreateEmergencyUsage_noConstLedgerId;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[0].buffer_length = strlen(DBOP_VAR_ExecuteCreateEmergencyUsage_noConstLedgerId);
+
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[1].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[1].buffer = DBOP_VAR_ExecuteCreateEmergencyUsage_noConstProjectId;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[1].buffer_length = strlen(DBOP_VAR_ExecuteCreateEmergencyUsage_noConstProjectId);
+
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[2].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[2].buffer = DBOP_VAR_ExecuteCreateEmergencyUsage_noConstUserId;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[2].buffer_length = strlen(DBOP_VAR_ExecuteCreateEmergencyUsage_noConstUserId);
+
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[3].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[3].buffer = DBOP_VAR_ExecuteCreateEmergencyUsage_noConstSuffererUserId;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[3].buffer_length = strlen(DBOP_VAR_ExecuteCreateEmergencyUsage_noConstSuffererUserId);
+
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[4].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[4].buffer = DBOP_VAR_ExecuteCreateEmergencyUsage_noConstSuffererRealName;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[4].buffer_length = strlen(DBOP_VAR_ExecuteCreateEmergencyUsage_noConstSuffererRealName);
+
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[5].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[5].buffer = DBOP_VAR_ExecuteCreateEmergencyUsage_noConstSuffererUserName;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[5].buffer_length = strlen(DBOP_VAR_ExecuteCreateEmergencyUsage_noConstSuffererUserName);
+
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[6].buffer_type = MYSQL_TYPE_LONG;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[6].buffer = &DBOP_VAR_ExecuteCreateEmergencyUsage_amount;
+
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[7].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[7].buffer = DBOP_VAR_ExecuteCreateEmergencyUsage_noConstNote;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[7].buffer_length = strlen(DBOP_VAR_ExecuteCreateEmergencyUsage_noConstNote);
+
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[8].buffer_type = MYSQL_TYPE_LONG;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[8].buffer = &DBOP_VAR_ExecuteCreateEmergencyUsage_paymentMethod;
+
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[9].buffer_type = MYSQL_TYPE_STRING;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[9].buffer = DBOP_VAR_ExecuteCreateEmergencyUsage_noConstVolunteerAuditId;
+    DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams[9].buffer_length = strlen(DBOP_VAR_ExecuteCreateEmergencyUsage_noConstVolunteerAuditId);
+
+    if (mysql_stmt_bind_param(DBOP_VAR_ExecuteCreateEmergencyUsage_connect->stmt_create_emergency_usage, DBOP_VAR_ExecuteCreateEmergencyUsage_bindParams)) {
+        dzlog_error("[req: %s] Failed to bind create emergency usage params: %s", DBOP_VAR_ExecuteCreateEmergencyUsage_requestId, mysql_stmt_error(DBOP_VAR_ExecuteCreateEmergencyUsage_connect->stmt_create_emergency_usage));
+        return -1;
+    }
+
+    if (mysql_stmt_execute(DBOP_VAR_ExecuteCreateEmergencyUsage_connect->stmt_create_emergency_usage)) {
+        dzlog_error("[req: %s] Failed to execute create emergency usage statement: %s", DBOP_VAR_ExecuteCreateEmergencyUsage_requestId, mysql_stmt_error(DBOP_VAR_ExecuteCreateEmergencyUsage_connect->stmt_create_emergency_usage));
+        return -1;
+    }
+
+    dzlog_info("[req: %s] Successfully created emergency usage record with ledger ID: %s", DBOP_VAR_ExecuteCreateEmergencyUsage_requestId, DBOP_VAR_ExecuteCreateEmergencyUsage_ledgerId);
+    return 0;
+}
+
+// 新增应急使用记录的API接口
+void DBOP_FUN_ApiCreateEmergencyUsage(struct evhttp_request *DBOP_VAR_ApiCreateEmergencyUsage_request, void *DBOP_VAR_ApiCreateEmergencyUsage_voidCfg) {
+    AppConfig *DBOP_VAR_ApiCreateEmergencyUsage_cfg = (AppConfig *)DBOP_VAR_ApiCreateEmergencyUsage_voidCfg;
+    char uuid_str[37];
+    const char *DBOP_VAR_ApiCreateEmergencyUsage_requestId = DBOP_FUN_GetOrGenerateRequestId(DBOP_VAR_ApiCreateEmergencyUsage_request, uuid_str);
+    
+    dzlog_info("[req: %s] Processing API request to create emergency usage.", DBOP_VAR_ApiCreateEmergencyUsage_requestId);
+
+    // 请求鉴权
+    if (!DBOP_FUN_HandleAuthentication(DBOP_VAR_ApiCreateEmergencyUsage_request, DBOP_VAR_ApiCreateEmergencyUsage_cfg, DBOP_VAR_ApiCreateEmergencyUsage_requestId)) {
+        return;
+    }
+    
+    // 解析POST数据
+    json_t *DBOP_VAR_ApiCreateEmergencyUsage_dataJsonAll = DBOP_FUN_ParsePostDataToJson(DBOP_VAR_ApiCreateEmergencyUsage_request, DBOP_VAR_ApiCreateEmergencyUsage_requestId);
+    if (!DBOP_VAR_ApiCreateEmergencyUsage_dataJsonAll) {
+        return;
+    }
+
+    // 验证JSON字段
+    json_t *DBOP_VAR_ApiCreateEmergencyUsage_dataJsonLedgerId = json_object_get(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonAll, "ledger_id");
+    json_t *DBOP_VAR_ApiCreateEmergencyUsage_dataJsonProjectId = json_object_get(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonAll, "project_id");
+    json_t *DBOP_VAR_ApiCreateEmergencyUsage_dataJsonUserId = json_object_get(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonAll, "user_id");
+    json_t *DBOP_VAR_ApiCreateEmergencyUsage_dataJsonSuffererUserId = json_object_get(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonAll, "sufferer_user_id");
+    json_t *DBOP_VAR_ApiCreateEmergencyUsage_dataJsonSuffererRealName = json_object_get(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonAll, "sufferer_real_name");
+    json_t *DBOP_VAR_ApiCreateEmergencyUsage_dataJsonSuffererUserName = json_object_get(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonAll, "sufferer_user_name");
+    json_t *DBOP_VAR_ApiCreateEmergencyUsage_dataJsonAmount = json_object_get(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonAll, "amount");
+    json_t *DBOP_VAR_ApiCreateEmergencyUsage_dataJsonNote = json_object_get(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonAll, "note");
+    json_t *DBOP_VAR_ApiCreateEmergencyUsage_dataJsonPaymentMethod = json_object_get(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonAll, "payment_method");
+
+    if (!json_is_string(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonLedgerId) ||
+        !json_is_string(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonProjectId) ||
+        !json_is_string(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonUserId) ||
+        !json_is_string(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonSuffererUserId) ||
+        !json_is_string(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonSuffererRealName) ||
+        !json_is_string(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonSuffererUserName) ||
+        !json_is_integer(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonAmount) ||
+        !json_is_string(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonNote) ||
+        !json_is_integer(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonPaymentMethod)) {
+        dzlog_error("[req: %s] Invalid JSON data received. Missing or invalid required fields", DBOP_VAR_ApiCreateEmergencyUsage_requestId);
+        evhttp_send_reply(DBOP_VAR_ApiCreateEmergencyUsage_request, 400, "Bad Request", NULL);
+        json_decref(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonAll);
+        return;
+    }
+
+    const char *DBOP_VAR_ApiCreateEmergencyUsage_ledgerId = json_string_value(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonLedgerId);
+    const char *DBOP_VAR_ApiCreateEmergencyUsage_projectId = json_string_value(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonProjectId);
+    const char *DBOP_VAR_ApiCreateEmergencyUsage_userId = json_string_value(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonUserId);
+    const char *DBOP_VAR_ApiCreateEmergencyUsage_suffererUserId = json_string_value(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonSuffererUserId);
+    const char *DBOP_VAR_ApiCreateEmergencyUsage_suffererRealName = json_string_value(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonSuffererRealName);
+    const char *DBOP_VAR_ApiCreateEmergencyUsage_suffererUserName = json_string_value(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonSuffererUserName);
+    int DBOP_VAR_ApiCreateEmergencyUsage_amount = json_integer_value(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonAmount);
+    const char *DBOP_VAR_ApiCreateEmergencyUsage_note = json_string_value(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonNote);
+    int DBOP_VAR_ApiCreateEmergencyUsage_paymentMethod = json_integer_value(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonPaymentMethod);
+
+    dzlog_info("[req: %s] Executing database operation for ApiCreateEmergencyUsage: ledgerId=%s, projectId=%s, userId=%s, amount=%d", 
+               DBOP_VAR_ApiCreateEmergencyUsage_requestId, DBOP_VAR_ApiCreateEmergencyUsage_ledgerId, DBOP_VAR_ApiCreateEmergencyUsage_projectId, DBOP_VAR_ApiCreateEmergencyUsage_userId, DBOP_VAR_ApiCreateEmergencyUsage_amount);
+
+    // 获取数据库连接并执行操作
+    DB_CONNECTION *DBOP_VAR_ApiCreateEmergencyUsage_mysqlConnect = DBOP_FUN_GetConnectFromPool(DBOP_VAR_ApiCreateEmergencyUsage_cfg, 0);
+    int result = DBOP_FUN_ExecuteCreateEmergencyUsage(DBOP_VAR_ApiCreateEmergencyUsage_mysqlConnect, DBOP_VAR_ApiCreateEmergencyUsage_ledgerId, DBOP_VAR_ApiCreateEmergencyUsage_projectId, DBOP_VAR_ApiCreateEmergencyUsage_userId, DBOP_VAR_ApiCreateEmergencyUsage_suffererUserId, DBOP_VAR_ApiCreateEmergencyUsage_suffererRealName, DBOP_VAR_ApiCreateEmergencyUsage_suffererUserName, DBOP_VAR_ApiCreateEmergencyUsage_amount, DBOP_VAR_ApiCreateEmergencyUsage_note, DBOP_VAR_ApiCreateEmergencyUsage_paymentMethod, DBOP_VAR_ApiCreateEmergencyUsage_requestId);
+
+    // 发送响应
+    if (result == 0) {
+        evhttp_send_reply(DBOP_VAR_ApiCreateEmergencyUsage_request, HTTP_OK, "OK", NULL);
+        dzlog_info("[req: %s] Successfully created emergency usage record, returning 200", DBOP_VAR_ApiCreateEmergencyUsage_requestId);
+    } else if (result == 2) {
+        evhttp_send_reply(DBOP_VAR_ApiCreateEmergencyUsage_request, 400, "存在尚未核销的应急使用账单，请核销完成后才可发起下一个应急使用单", NULL);
+        dzlog_warn("[req: %s] Cannot create emergency usage record: pending emergency usage bills exist, returning 400", DBOP_VAR_ApiCreateEmergencyUsage_requestId);
+    } else {
+        evhttp_send_reply(DBOP_VAR_ApiCreateEmergencyUsage_request, HTTP_INTERNAL, "Internal Server Error", NULL);
+        dzlog_error("[req: %s] Failed to create emergency usage record, returning 500", DBOP_VAR_ApiCreateEmergencyUsage_requestId);
+    }
+
+    json_decref(DBOP_VAR_ApiCreateEmergencyUsage_dataJsonAll);
+}
+
+// ------------------------mysql新增应急使用记录api逻辑结束----------------------------
+
 
 int main() { 
     AppConfig DBOP_VAR_Main_cfg = DBOP_FUN_MainConfigParse("config/config.yaml"); //初始化结构体
@@ -4398,6 +5044,11 @@ int main() {
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_refund_completed", DBOP_FUN_ApiMarkRefundCompleted, &DBOP_VAR_Main_cfg);
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_type_emergency_pool", DBOP_FUN_ApiMarkEmergencyPool, &DBOP_VAR_Main_cfg);
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/create_patient_usage", DBOP_FUN_ApiCreatePatientUsage, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_patient_usage_process_failed", DBOP_FUN_ApiSetPatientUsageProcessFailed, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_patient_usage_paying", DBOP_FUN_ApiSetPatientUsagePaying, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_patient_usage_pay_failed", DBOP_FUN_ApiSetPatientUsagePayFailed, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_patient_usage_completed", DBOP_FUN_ApiSetPatientUsageCompleted, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/create_emergency_usage", DBOP_FUN_ApiCreateEmergencyUsage, &DBOP_VAR_Main_cfg);
 
     // 绑定到 0.0.0.0:DBOP_GLV_serverPort
     if (evhttp_bind_socket(DBOP_VAR_Main_httpServer, "0.0.0.0", atoi(DBOP_VAR_Main_cfg.DBOP_GLV_serverPort)) != 0) {
