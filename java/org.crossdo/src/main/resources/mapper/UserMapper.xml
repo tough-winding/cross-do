@@ -8,7 +8,7 @@
         <id property="userId" column="user_id" jdbcType="CHAR"/>
         <result property="userPermission" column="user_permission" jdbcType="INTEGER"/>
         <result property="userName" column="user_name" jdbcType="VARCHAR"/>
-        <result property="passwd" column="passwd" jdbcType="VARCHAR"/>
+        <result property="passwd" column="user_password" jdbcType="VARCHAR"/>
         <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
         <result property="realName" column="real_name" jdbcType="VARCHAR"/>
         <result property="idCard" column="id_card" jdbcType="CHAR"/>
@@ -23,15 +23,16 @@
         <result property="registrationDate" column="registration_date" jdbcType="TIMESTAMP"/>
         <result property="loginTime" column="login_time" jdbcType="TIMESTAMP"/>
         <result property="currentDisputeId" column="current_dispute_id" jdbcType="CHAR"/>
+        <result property="totalDonationAmount" column="total_donation_amount" jdbcType="DECIMAL"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         user_id
         ,user_permission,user_name,
-        passwd,avatar,real_name,
+        user_password,avatar,real_name,
         id_card,personal_note,real_name_authentication,
         user_status,existing_projects,project_id,
         weixin_openid,phone_number,user_age,
-        registration_date,login_time,current_dispute_id
+        registration_date,login_time,current_dispute_id,total_donation_amount
     </sql>
 </mapper>

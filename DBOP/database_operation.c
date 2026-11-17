@@ -534,6 +534,7 @@ void DBOP_FUN_DestroyRedisPool(RedisPool* pool) {
 
 bool DBOP_FUN_AuthenticateRequest(const AppConfig* DBOP_VAR_AuthenticateRequest_appConfig, const char* DBOP_VAR_AuthenticateRequest_serviceName, const char* DBOP_VAR_AuthenticateRequest_authToken) {
     bool DBOP_VAR_AuthenticateRequest_isAuthenticated = false;
+    if (!DBOP_VAR_AuthenticateRequest_serviceName || !DBOP_VAR_AuthenticateRequest_authToken) return false;
     
     // 线程安全的随机数生成
     unsigned int seed = (unsigned int)pthread_self();
@@ -5773,8 +5774,20 @@ void DBOP_FUN_ApiUpdateAuditVolunteer(struct evhttp_request *DBOP_VAR_ApiUpdateA
 // ------------------------mysql更新审计志愿者ID api逻辑结束----------------------------
 
 
-int main() { 
-    AppConfig DBOP_VAR_Main_cfg = DBOP_FUN_MainConfigParse("config/config.yaml"); //初始化结构体
+#include "workflow_routes.h"
+
+/* These writes target the pre-migration JSON blobs and bypass review events.
+ * Reject them explicitly so an old caller cannot receive a misleading success. */
+static void DBOP_FUN_RetiredProjectWrite(struct evhttp_request *request, void *config) {
+    (void)config;
+    json_t *body = json_pack("{s:i,s:s}", "status", 410, "message",
+        "Legacy writes retired; use authenticated /workflow actions");
+    wf_response(request, 410, body);
+    json_decref(body);
+}
+
+int main(int argc, char **argv) {
+    AppConfig DBOP_VAR_Main_cfg = DBOP_FUN_MainConfigParse(argc > 1 ? argv[1] : "config/db_config.yaml"); //初始化结构体
     struct event_base *DBOP_VAR_Main_eventBase = event_base_new();
     struct evhttp *DBOP_VAR_Main_httpServer = evhttp_new(DBOP_VAR_Main_eventBase);
     
@@ -5807,47 +5820,51 @@ int main() {
     DBOP_FUN_InitializeConnPool(&DBOP_VAR_Main_cfg);
 
     // 路径路由
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/user/add", DBOP_FUN_ApiAddUser, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/user/add", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
     evhttp_set_cb(DBOP_VAR_Main_httpServer, "/auth/get_service_passwd", DBOP_FUN_ApiGetServicePasswd, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/project/create", DBOP_FUN_ApiCreateProject, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/user/update_login_time", DBOP_FUN_ApiUpdateLoginTime, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/user/update_info", DBOP_FUN_ApiUpdateUserInfo, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/user/update_phone", DBOP_FUN_ApiUpdateUserPhone, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/user/update_weixin", DBOP_FUN_ApiUpdateUserWeixinId, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/user/update_permission", DBOP_FUN_ApiUpdateUserPermission, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/user/update_password", DBOP_FUN_ApiUpdateUserPasswd, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/project/update_verification_record", DBOP_FUN_ApiUpdateVerificationRecord, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/project/update_status", DBOP_FUN_ApiUpdateProjectStatus, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/project/update_pathography", DBOP_FUN_ApiUpdateProjectPathography, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/project/update_project_volunteer", DBOP_FUN_ApiUpdateProjectVolunteer, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/create_donation", DBOP_FUN_ApiMakeDonation, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_payment_failed", DBOP_FUN_ApiMarkPaymentFailed, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_payment_processing", DBOP_FUN_ApiMarkPaymentProcessing, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_payment_process_failed", DBOP_FUN_ApiMarkPaymentProcessFailed, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_payment_refunding", DBOP_FUN_ApiMarkPaymentRefunding, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_payment_refund_failed", DBOP_FUN_ApiMarkPaymentRefundFailed, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_payment_refund_completed", DBOP_FUN_ApiMarkPaymentRefundCompleted, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_payment_completed", DBOP_FUN_ApiMarkPaymentCompleted, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/create_refund_pending_selection", DBOP_FUN_ApiCreateRefundPendingSelection, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_type_refund", DBOP_FUN_ApiMarkRefundSelected, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_refund_failed", DBOP_FUN_ApiMarkRefundFailed, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_refund_completed", DBOP_FUN_ApiMarkRefundCompleted, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_type_emergency_pool", DBOP_FUN_ApiMarkEmergencyPool, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/create_patient_usage", DBOP_FUN_ApiCreatePatientUsage, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_patient_usage_process_failed", DBOP_FUN_ApiSetPatientUsageProcessFailed, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_patient_usage_paying", DBOP_FUN_ApiSetPatientUsagePaying, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_patient_usage_pay_failed", DBOP_FUN_ApiSetPatientUsagePayFailed, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_patient_usage_completed", DBOP_FUN_ApiSetPatientUsageCompleted, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/create_emergency_usage", DBOP_FUN_ApiCreateEmergencyUsage, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_emergency_usage_process_failed", DBOP_FUN_ApiSetEmergencyUsageProcessFailed, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_emergency_usage_paying", DBOP_FUN_ApiSetEmergencyUsagePaying, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_emergency_usage_pay_failed", DBOP_FUN_ApiSetEmergencyUsagePayFailed, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_emergency_usage_unverified", DBOP_FUN_ApiSetEmergencyUsageUnverified, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_emergency_usage_verified", DBOP_FUN_ApiSetEmergencyUsageVerified, &DBOP_VAR_Main_cfg);
-    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/update_audit_volunteer", DBOP_FUN_ApiUpdateAuditVolunteer, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/project/create", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/user/update_login_time", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/user/update_info", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/user/update_phone", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/user/update_weixin", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/user/update_permission", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/user/update_password", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/project/update_verification_record", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/project/update_status", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/project/update_pathography", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/project/update_project_volunteer", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/create_donation", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_payment_failed", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_payment_processing", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_payment_process_failed", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_payment_refunding", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_payment_refund_failed", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_payment_refund_completed", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_payment_completed", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/create_refund_pending_selection", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_type_refund", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_refund_failed", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_refund_completed", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_type_emergency_pool", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/create_patient_usage", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_patient_usage_process_failed", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_patient_usage_paying", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_patient_usage_pay_failed", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_patient_usage_completed", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/create_emergency_usage", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_emergency_usage_process_failed", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_emergency_usage_paying", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_emergency_usage_pay_failed", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_emergency_usage_unverified", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/set_status_emergency_usage_verified", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+    evhttp_set_cb(DBOP_VAR_Main_httpServer, "/ledger/update_audit_volunteer", DBOP_FUN_RetiredProjectWrite, &DBOP_VAR_Main_cfg);
+
+    wf_register_routes(DBOP_VAR_Main_httpServer, &DBOP_VAR_Main_cfg);
 
     // 绑定到 0.0.0.0:DBOP_GLV_serverPort
-    if (evhttp_bind_socket(DBOP_VAR_Main_httpServer, "0.0.0.0", atoi(DBOP_VAR_Main_cfg.DBOP_GLV_serverPort)) != 0) {
+    const char *bind_address = getenv("CROSSDO_BIND_ADDRESS");
+    if (!bind_address || !*bind_address) bind_address = "0.0.0.0";
+    if (evhttp_bind_socket(DBOP_VAR_Main_httpServer, bind_address, atoi(DBOP_VAR_Main_cfg.DBOP_GLV_serverPort)) != 0) {
         dzlog_error("Failed to bind to port %s", DBOP_VAR_Main_cfg.DBOP_GLV_serverPort);
         return 1;
     }

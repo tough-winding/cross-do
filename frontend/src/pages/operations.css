@@ -1,0 +1,67 @@
+.operations-page { --ops-line: #e1e6dc; --ops-green: #315b48; max-width: 1260px; }
+.operations-page .page-heading h1 { font-size: clamp(24px, 3vw, 34px); }
+.ops-stack { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.ops-tabs, .ops-toolbar, .ops-row-actions, .ops-card-top, .ops-pagination { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ops-tabs { padding-bottom: 14px; border-bottom: 1px solid var(--ops-line); margin-bottom: 22px; }
+.ops-tabs button { border: 1px solid transparent; border-radius: 10px; padding: 10px 15px; background: transparent; color: #687466; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; font: inherit; font-size: 13px; }
+.ops-tabs button[aria-selected=true] { background: #e7eddf; color: #2e503d; border-color: #d8e2d0; font-weight: 650; }
+.ops-tabs button:focus-visible { outline: 2px solid #456e55; outline-offset: 3px; }
+.ops-toolbar { justify-content: space-between; margin-bottom: 18px; }
+.ops-toolbar label { font-size: 13px; color: #62705f; }
+.ops-toolbar input, .ops-toolbar select { max-width: 100%; }
+.ops-search { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; max-width: 520px; }
+.ops-search input { flex: 1; min-width: 140px; }
+.operations-page input, .operations-page select, .operations-page textarea { width: 100%; border: 1px solid #d7dfd1; background: #fffefa; border-radius: 9px; padding: 11px 12px; font: inherit; font-size: 14px; color: #263e2f; min-width: 0; }
+.operations-page textarea { resize: vertical; min-height: 94px; line-height: 1.7; }
+.operations-page input:focus, .operations-page select:focus, .operations-page textarea:focus { outline: 2px solid #bcccb1; outline-offset: 1px; }
+.ops-filters { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.ops-filters select { width: auto; min-width: 130px; }
+.ops-card { padding: 24px; background: #fffefa; border: 1px solid var(--ops-line); border-radius: 15px; min-width: 0; }
+.ops-card-top { justify-content: space-between; align-items: flex-start; margin-bottom: 13px; }
+.ops-card h2, .ops-card h3 { margin: 0; font-size: 17px; font-weight: 650; color: #2f4837; line-height: 1.5; }
+.ops-card p { line-height: 1.75; }
+.ops-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 12px; color: #7b8275; margin: 8px 0; }
+.ops-meta span, .ops-id { overflow-wrap: anywhere; }
+.ops-id { font-family: ui-monospace, monospace; font-size: 11px; letter-spacing: .015em; color: #7d8978; }
+.ops-copy { color: #4d5b4c; white-space: pre-wrap; overflow-wrap: anywhere; margin: 12px 0; font-size: 14px; }
+.ops-muted { font-size: 12px; color: #7a8574; line-height: 1.7; }
+.ops-badge { display: inline-flex; align-items: center; padding: 5px 9px; border-radius: 20px; white-space: nowrap; font-size: 11px; background: #eef0ea; color: #64725e; }
+.ops-badge.tone-green { background: #e7f0df; color: #476a38; }
+.ops-badge.tone-amber { background: #f8f0db; color: #967321; }
+.ops-badge.tone-red { background: #fae9e1; color: #a36143; }
+.ops-badge-row { display: flex; flex-wrap: wrap; gap: 7px; }
+.ops-row-actions { margin-top: 16px; }
+.ops-row-actions .button { font-size: 12px; min-height: 37px; padding: 8px 13px; }
+.ops-form { border-top: 1px solid var(--ops-line); margin-top: 18px; padding-top: 18px; display: flex; flex-direction: column; gap: 15px; }
+.ops-form .field { margin-bottom: 0; }
+.ops-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; }
+.ops-selection { border-color: #a8bf99; box-shadow: 0 0 0 2px #e7efdf; }
+.ops-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.ops-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 15px; margin-bottom: 22px; }
+.ops-metric { background: #fffefa; border: 1px solid var(--ops-line); border-radius: 15px; padding: 21px; display: flex; flex-direction: column; gap: 13px; }
+.ops-metric > span { color: #6b7963; font-size: 12px; }
+.ops-metric strong { font-size: 31px; color: #34543c; font-weight: 600; }
+.ops-metric svg { color: #7b966b; }
+.ops-pagination { justify-content: space-between; margin-top: 22px; }
+.ops-pagination > span { font-size: 12px; color: #77816d; }
+.ops-notice-card { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: 14px; }
+.ops-notice-icon { width: 36px; height: 36px; background: #edf2e5; color: #678254; border-radius: 10px; display: grid; place-items: center; }
+.ops-notice-card.is-unread { border-left: 3px solid #698a52; }
+.ops-notice-card.is-read { background: #f8f8f2; }
+.ops-notice-card time { color: #899080; font-size: 11px; }
+.ops-detail-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .8fr); gap: 22px; align-items: start; }
+.ops-event-list { list-style: none; padding: 0; margin: 14px 0 0; }
+.ops-event-list li { padding: 10px 0 10px 15px; border-left: 2px solid #dce6d2; margin-bottom: 6px; }
+.ops-event-list strong { font-size: 13px; font-weight: 600; color: #49613c; }
+.ops-event-list p { margin: 5px 0; font-size: 13px; color: #64705b; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ops-event-list time { font-size: 11px; color: #8b9381; }
+.ops-table-wrap { width: 100%; overflow-x: auto; border: 1px solid var(--ops-line); border-radius: 12px; background: #fffefa; }
+.ops-table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 13px; }
+.ops-table th, .ops-table td { padding: 15px 17px; border-bottom: 1px solid #e8ecdf; text-align: left; }
+.ops-table th { font-size: 11px; color: #7f8974; font-weight: 500; background: #f2f5eb; }
+.ops-table td { color: #4d6242; }
+.ops-table tr:last-child td { border-bottom: 0; }
+.ops-amount { font-size: 22px; color: #416233; font-variant-numeric: tabular-nums; }
+.ops-inline-link { color: #426335; font-weight: 500; font-size: 13px; display: inline-flex; gap: 5px; align-items: center; }
+@media (max-width: 850px) { .ops-detail-grid { grid-template-columns: 1fr; } .ops-grid { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .ops-card { padding: 18px; } .ops-tabs { gap: 4px; } .ops-tabs button { padding: 9px 10px; font-size: 12px; } .ops-form-grid { grid-template-columns: 1fr; } .ops-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ops-toolbar { align-items: stretch; } .ops-search { max-width: none; } .ops-pagination .button { padding: 8px 10px; font-size: 12px; } .ops-row-actions { align-items: stretch; } }

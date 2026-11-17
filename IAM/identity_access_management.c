@@ -587,7 +587,9 @@ int main() {
     IAM_GLV_tokenRefreshEvent = event_new(IAM_VAR_Main_eventBase, -1, EV_PERSIST, IAM_FUN_TokenRefreshCallback, &IAM_VAR_Main_cfg);
     evtimer_add(IAM_GLV_tokenRefreshEvent, &IAM_VAR_Main_TokenRefreshTime);
 
-    if (evhttp_bind_socket(IAM_VAR_Main_httpServer, "0.0.0.0", atoi(IAM_VAR_Main_cfg.IAM_GLV_serverPort)) != 0) {
+    const char *bind_address = getenv("CROSSDO_BIND_ADDRESS");
+    if (!bind_address || !*bind_address) bind_address = "0.0.0.0";
+    if (evhttp_bind_socket(IAM_VAR_Main_httpServer, bind_address, atoi(IAM_VAR_Main_cfg.IAM_GLV_serverPort)) != 0) {
         // 这里后面要补错误处理逻辑
         // watting to do
         dzlog_error("Failed to bind socket to port %s. Exiting.", IAM_VAR_Main_cfg.IAM_GLV_serverPort);

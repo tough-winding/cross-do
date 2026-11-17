@@ -1,0 +1,33 @@
+# Build output
+**/target/
+*.exe
+
+# Local configuration and runtime state
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.log
+logs/
+
+# Editors and operating systems
+.idea/
+.vscode/
+*.swp
+.DS_Store
+/build/
+__pycache__/
+*.pyc
+
+# Frontend dependencies and generated assets
+/frontend/node_modules/
+/frontend/dist/
+/frontend/test-results/
+/frontend/playwright-report/
+/frontend/artifacts/
+**/var/uploads/
+
+# Host deployment configuration (commit templates only)
+/deploy/local/
+*.sql.gz
+*.sql.bak

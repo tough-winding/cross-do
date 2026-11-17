@@ -1,0 +1,4 @@
+server:
+  error:
+    include-message: never
+    include-stacktrace: never

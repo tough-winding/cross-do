@@ -2,7 +2,7 @@ package org.crossdo.mapper;
 
 import org.crossdo.entity.Dispute;
 
-import com.baomidou.mybatisplus.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
  * @author dollydays

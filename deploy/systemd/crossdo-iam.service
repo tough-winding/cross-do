@@ -1,0 +1,23 @@
+[Unit]
+Description=Cross-do service authentication
+Wants=network-online.target crossdo-dbop.service
+After=network-online.target redis-server.service crossdo-dbop.service
+
+[Service]
+Type=simple
+User=crossdo
+Group=crossdo
+WorkingDirectory=/etc/crossdo/iam
+Environment=CROSSDO_BIND_ADDRESS=127.0.0.1
+ExecStart=/opt/crossdo/current/bin/iam
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/log/crossdo /var/lib/crossdo
+
+[Install]
+WantedBy=multi-user.target

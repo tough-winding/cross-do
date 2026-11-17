@@ -1,13 +1,15 @@
-server_port: 1900
-log_file: /home/cross/logs/database_operation/
-log_config: /home/cross/config/zlog.conf
-database_ip: 192.168.1.1
-database_port: 3306
-database_privilege_user: root
-database_privilege_password: 123456
-database_pool_size: 10
-user_database_name: cross-do
-redis_server: 192.168.1.2
-redis_port: 6379
-redis_password: 123456
-redis_pool_size: 10
+# Local placeholders; production templates and instructions: deploy/ and DEPLOYMENT.md.
+# These values are read literally; shell environment variables are not expanded.
+server_port: "1900"
+log_file: "/var/log/dbop/dbop.log"
+log_config: "DBOP/config/zlog.conf"
+database_ip: "127.0.0.1"
+database_port: "3306"
+database_privilege_user: "crossdo"
+database_privilege_password: "CHANGE_ME_DATABASE_PASSWORD"
+database_pool_size: "3"
+user_database_name: "crossdo"
+redis_server: "127.0.0.1"
+redis_port: "6379"
+redis_password: "CHANGE_ME_REDIS_PASSWORD"
+redis_pool_size: "3"

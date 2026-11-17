@@ -1,0 +1,12 @@
+# Optional legacy mapper mode; DBOP remains the default data access service.
+spring:
+  autoconfigure:
+    exclude: []
+  datasource:
+    url: ${CROSSDO_DB_URL:jdbc:mysql://127.0.0.1:3306/cross-do?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC}
+    username: ${CROSSDO_DB_USER:crossdo}
+    password: ${CROSSDO_DB_PASSWORD:}
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true

@@ -1,0 +1,5 @@
+-- Run with a database administrator. Replace the password before execution.
+-- Import schema.sql separately after this file, then service-credentials.sql.
+CREATE DATABASE IF NOT EXISTS crossdo CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+CREATE USER 'crossdo_app'@'127.0.0.1' IDENTIFIED BY 'CHANGE_ME_DATABASE_PASSWORD';
+GRANT SELECT, INSERT, UPDATE ON crossdo.* TO 'crossdo_app'@'127.0.0.1';

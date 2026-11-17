@@ -6,6 +6,7 @@
 
     <resultMap id="BaseResultMap" type="org.crossdo.entity.Project">
         <id property="projectId" column="project_id" jdbcType="CHAR"/>
+        <result property="userId" column="user_id" jdbcType="CHAR"/>
         <result property="userName" column="user_name" jdbcType="VARCHAR"/>
         <result property="userAge" column="user_age" jdbcType="TINYINT"/>
         <result property="realName" column="real_name" jdbcType="VARCHAR"/>
@@ -16,16 +17,16 @@
         <result property="questionIsVolunteerAssigned" column="question_is_volunteer_assigned" jdbcType="TINYINT"/>
         <result property="currentDisputeId" column="current_dispute_id" jdbcType="CHAR"/>
         <result property="projectCreateTime" column="project_create_time" jdbcType="TIMESTAMP"/>
-        <result property="donationPoolLimit" column="donation_pool_limit" jdbcType="INTEGER"/>
-        <result property="currentDonationsReceived" column="current_donations_received" jdbcType="INTEGER"/>
-        <result property="currentUsedDonations" column="current_used_donations" jdbcType="INTEGER"/>
+        <result property="donationPoolLimit" column="donation_pool_limit" jdbcType="DECIMAL"/>
+        <result property="currentDonationsReceived" column="current_donations_received" jdbcType="DECIMAL"/>
+        <result property="currentUsedDonations" column="current_used_donations" jdbcType="DECIMAL"/>
         <result property="lastUpdateTime" column="last_update_time" jdbcType="TIMESTAMP"/>
         <result property="pathography" column="pathography" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         project_id
-        ,user_name,user_age,
+        ,user_id,user_name,user_age,
         real_name,project_status,verification_record,
         current_volunteer,previous_volunteers,question_is_volunteer_assigned,
         current_dispute_id,project_create_time,donation_pool_limit,

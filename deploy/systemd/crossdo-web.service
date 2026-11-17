@@ -1,0 +1,24 @@
+[Unit]
+Description=Cross-do web application and API
+Wants=network-online.target crossdo-dbop.service crossdo-iam.service
+After=network-online.target redis-server.service crossdo-dbop.service crossdo-iam.service
+
+[Service]
+Type=simple
+User=crossdo
+Group=crossdo
+WorkingDirectory=/var/lib/crossdo
+EnvironmentFile=/etc/crossdo/web.env
+ExecStart=/usr/bin/java -jar /opt/crossdo/current/app/crossdo.jar
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=45
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/log/crossdo /var/lib/crossdo
+
+[Install]
+WantedBy=multi-user.target

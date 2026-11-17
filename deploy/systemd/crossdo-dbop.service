@@ -1,0 +1,23 @@
+[Unit]
+Description=Cross-do database workflow service
+Wants=network-online.target
+After=network-online.target mysql.service redis-server.service
+
+[Service]
+Type=simple
+User=crossdo
+Group=crossdo
+WorkingDirectory=/var/lib/crossdo
+Environment=CROSSDO_BIND_ADDRESS=127.0.0.1
+ExecStart=/opt/crossdo/current/bin/dbop /etc/crossdo/dbop.yaml
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/log/crossdo /var/lib/crossdo
+
+[Install]
+WantedBy=multi-user.target

@@ -2,6 +2,25 @@ spring:
   application:
     name: cross-do
   profiles:
-    active: dev
+    default: dev
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration
+  redis:
+    host: ${SPRING_REDIS_HOST:127.0.0.1}
+    port: ${SPRING_REDIS_PORT:6379}
+    password: ${SPRING_REDIS_PASSWORD:}
+    timeout: 2s
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
+crossdo:
+  dbop:
+    base-url: ${CROSSDO_DBOP_URL:http://127.0.0.1:1900}
+  iam:
+    base-url: ${CROSSDO_IAM_URL:http://127.0.0.1:10089}
+  service:
+    name: ${CROSSDO_SERVICE_NAME:CROSSDO_WEB}
+    password: ${CROSSDO_SERVICE_PASSWORD:}
+  session:
+    ttl: ${CROSSDO_SESSION_TTL:PT2H}

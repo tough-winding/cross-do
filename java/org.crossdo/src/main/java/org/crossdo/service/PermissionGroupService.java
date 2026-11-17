@@ -2,7 +2,7 @@ package org.crossdo.service;
 
 import org.crossdo.entity.PermissionGroup;
 
-import com.baomidou.mybatisplus.service.IService;
+import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * @author dollydays

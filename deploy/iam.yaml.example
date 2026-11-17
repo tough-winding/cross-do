@@ -1,0 +1,11 @@
+# Copy to /etc/crossdo/iam/config/iam_config.yaml.
+# IAM reads config/iam_config.yaml relative to its WorkingDirectory.
+redis_server: "127.0.0.1"
+redis_port: "6379"
+redis_password: "CHANGE_ME_REDIS_PASSWORD"
+dbop_service_url: "127.0.0.1"
+dbop_service_port: "1900"
+# Binding is controlled by CROSSDO_BIND_ADDRESS in the systemd unit.
+server_ip: "127.0.0.1"
+server_port: "10089"
+log_config: "/etc/crossdo/iam-zlog.conf"
